@@ -9,6 +9,10 @@ updates:
         dependency-type: development
       production-dependencies:
         dependency-type: production
+    ignore:
+      # Majors are migrated deliberately (Astro 7, TypeScript 7, ...), not auto-bumped
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
