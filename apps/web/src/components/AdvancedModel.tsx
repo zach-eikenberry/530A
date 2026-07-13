@@ -62,6 +62,7 @@ export default function AdvancedModel() {
 
   // Restore from ?s= (and comparison scenarios from ?s2=, ?s3=) on mount
   useEffect(() => {
+    document.getElementById('model-skeleton')?.remove()
     const params = new URLSearchParams(window.location.search)
     const s = params.get('s')
     if (s) {

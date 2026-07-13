@@ -15,6 +15,13 @@ const description =
       in the shareable link — nothing is uploaded or stored.
     </p>
   </section>
-  {/* client:only — the island reads window.location.search, so no prerender */}
-  <AdvancedModel client:only="preact" />
+  {/* client:only (island reads window.location.search). The wrapper reserves
+      a viewport of height so hydration never shifts visible layout (CLS);
+      the island removes the skeleton on mount. */}
+  <div style="min-height: 100vh;">
+    <div id="model-skeleton" class="card" aria-hidden="true">
+      <p class="muted" style="margin: 0;">Loading the model…</p>
+    </div>
+    <AdvancedModel client:only="preact" />
+  </div>
 </Base>
