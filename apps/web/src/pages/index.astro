@@ -1,37 +1,84 @@
 ---
-import { DEFAULTS, RULES_VERIFIED_AT } from '@530a/config'
-import { formatMoney } from '@530a/engine'
-import { colors, font } from '@530a/ui'
+import { CANONICAL_LINKS, CANONICAL_ORIGIN, RULES_VERIFIED_AT } from '@530a/config'
+import Widget from '../components/Widget'
+import Base from '../layouts/Base.astro'
 
-// Phase 0 "hello" page: proves the monorepo wiring (config → engine → ui → web)
-// end-to-end before any real UI ships in Phase 2.
-const seed = formatMoney(100_000n)
-const c = colors.light
+const title = '530A Model — free calculator for 530A "Trump Accounts"'
+const description =
+  'See what your child’s 530A account could be worth at 18, 36, or 72. Free, private, no login — every eligible child born 2025–2028 gets a $1,000 federal seed.'
+
+const webAppLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: '530A Model',
+  url: CANONICAL_ORIGIN,
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  description,
+}
+
+const howToLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to open a 530A (Trump Account) for your child',
+  step: [
+    {
+      '@type': 'HowToStep',
+      name: 'Check eligibility',
+      text: 'U.S.-citizen children with a Social Security number qualify; children born January 1, 2025 through December 31, 2028 also receive a one-time $1,000 federal seed.',
+    },
+    {
+      '@type': 'HowToStep',
+      name: 'Open the account',
+      text: `Open an account at trumpaccounts.gov, with IRS Form 4547, or through the Treasury's Trump Accounts application.`,
+    },
+    {
+      '@type': 'HowToStep',
+      name: 'Contribute (from July 4, 2026)',
+      text: 'Contribute up to $5,000 per child per year from any source; employers may add up to $2,500 within that cap. Funds grow tax-deferred in a low-cost S&P 500 index fund.',
+    },
+  ],
+}
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>530A Model — coming soon</title>
-    <meta
-      name="description"
-      content="A free, privacy-first calculator for 530A custodial retirement accounts."
-    />
-  </head>
-  <body style={`font-family:${font.family}; color:${c.text}; background:${c.background}; margin:0;`}>
-    <main style="max-width: 40rem; margin: 15vh auto 0; padding: 0 1.25rem;">
-      <h1 style={`color:${c.trustBlueDark};`}>530A Model</h1>
-      <p>
-        A free scenario-planning calculator for 530A custodial retirement accounts is on its way.
-        Every eligible child born 2025–2028 gets a {seed} federal seed — soon you'll be able to see
-        what it could grow into.
-      </p>
-      <p style={`color:${c.textMuted}; font-size:${font.size.sm};`}>
-        Rules verified as of {RULES_VERIFIED_AT}. Default assumption: {DEFAULTS.annualRealReturn * 100}% real
-        annual return. Estimates only — not financial advice.
-      </p>
-    </main>
-  </body>
-</html>
+<Base title={title} description={description} path="/" jsonLd={[webAppLd, howToLd]}>
+  <section style="padding: 2.5rem 0 1.5rem;">
+    <h1 style="font-size: 2.1rem; margin: 0 0 0.5rem;">
+      What could your child's <span style="color: var(--trust-blue);">530A account</span> be worth?
+    </h1>
+    <p style="font-size: 1.05rem; max-width: 38rem;">
+      Every eligible U.S. child born 2025–2028 gets a <strong>$1,000 federal seed</strong> in a new
+      tax-advantaged investment account. Small contributions now compound for decades. Drag the
+      sliders — see the answer in seconds.
+    </p>
+  </section>
+
+  <Widget client:load />
+
+  <section style="padding: 2.5rem 0 0;">
+    <h2>What is a 530A account?</h2>
+    <p>
+      A 530A custodial account (marketed as a “Trump Account”) is a tax-advantaged investment
+      account for minors created by the One Big Beautiful Bill Act of 2025. Money is invested in a
+      low-cost S&amp;P 500 index fund, grows tax-deferred, and belongs to the child at 18, when it
+      behaves like a Traditional IRA. Anyone — parents, relatives, employers, even charities — can
+      contribute up to a combined $5,000 per child per year.
+    </p>
+    <p>
+      <a href="/faq">Read the FAQ</a> or check the
+      <a href={CANONICAL_LINKS.statute}>statute</a> and other primary sources on our
+      <a href="/resources">Resources</a> page. Rules verified as of {RULES_VERIFIED_AT}.
+    </p>
+  </section>
+
+  <section>
+    <h2>Why trust these numbers?</h2>
+    <p>
+      The calculator's math is open source, tested against an independent reference implementation
+      to the cent, and every projection is labeled for what it is: an estimate with an honest
+      range, never a promise. Your inputs never leave your device — there's no login, no tracking
+      cookies, and nothing to sign up for. <a href="/why-free">Why is this free?</a>
+    </p>
+  </section>
+</Base>

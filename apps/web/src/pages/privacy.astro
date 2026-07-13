@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro'
+
+const title = 'Privacy — 530A Model'
+const description =
+  'Privacy policy for 530amodel.com: no accounts, no cookies, no personal data collected. Calculations run entirely in your browser.'
+---
+
+<Base title={title} description={description} path="/privacy">
+  <section style="padding: 2rem 0 0;">
+    <h1>Privacy</h1>
+    <p class="muted">Effective July 2026.</p>
+
+    <h2>The short version</h2>
+    <p>
+      We don't want your data. There are no accounts, no tracking cookies, no email capture, and
+      no advertising. Your calculator inputs are processed entirely in your browser and are never
+      sent to a server.
+    </p>
+
+    <h2>What we do measure</h2>
+    <ul>
+      <li>
+        <strong>Cookieless page analytics</strong> (Cloudflare Web Analytics): aggregate page
+        views and performance, with no cookies and no cross-site tracking.
+      </li>
+      <li>
+        <strong>Anonymous usage events</strong>: counts like “a scenario was modeled,” with no
+        identifiers and no ability to link events to a person. These power public aggregate stats.
+      </li>
+      <li>
+        <strong>Error reports</strong>: if the site crashes, an automated error report may be sent
+        so we can fix it; reports are scrubbed of anything identifying.
+      </li>
+    </ul>
+
+    <h2>Shared links</h2>
+    <p>
+      A “share” link encodes the scenario numbers in the URL itself. We don't store it — anyone
+      you send it to can reconstruct the scenario, so share links like you'd share the numbers.
+    </p>
+
+    <h2>Children</h2>
+    <p>
+      The Site is for parents and adults planning on a child's behalf and does not knowingly
+      collect information from anyone, children included.
+    </p>
+
+    <h2>Contact</h2>
+    <p>Questions can be raised through the project's public repository.</p>
+  </section>
+</Base>

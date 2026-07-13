@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro'
+
+const title = 'Why is 530A Model free?'
+const description =
+  '530A Model is a public-good passion project: no ads, no upsells, no email capture, no data sold. Here’s why it exists and how it stays free.'
+---
+
+<Base title={title} description={description} path="/why-free">
+  <section style="padding: 2rem 0 0;">
+    <h1>Why is this free?</h1>
+    <p>
+      Because the question it answers shouldn't cost anything. Millions of families are hearing
+      about 530A accounts for the first time and deserve a fast, honest answer to “what could this
+      actually be worth for my kid?” — without handing over an email address, sitting through a
+      sales pitch, or trusting a black box.
+    </p>
+    <h2>No monetization. Really.</h2>
+    <ul>
+      <li><strong>No ads</strong>, no affiliate links, no sponsored funds.</li>
+      <li><strong>No accounts or email capture</strong> — there is nothing to sign up for.</li>
+      <li><strong>No data collection</strong> — calculations run entirely in your browser.</li>
+      <li><strong>Open source</strong> — the math is public and independently tested.</li>
+    </ul>
+    <h2>How it stays free</h2>
+    <p>
+      The site is built so that serving one visitor or a million costs nearly the same: static
+      pages on a CDN, with all calculation done on your device. Hosting costs are a few dollars a
+      month, paid personally as a public-good project.
+    </p>
+    <p>
+      If it helped you, share it with another parent. That's the whole business model.
+    </p>
+  </section>
+</Base>

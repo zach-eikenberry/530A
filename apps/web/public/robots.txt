@@ -1,0 +1,28 @@
+# 530amodel.com — AI answer-engines are explicitly welcome (§7A.1).
+# Machine-readable site map for LLMs: https://530amodel.com/llms.txt
+
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://530amodel.com/sitemap-index.xml

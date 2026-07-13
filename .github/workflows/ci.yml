@@ -41,6 +41,36 @@ jobs:
       - name: Build
         run: pnpm build
 
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @530a/web build
+      - run: pnpm --filter @530a/e2e exec playwright install --with-deps chromium
+      - run: pnpm --filter @530a/e2e e2e
+
+  lighthouse:
+    name: Lighthouse budgets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @530a/web build
+      - name: Run Lighthouse CI
+        run: pnpm dlx @lhci/cli@0.15.x autorun --config=lighthouserc.json
+
   gitleaks:
     name: Secret scan
     runs-on: ubuntu-latest
@@ -58,7 +88,7 @@ jobs:
   deploy:
     name: Deploy (Cloudflare Pages)
     if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
-    needs: [quality, gitleaks]
+    needs: [quality, gitleaks, e2e, lighthouse]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

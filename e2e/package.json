@@ -1,0 +1,19 @@
+{
+  "name": "@530a/e2e",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@530a/config": "workspace:*",
+    "@530a/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^26.1.1",
+    "typescript": "^5.9.2"
+  }
+}

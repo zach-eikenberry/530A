@@ -1,0 +1,59 @@
+---
+import { CANONICAL_LINKS, FUNDS, RULES_VERIFIED_AT } from '@530a/config'
+import Base from '../layouts/Base.astro'
+
+const title = '530A Resources — primary sources and how to open an account'
+const description =
+  'Primary sources for 530A “Trump Account” rules: the statute, IRS guidance, CRS and SEC explainers, and where to open an account.'
+---
+
+<Base title={title} description={description} path="/resources">
+  <section style="padding: 2rem 0 0.5rem;">
+    <h1>Resources</h1>
+    <p>
+      Everything this site claims traces back to a primary source. Rules verified as of
+      {RULES_VERIFIED_AT}.
+    </p>
+  </section>
+
+  <section>
+    <h2>Primary sources</h2>
+    <ul>
+      <li><a href={CANONICAL_LINKS.statute}>IRC §530A — the statute</a> (uscode.house.gov)</li>
+      <li><a href={CANONICAL_LINKS.irsNotice}>IRS Notice 2025-68</a> (irs.gov)</li>
+      <li><a href={CANONICAL_LINKS.crsOverview}>Congressional Research Service overview R48910</a></li>
+      <li><a href={CANONICAL_LINKS.secExplainer}>SEC investor explainer</a> (investor.gov)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Open an account</h2>
+    <ul>
+      <li><a href={CANONICAL_LINKS.openAccount}>trumpaccounts.gov</a></li>
+      <li>{CANONICAL_LINKS.irsForm}</li>
+      <li>The Treasury "Trump Accounts" application</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Eligible funds</h2>
+    <p>
+      The statute requires a low-cost S&amp;P 500 index fund with capped fees. The default fund
+      this calculator models:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Ticker</th><th>Fund</th><th>Expense ratio</th></tr>
+      </thead>
+      <tbody>
+        {FUNDS.map((f) => (
+          <tr>
+            <td><a href={f.trackerUrl}>{f.ticker}</a>{f.isDefault ? ' (default)' : ''}</td>
+            <td>{f.name}</td>
+            <td>{(f.expenseRatio * 100).toFixed(2)}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+</Base>

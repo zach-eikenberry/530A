@@ -1,0 +1,135 @@
+/* Design tokens (mirrors packages/ui tokens.ts) — trust blue + growth green,
+   silver/gold accents, mobile-first, light/dark, WCAG-AA contrast. */
+
+:root {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --trust-blue: #1d4ed8;
+  --trust-blue-dark: #1e3a8a;
+  --growth-green: #15803d;
+  --growth-green-light: #22c55e;
+  --accent-silver: #94a3b8;
+  --accent-gold: #b45309;
+  --border: #e2e8f0;
+  --warning: #b45309;
+  --error: #b91c1c;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1120;
+    --surface: #111a2e;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --trust-blue: #60a5fa;
+    --trust-blue-dark: #3b82f6;
+    --growth-green: #4ade80;
+    --growth-green-light: #86efac;
+    --accent-silver: #64748b;
+    --accent-gold: #fbbf24;
+    --border: #1e293b;
+    --warning: #fbbf24;
+    --error: #f87171;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  color: var(--text);
+}
+
+a {
+  color: var(--trust-blue);
+}
+
+.btn {
+  display: inline-block;
+  background: var(--trust-blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--trust-blue-dark);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--trust-blue);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip-link:focus {
+  position: static;
+}
