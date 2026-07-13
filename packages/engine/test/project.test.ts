@@ -213,7 +213,7 @@ describe('project — properties', () => {
     )
   })
 
-  it('non-negativity and percumulative growth: balances never negative, never exceed cap-free upper bound', () => {
+  it('non-negativity: balances are never negative at any step', () => {
     fc.assert(
       fc.property(amounts, (amount) => {
         const p = project(baseScenario({ sources: [monthlySource('p', amount)] }))
