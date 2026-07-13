@@ -68,8 +68,7 @@ export default function Walkthrough() {
           <div style="display: flex; gap: 0.5rem;">
             <button
               type="button"
-              class="card"
-              style="cursor: pointer;"
+              class="btn btn-ghost btn-sm"
               onClick={dismiss}
               data-testid="tour-skip"
             >
@@ -77,8 +76,7 @@ export default function Walkthrough() {
             </button>
             <button
               type="button"
-              class="btn"
-              style="cursor: pointer;"
+              class="btn btn-gold btn-sm"
               data-testid="tour-next"
               onClick={() => (step + 1 < STEPS.length ? setStep(step + 1) : dismiss())}
             >

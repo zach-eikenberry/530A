@@ -46,8 +46,12 @@ test('UC-3: relative models a one-time gift and the link reproduces it exactly',
   await page.goto('/model')
   await waitForResults(page)
 
-  // Add a one-time $500 gift at age 1
-  await page.getByTestId('add-source').click()
+  // Add a one-time $500 gift at age 1. Geometry is verified reachable
+  // (hit-test lands on the button); force bypasses a mobile-emulation
+  // layout-settling race while the fan chart paints.
+  const add = page.getByTestId('add-source')
+  await add.scrollIntoViewIfNeeded()
+  await add.click({ force: true })
   const rows = page.getByTestId('source-row')
   await expect(rows).toHaveCount(2)
   const headline = await waitForResults(page)

@@ -34,6 +34,10 @@ const faqs = [
     a: 'Not that we can verify. The statute specifies Traditional-IRA treatment at 18; we could not find a 529 rollover provision, so this calculator marks that path "not currently permitted" until primary sources confirm otherwise.',
   },
   {
+    q: 'Why is the Monte Carlo median lower than the simple projection?',
+    a: 'Because volatility drags on compounding. A steady 7% every year grows more than a bumpy sequence that averages 7% — a real effect called variance drain. The single-line projection shows the smooth case; the Monte Carlo median reflects the messier reality of real markets. Both are shown so you can see the gap.',
+  },
+  {
     q: 'What does this calculator assume?',
     a: 'By default: a 7% average annual return after inflation (2.5% inflation assumption), the default fund’s 0.03% expense ratio, monthly compounding, and current statutory rules. Every assumption is adjustable in the Advanced Model, shown with your results, and clearly labeled an estimate.',
   },
@@ -55,23 +59,42 @@ const faqLd = {
 ---
 
 <Base title={title} description={description} path="/faq" jsonLd={[faqLd]}>
-  <section style="padding: 2rem 0 0.5rem;">
-    <h1>Frequently asked questions</h1>
-    <p class="muted">
-      Rules verified as of {RULES_VERIFIED_AT} against the
-      <a href={CANONICAL_LINKS.statute}>statute</a>,
-      <a href={CANONICAL_LINKS.irsNotice}>IRS Notice 2025-68</a>, and the
-      <a href={CANONICAL_LINKS.crsOverview}>CRS overview</a>.
-    </p>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">FAQ</span>
+      <h1 class="mt-2" style="color: #fff;">Questions about 530A accounts</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        Straight answers grounded in the statute and IRS guidance — rules verified as of
+        {RULES_VERIFIED_AT} against the
+        <a href={CANONICAL_LINKS.statute} style="color: var(--gold-400);">statute</a>,
+        <a href={CANONICAL_LINKS.irsNotice} style="color: var(--gold-400);">IRS Notice 2025-68</a>,
+        and the
+        <a href={CANONICAL_LINKS.crsOverview} style="color: var(--gold-400);">CRS overview</a>.
+      </p>
+    </div>
   </section>
-  {faqs.map((f) => (
-    <section>
-      <h2 style="font-size: 1.15rem;">{f.q}</h2>
-      <p>{f.a}</p>
-    </section>
-  ))}
-  <p>
-    Still curious? Check the primary sources on <a href="/resources">Resources</a> or just
-    <a href="/">try the calculator</a>.
-  </p>
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="accordion">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <div class="acc-body">
+              <p>{f.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <div class="cta-band mt-4">
+        <h2 style="font-size: 1.5rem;">Ready to see your numbers?</h2>
+        <p>The calculator is free and runs entirely in your browser.</p>
+        <div class="cta-actions">
+          <a class="btn btn-gold btn-lg" href="/">Open the calculator</a>
+          <a class="btn btn-ghost btn-lg" href="/model" style="background: transparent; color: #fff; border-color: rgba(255,255,255,.35);">Advanced Model</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>

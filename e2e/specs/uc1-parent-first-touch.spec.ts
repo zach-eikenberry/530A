@@ -75,7 +75,9 @@ test.beforeEach(async ({ page }) => {
 test('UC-1: widget → engine-exact numbers → model page handoff', async ({ page }) => {
   await page.goto('/')
 
-  // The widget renders pre-filled with a sensible example
+  // The widget renders pre-filled with a sensible example; wait for hydration
+  // before dispatching synthetic input events.
+  await expect(page.locator('.calc[data-hydrated]')).toBeVisible()
   await expect(page.getByLabel(/Child's age/i)).toBeVisible()
   const cta = page.getByTestId('widget-cta')
   await expect(cta).toBeVisible()
@@ -119,6 +121,7 @@ test('UC-1: widget → engine-exact numbers → model page handoff', async ({ pa
 
 test('UC-1: seed ineligibility is stated honestly for older children', async ({ page }) => {
   await page.goto('/')
+  await expect(page.locator('.calc[data-hydrated]')).toBeVisible()
   await page.locator('#w-age').evaluate((el) => {
     const input = el as HTMLInputElement
     input.value = '10'

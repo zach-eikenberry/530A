@@ -41,22 +41,23 @@ export default function SourcesEditor({ sources, onChange }: Props) {
     ])
 
   return (
-    <div class="card" style="display: grid; gap: 0.75rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong>Who contributes?</strong>
+    <div>
+      <div class="field-row">
+        <div class="pg-title" style="margin: 0;">
+          Who contributes?
+        </div>
         <button
           type="button"
-          class="card"
-          style="cursor: pointer; padding: 0.3rem 0.8rem;"
+          class="btn btn-ghost btn-sm"
           onClick={add}
           disabled={sources.length >= 6}
           data-testid="add-source"
         >
-          + Add contributor
+          + Add
         </button>
       </div>
       {sources.length === 0 && (
-        <p class="muted" style="margin: 0;">
+        <p class="field-hint">
           No contributions yet — with just the $1,000 seed, compounding still does something. Add a
           contributor to see more.
         </p>
@@ -64,12 +65,15 @@ export default function SourcesEditor({ sources, onChange }: Props) {
       {sources.map((s) => (
         <div
           key={s.id}
-          style="display: grid; gap: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem;"
+          class="mt-2"
+          style="border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px;"
           data-testid="source-row"
         >
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <div class="contrib-row">
             <select
+              class="input"
               value={s.kind}
+              style="flex: 1;"
               onInput={(e) =>
                 update(s.id, { kind: (e.target as HTMLSelectElement).value as SourceKind })
               }
@@ -81,7 +85,18 @@ export default function SourcesEditor({ sources, onChange }: Props) {
                 </option>
               ))}
             </select>
+            <button
+              type="button"
+              class="icon-btn"
+              onClick={() => remove(s.id)}
+              aria-label={`Remove ${KIND_LABEL[s.kind]} contribution`}
+            >
+              ✕
+            </button>
+          </div>
+          <div class="contrib-row">
             <select
+              class="input"
               value={s.scheduleType}
               aria-label="Schedule"
               onInput={(e) =>
@@ -95,14 +110,13 @@ export default function SourcesEditor({ sources, onChange }: Props) {
               <option value="annual">Once a year</option>
               <option value="once">One-time</option>
             </select>
-            <label>
-              $
+            <div class="input-money" style="flex: 1;">
               <input
+                class="input"
                 type="number"
                 min={0}
                 max={1_000_000}
                 value={s.amountDollars}
-                style="width: 6.5rem;"
                 aria-label="Amount in dollars"
                 onInput={(e) =>
                   update(s.id, {
@@ -110,31 +124,22 @@ export default function SourcesEditor({ sources, onChange }: Props) {
                   })
                 }
               />
+            </div>
+            <span class="muted" style="font-size: 0.85rem; flex: none;">
               {s.scheduleType === 'monthly' ? '/mo' : s.scheduleType === 'annual' ? '/yr' : ''}
-            </label>
-            <button
-              type="button"
-              class="card"
-              style="cursor: pointer; padding: 0.2rem 0.6rem; margin-left: auto;"
-              onClick={() => remove(s.id)}
-              aria-label={`Remove ${KIND_LABEL[s.kind]} contribution`}
-            >
-              ✕
-            </button>
+            </span>
           </div>
-          <div
-            style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;"
-            class="muted"
-          >
+          <div class="field-hint flex gap-2 wrap items-center">
             {s.scheduleType === 'once' ? (
               <label>
                 at age{' '}
                 <input
+                  class="input"
                   type="number"
                   min={0}
                   max={119}
                   value={s.atAgeYears}
-                  style="width: 4rem;"
+                  style="width: 4.5rem; padding: 6px 8px;"
                   onInput={(e) =>
                     update(s.id, { atAgeYears: Number((e.target as HTMLInputElement).value) })
                   }
@@ -143,41 +148,43 @@ export default function SourcesEditor({ sources, onChange }: Props) {
             ) : (
               <>
                 <label>
-                  from age{' '}
+                  age{' '}
                   <input
+                    class="input"
                     type="number"
                     min={0}
                     max={119}
                     value={s.startAgeYears}
-                    style="width: 4rem;"
+                    style="width: 4.2rem; padding: 6px 8px;"
                     onInput={(e) =>
                       update(s.id, { startAgeYears: Number((e.target as HTMLInputElement).value) })
                     }
                   />
                 </label>
                 <label>
-                  to age{' '}
+                  to{' '}
                   <input
+                    class="input"
                     type="number"
                     min={1}
                     max={119}
                     value={s.endAgeYears}
-                    style="width: 4rem;"
+                    style="width: 4.2rem; padding: 6px 8px;"
                     onInput={(e) =>
                       update(s.id, { endAgeYears: Number((e.target as HTMLInputElement).value) })
                     }
                   />
                 </label>
-                <label>
-                  +% per year{' '}
+                <label title="Increase the contribution by this percent each year">
+                  +%/yr{' '}
                   <input
+                    class="input"
                     type="number"
                     min={0}
                     max={20}
                     step={0.5}
                     value={s.stepUpPct}
-                    style="width: 4rem;"
-                    title="Increase the contribution by this percent each year"
+                    style="width: 4.2rem; padding: 6px 8px;"
                     onInput={(e) =>
                       update(s.id, { stepUpPct: Number((e.target as HTMLInputElement).value) })
                     }
@@ -189,7 +196,7 @@ export default function SourcesEditor({ sources, onChange }: Props) {
           </div>
         </div>
       ))}
-      <p class="muted" style="margin: 0;">
+      <p class="field-hint">
         All sources combined are capped at $5,000 per child per year — anything above shows a
         warning in the results rather than silently counting.
       </p>

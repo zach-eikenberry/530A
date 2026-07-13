@@ -8,20 +8,23 @@ const description =
 ---
 
 <Base title={title} description={description} path="/model">
-  <section style="padding: 2rem 0 1rem;">
-    <h1>Advanced Model</h1>
-    <p class="muted">
-      Every control recalculates 5,000 simulated markets on your device. The whole scenario lives
-      in the shareable link — nothing is uploaded or stored.
-    </p>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Advanced Model</span>
+      <h1 class="mt-2" style="color: #fff;">Model every detail</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        Every control recalculates 5,000 simulated markets on your device. The whole scenario
+        lives in the shareable link — nothing is uploaded or stored.
+      </p>
+    </div>
   </section>
   {/* client:only (island reads window.location.search). The wrapper reserves
       a viewport of height so hydration never shifts visible layout (CLS);
       the island removes the skeleton on mount. */}
-  <div style="min-height: 100vh;">
+  <section class="section-tight"><div class="container" style="min-height: 100vh;">
     <div id="model-skeleton" class="card" aria-hidden="true">
       <p class="muted" style="margin: 0;">Loading the model…</p>
     </div>
     <AdvancedModel client:only="preact" />
-  </div>
+  </div></section>
 </Base>

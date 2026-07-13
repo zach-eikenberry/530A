@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b2036"/><stop offset="1" stop-color="#081627"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#c29a45"/><stop offset="1" stop-color="#d8b96e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="82%" cy="8%" r="60%">
+      <stop offset="0" stop-color="#c29a45" stop-opacity=".22"/><stop offset="1" stop-color="#c29a45" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g transform="translate(96,132) scale(2.1)">
+    <path d="M24 2l16 5v13c0 12-7 20-16 24C15 40 8 32 8 20V7z" fill="#0f2a46" stroke="url(#gold)" stroke-width="1.2" opacity=".9"/>
+    <polyline points="14,30 21,23 26,27 34,16" fill="none" stroke="url(#gold)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M30 16h5v5" fill="none" stroke="url(#gold)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="228" y="200" font-family="Georgia, 'Times New Roman', serif" font-size="30" fill="#d8b96e" letter-spacing="3">530A MODEL</text>
+  <text x="96" y="316" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="74" font-weight="700" fill="#ffffff" letter-spacing="-2">What could your child's</text>
+  <text x="96" y="398" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="74" font-weight="700" fill="#ffffff" letter-spacing="-2">530A account be worth?</text>
+  <text x="96" y="470" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="31" fill="#b9c9e0">A free, open, no-tracking projection tool for Trump Accounts.</text>
+  <g transform="translate(96,512)">
+    <rect width="340" height="58" rx="12" fill="url(#gold)"/>
+    <text x="170" y="38" text-anchor="middle" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="26" font-weight="700" fill="#2a1f06">Run your numbers →</text>
+  </g>
+</svg>

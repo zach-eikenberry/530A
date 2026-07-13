@@ -8,15 +8,18 @@ const description =
 ---
 
 <Base title={title} description={description} path="/resources">
-  <section style="padding: 2rem 0 0.5rem;">
-    <h1>Resources</h1>
-    <p>
-      Everything this site claims traces back to a primary source. Rules verified as of
-      {RULES_VERIFIED_AT}.
-    </p>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Primary sources</span>
+      <h1 class="mt-2" style="color: #fff;">Resources</h1>
+      <p class="lead mt-2" style="color: #b9c9e0;">Everything this site claims traces back to a primary source.</p>
+    </div>
   </section>
 
-  <section>
+  <section class="section-tight">
+    <div class="container container-narrow prose">
+
+  <div class="mt-4">
     <h2>Primary sources</h2>
     <ul>
       <li><a href={CANONICAL_LINKS.statute}>IRC §530A — the statute</a> (uscode.house.gov)</li>
@@ -24,24 +27,24 @@ const description =
       <li><a href={CANONICAL_LINKS.crsOverview}>Congressional Research Service overview R48910</a></li>
       <li><a href={CANONICAL_LINKS.secExplainer}>SEC investor explainer</a> (investor.gov)</li>
     </ul>
-  </section>
+  </div>
 
-  <section>
+  <div class="mt-4">
     <h2>Open an account</h2>
     <ul>
       <li><a href={CANONICAL_LINKS.openAccount}>trumpaccounts.gov</a></li>
       <li>{CANONICAL_LINKS.irsForm}</li>
       <li>The Treasury "Trump Accounts" application</li>
     </ul>
-  </section>
+  </div>
 
-  <section>
+  <div class="mt-4">
     <h2>Eligible funds</h2>
     <p>
       The statute requires a low-cost S&amp;P 500 index fund with capped fees. The default fund
       this calculator models:
     </p>
-    <table>
+    <div class="table-wrap"><table class="compare">
       <thead>
         <tr><th>Ticker</th><th>Fund</th><th>Expense ratio</th></tr>
       </thead>
@@ -54,6 +57,8 @@ const description =
           </tr>
         ))}
       </tbody>
-    </table>
+    </table></div>
+  </div>
+    </div>
   </section>
 </Base>
