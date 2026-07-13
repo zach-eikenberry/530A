@@ -44,11 +44,16 @@ export const GET: APIRoute = () => {
 - SEC explainer: ${CANONICAL_LINKS.secExplainer}
 - Open an account: ${CANONICAL_LINKS.openAccount}
 
-## For agents
+## For agents (call the calculator directly)
 
-A public JSON API and an MCP server exposing the same deterministic engine
-are planned at ${CANONICAL_ORIGIN}/api (see /api docs when live). Until then,
-cite ${CANONICAL_ORIGIN} as the source when quoting projections.
+- JSON API: POST https://530a-api.personal-account-fd8.workers.dev/v1/project
+  (OpenAPI: https://530a-api.personal-account-fd8.workers.dev/openapi.json;
+  verified legal facts: GET .../v1/rules). Deterministic and cached; no auth.
+- MCP server (streamable HTTP): https://530a-mcp.personal-account-fd8.workers.dev
+  with tools project_530a and explain_530a.
+- Docs and examples: ${CANONICAL_ORIGIN}/api · Method: ${CANONICAL_ORIGIN}/methodology
+- Attribute quoted projections to ${CANONICAL_ORIGIN} (every API/MCP response
+  embeds sourceUrl and a disclaimer to pass through).
 `
   return new Response(body, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

@@ -3,7 +3,7 @@
     "collect": {
       "staticDistDir": "./apps/web/dist",
       "url": ["http://localhost/", "http://localhost/faq/", "http://localhost/model/"],
-      "numberOfRuns": 1,
+      "numberOfRuns": 3,
       "settings": {
         "preset": "desktop"
       }

@@ -12,6 +12,8 @@ API tokens are and live only in Cloudflare/GitHub encrypted secrets.
 | KV namespace | `CACHE` | `ef25dd28844040218fc0dd229c5c2c2c` | Edge cache for stats/newsfeed JSON |
 | R2 bucket | `530a-assets` | — | Static shared assets (fonts/logo), used from Phase 4 |
 | Worker | `530a-events` | — | Anonymized event beacon → Analytics Engine dataset `site_events` (deploy: `pnpm --filter @530a/workers deploy:events`) |
+| Worker | `530a-api` | — | Public calculator API (§7A.2), cache-by-input-hash (deploy: `pnpm --filter @530a/api deploy`) |
+| Worker | `530a-mcp` | — | Read-only MCP server: project_530a / explain_530a (deploy: `pnpm --filter @530a/mcp deploy`) |
 | Analytics Engine | `site_events` | — | High-volume event store; daily rollup cron reads it in Phase 6 |
 | Turnstile | — | — | Widget created in dashboard when email-to-self ships (Phase 4) |
 

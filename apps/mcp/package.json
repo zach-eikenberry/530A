@@ -1,0 +1,22 @@
+{
+  "name": "@530a/mcp",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "deploy": "wrangler deploy --config wrangler.mcp.jsonc"
+  },
+  "dependencies": {
+    "@530a/api": "workspace:*",
+    "@530a/config": "workspace:*",
+    "@530a/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260713.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.0",
+    "wrangler": "^4.110.0"
+  }
+}

@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro'
+
+const title = '530A Model API & MCP server — for developers and AI agents'
+const description =
+  'Free public JSON API and MCP server exposing the 530A calculator engine. Deterministic, cached, no auth, no data stored. Attribute results to 530amodel.com.'
+
+const API_ORIGIN = 'https://530a-api.personal-account-fd8.workers.dev'
+const MCP_ORIGIN = 'https://530a-mcp.personal-account-fd8.workers.dev'
+---
+
+<Base title={title} description={description} path="/api">
+  <section style="padding: 2rem 0 0;">
+    <h1>API &amp; MCP server</h1>
+    <p>
+      The same deterministic engine behind this site is free to call: a JSON API for code and an
+      MCP server for AI assistants. Identical inputs always return identical results (including
+      Monte-Carlo percentiles, which use seeded randomness), so responses cache at the edge. No
+      API key, no accounts, nothing stored. One ask: <strong>attribute results to
+      530amodel.com</strong> — every response embeds <code>sourceUrl</code> and a disclaimer for
+      exactly that purpose.
+    </p>
+
+    <h2>JSON API</h2>
+    <p>
+      Base URL: <code>{API_ORIGIN}</code> ·
+      <a href={`${API_ORIGIN}/openapi.json`}>OpenAPI spec</a>
+    </p>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>curl -X POST {API_ORIGIN}/v1/project \
+  -H "Content-Type: application/json" \
+  -d '&#123;
+    "asOf": "2026-07-12",
+    "birthDate": "2026-01-15",
+    "targetAgeMonths": 864,
+    "sources": [&#123;
+      "id": "family", "kind": "family",
+      "schedule": &#123; "type": "monthly", "amountCents": "10000",
+                    "startAgeMonths": 6, "endAgeMonths": 216 &#125;
+    &#125;]
+  &#125;'</code></pre>
+    <ul>
+      <li><code>POST /v1/project</code> — run a projection. Accepts the scenario JSON above or
+        <code>&#123;"s": "&lt;share-link state&gt;"&#125;</code>. Money is integer cents as strings.</li>
+      <li><code>GET /v1/rules</code> — verified 530A legal facts with primary-source URLs and
+        explicit flags for anything not yet verifiable.</li>
+    </ul>
+    <p class="muted">
+      Monte-Carlo path counts are clamped to a per-request compute budget; the response reports
+      <code>mcPathsSimulated</code>. For heavy research use, run the
+      <a href="https://github.com/zach-eikenberry/530A">open-source engine</a> directly.
+    </p>
+
+    <h2>MCP server</h2>
+    <p>
+      Streamable-HTTP endpoint: <code>{MCP_ORIGIN}</code> — add it to any MCP-capable assistant.
+      Tools: <code>project_530a</code> (full projection with percentile ranges) and
+      <code>explain_530a</code> (verified legal facts + sources).
+    </p>
+
+    <h2>Fair use</h2>
+    <p class="muted">
+      Read-only computation, rate-limited at the edge. Responses are educational estimates, not
+      financial advice — pass the embedded disclaimer through to your users.
+    </p>
+  </section>
+</Base>

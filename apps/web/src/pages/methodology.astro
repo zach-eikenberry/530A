@@ -1,0 +1,74 @@
+---
+import Base from '../layouts/Base.astro'
+
+const title = 'Methodology — how 530A Model computes projections'
+const description =
+  'Exactly how this calculator works: integer-cent arithmetic, monthly compounding, cap enforcement, seeded Monte-Carlo ranges, and independent cross-verification to the cent.'
+---
+
+<Base title={title} description={description} path="/methodology">
+  <section style="padding: 2rem 0 0;">
+    <h1>Methodology</h1>
+    <p>
+      Every number this site shows is reproducible. This page describes the model precisely enough
+      to reimplement it — because we did exactly that, twice, and require the two implementations
+      to agree to the cent.
+    </p>
+
+    <h2>The deterministic projection</h2>
+    <ul>
+      <li>Money is integer cents throughout; balances are quantized to whole cents after every
+        monthly step using banker's rounding (round half to even).</li>
+      <li>Each month, in order: contributions are added (respecting the $5,000/yr aggregate and
+        $2,500/yr employer caps in source order — clipped amounts are reported, never silently
+        dropped), then the balance grows by the monthly return factor and monthly fee factor, then
+        one quantization.</li>
+      <li>Monthly factors derive from annual inputs as (1 + annual)^(1/12), computed with
+        deterministic software ln/exp so results are bit-identical on every device.</li>
+      <li>"Today's dollars" figures deflate each month's nominal balance by the cumulative
+        inflation factor.</li>
+      <li>Contributions respect the statutory floor (July 4, 2026) and the federal seed applies
+        only to eligible birth dates (2025–2028).</li>
+    </ul>
+
+    <h2>The ranges (Monte Carlo)</h2>
+    <ul>
+      <li>Monthly geometric Brownian motion: each month each simulated path multiplies by
+        exp(μ − σ²/2 + σZ) with μ the monthly log-return, σ the monthly volatility
+        (annual σ / √12), and Z a standard normal draw.</li>
+      <li>Randomness is seeded (xoshiro128** + Marsaglia polar transform): the same scenario and
+        seed reproduce identical percentiles anywhere, which is why shared links always agree.</li>
+      <li>We report the 10th/25th/50th/75th/90th percentiles across 5,000 paths (fewer via the
+        public API, which reports the count it used). The shaded chart bands are the middle 50%
+        and 80%.</li>
+      <li>The Monte-Carlo implementation is validated against the closed-form lognormal moments
+        in our test suite.</li>
+    </ul>
+
+    <h2>Verification</h2>
+    <ul>
+      <li>An independent Python reimplementation regenerates golden test vectors; the TypeScript
+        engine must match them exactly — to the cent for projections, bit-for-bit for
+        Monte-Carlo percentiles.</li>
+      <li>300 randomized fuzz scenarios spanning ages 0–119, cap collisions, and every schedule
+        type are cross-checked the same way on every build.</li>
+      <li>Property-based tests enforce invariants (more contributions never yield less; with zero
+        growth and fees, final balance equals seed + contributions exactly; percentiles are
+        ordered).</li>
+      <li>Exports (PDF/Excel) are tested to contain exactly the engine's numbers.</li>
+    </ul>
+
+    <h2>What the model does not claim</h2>
+    <p>
+      Future returns. The deterministic path uses your assumed average return; the bands show the
+      spread implied by your volatility assumption. Real markets can fall outside any modeled
+      range. Tax figures are simplified estimates using your assumed rate. This is education, not
+      advice.
+    </p>
+
+    <p>
+      The full source, including the reference implementation and test suite, is public:
+      <a href="https://github.com/zach-eikenberry/530A">github.com/zach-eikenberry/530A</a>.
+    </p>
+  </section>
+</Base>
