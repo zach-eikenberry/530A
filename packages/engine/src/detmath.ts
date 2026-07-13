@@ -13,8 +13,8 @@
 
 const bits = new DataView(new ArrayBuffer(8))
 
-/** ln(2) as the nearest float64. */
-export const LN2 = 0.6931471805599453
+/** ln(2) as the nearest float64 (same bits as the literal 0.6931471805599453). */
+export const LN2 = Math.LN2
 
 /** Exact 2^k for integer k in [-1074, 1023] — powers of two are exact floats. */
 export function pow2(k: number): number {
@@ -47,7 +47,7 @@ export function detLn(x: number): number {
   let e = rawExp - 1023
   let m = x * pow2(-e)
   // Center m around 1 so the series argument stays small: m in [sqrt(1/2), sqrt(2))
-  if (m > 1.4142135623730951) {
+  if (m > Math.SQRT2) {
     m *= 0.5
     e += 1
   }

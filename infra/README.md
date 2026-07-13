@@ -11,7 +11,8 @@ API tokens are and live only in Cloudflare/GitHub encrypted secrets.
 | D1 database | `530a` | `ccf5319c-1f61-4520-8095-cac064a89fe7` | Newsfeed entries + daily aggregate rollups only (low-write) |
 | KV namespace | `CACHE` | `ef25dd28844040218fc0dd229c5c2c2c` | Edge cache for stats/newsfeed JSON |
 | R2 bucket | `530a-assets` | — | Static shared assets (fonts/logo), used from Phase 4 |
-| Analytics Engine | — | — | Created implicitly via Worker binding in Phase 3 |
+| Worker | `530a-events` | — | Anonymized event beacon → Analytics Engine dataset `site_events` (deploy: `pnpm --filter @530a/workers deploy:events`) |
+| Analytics Engine | `site_events` | — | High-volume event store; daily rollup cron reads it in Phase 6 |
 | Turnstile | — | — | Widget created in dashboard when email-to-self ships (Phase 4) |
 
 ## CI deploys

@@ -63,6 +63,43 @@ const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN
         <a href="/why-free" class="muted" style="text-decoration: none;">Why free?</a>
       </nav>
     </header>
+    <div
+      id="first-use-notice"
+      hidden
+      style="background: var(--surface); border-bottom: 1px solid var(--border);"
+    >
+      <div
+        style="max-width: 46rem; margin: 0 auto; padding: 0.6rem 1.25rem; display: flex; gap: 0.75rem; align-items: baseline;"
+        class="muted"
+      >
+        <span
+          >Quick note: everything here is an educational estimate, not financial advice. Ranges are
+          possibilities, not promises.</span
+        >
+        <button
+          id="first-use-dismiss"
+          class="card"
+          style="cursor: pointer; padding: 0.15rem 0.6rem; margin-left: auto; white-space: nowrap;"
+          >Got it</button
+        >
+      </div>
+    </div>
+    <script>
+      // One-time first-use notice (§8): shown until dismissed, never again after.
+      const KEY = '530a-notice-dismissed'
+      const notice = document.getElementById('first-use-notice')
+      try {
+        if (notice && !localStorage.getItem(KEY)) {
+          notice.hidden = false
+          document.getElementById('first-use-dismiss')?.addEventListener('click', () => {
+            localStorage.setItem(KEY, '1')
+            notice.hidden = true
+          })
+        }
+      } catch {
+        /* storage unavailable → leave hidden */
+      }
+    </script>
     <main id="main">
       <slot />
     </main>

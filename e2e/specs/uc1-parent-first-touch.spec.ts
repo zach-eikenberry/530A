@@ -63,6 +63,15 @@ function expectedWidget(ageYears: number, monthlyDollars: number): Scenario {
   }
 }
 
+test.beforeEach(async ({ page }) => {
+  // Pre-dismiss the one-time notice and walkthrough so flows aren't blocked;
+  // both have their own dedicated tests.
+  await page.addInitScript(() => {
+    localStorage.setItem('530a-notice-dismissed', '1')
+    localStorage.setItem('530a-walkthrough-done', '1')
+  })
+})
+
 test('UC-1: widget → engine-exact numbers → model page handoff', async ({ page }) => {
   await page.goto('/')
 
@@ -98,11 +107,14 @@ test('UC-1: widget → engine-exact numbers → model page handoff', async ({ pa
   await cta.click()
   await expect(page).toHaveURL(/\/model\?s=/)
 
-  // The model page reconstructs the identical scenario
-  const table = page.getByTestId('milestone-table')
-  await expect(table).toBeVisible()
-  await expect(table.getByText(formatMoney(at18.realCents))).toBeVisible()
-  await expect(table.getByText(formatMoney(at72.realCents))).toBeVisible()
+  // The model page reconstructs the identical scenario. Its tables show
+  // Monte-Carlo medians (not the deterministic path), so the exact-match
+  // assertion uses the deterministic breakdown, which must agree to the cent.
+  await expect(page.getByTestId('milestone-table')).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByTestId('breakdown')).toContainText(
+    formatMoney(projection.breakdown.contributedCents),
+  )
+  await expect(page.getByTestId('headline')).toContainText('At 72')
 })
 
 test('UC-1: seed ineligibility is stated honestly for older children', async ({ page }) => {

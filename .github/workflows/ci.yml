@@ -102,6 +102,7 @@ jobs:
         env:
           PUBLIC_SENTRY_DSN: ${{ vars.PUBLIC_SENTRY_DSN }}
           PUBLIC_CF_BEACON_TOKEN: ${{ vars.PUBLIC_CF_BEACON_TOKEN }}
+          PUBLIC_EVENTS_ENDPOINT: ${{ vars.PUBLIC_EVENTS_ENDPOINT }}
       - name: Publish to Pages
         run: pnpm dlx wrangler pages deploy apps/web/dist --project-name=530a-model
         env:

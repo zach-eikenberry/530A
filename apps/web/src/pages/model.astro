@@ -1,20 +1,20 @@
 ---
-import ModelPreview from '../components/ModelPreview'
+import AdvancedModel from '../components/AdvancedModel'
 import Base from '../layouts/Base.astro'
 
-const title = 'Advanced Model — 530A Model'
+const title = 'Advanced 530A Model — ranges, contributors, comparisons'
 const description =
-  'Reconstruct and inspect any shared 530A scenario. Milestone projections in today’s dollars, honest assumptions, no login.'
+  'Model a 530A account in full: multiple contributors, honest Monte-Carlo ranges, fees, inflation, the at-18 tax branch, and side-by-side comparisons. Free, private, no login.'
 ---
 
 <Base title={title} description={description} path="/model">
   <section style="padding: 2rem 0 1rem;">
     <h1>Advanced Model</h1>
     <p class="muted">
-      Scenarios are stateless: everything needed to reproduce this projection is encoded in the
-      link itself.
+      Every control recalculates 5,000 simulated markets on your device. The whole scenario lives
+      in the shareable link — nothing is uploaded or stored.
     </p>
   </section>
   {/* client:only — the island reads window.location.search, so no prerender */}
-  <ModelPreview client:only="preact" />
+  <AdvancedModel client:only="preact" />
 </Base>
