@@ -21,6 +21,7 @@ import {
 } from '../lib/editor'
 import { cancelBefore, type McRun, runMonteCarlo, SUPERSEDED } from '../lib/mc-client'
 import { toScenario } from '../lib/scenario'
+import ExportButtons from './ExportButtons'
 import FanChart from './FanChart'
 import SourcesEditor from './SourcesEditor'
 import Walkthrough from './Walkthrough'
@@ -566,6 +567,16 @@ export default function AdvancedModel() {
             we can verify. All tax figures are estimates.
           </p>
         </div>
+      )}
+
+      {/* Exports */}
+      {run && encoded && (
+        <ExportButtons
+          state={state}
+          projection={run.projection}
+          mc={run.mc}
+          shareUrl={`https://530amodel.com/model?s=${encoded}`}
+        />
       )}
 
       {/* Compare & share */}
