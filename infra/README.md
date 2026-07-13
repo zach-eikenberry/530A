@@ -10,7 +10,7 @@ API tokens are and live only in Cloudflare/GitHub encrypted secrets.
 | Pages project | `530a-model` | — | Static site (production branch `main`) → https://530a-model.pages.dev |
 | D1 database | `530a` | `ccf5319c-1f61-4520-8095-cac064a89fe7` | Newsfeed entries + daily aggregate rollups only (low-write) |
 | KV namespace | `CACHE` | `ef25dd28844040218fc0dd229c5c2c2c` | Edge cache for stats/newsfeed JSON |
-| R2 bucket | `530a-assets` | **not created yet** | Static shared assets (fonts/logo). Blocked: R2 must be enabled once in the dashboard (needs payment method on file). Needed by Phase 4. |
+| R2 bucket | `530a-assets` | — | Static shared assets (fonts/logo), used from Phase 4 |
 | Analytics Engine | — | — | Created implicitly via Worker binding in Phase 3 |
 | Turnstile | — | — | Widget created in dashboard when email-to-self ships (Phase 4) |
 
@@ -26,7 +26,7 @@ API tokens are and live only in Cloudflare/GitHub encrypted secrets.
 
 ## Owner checklist (dashboard-only, one-time)
 
-- [ ] Billing alert / notification so spend can never surprise (~$5/mo expected, ≤$20 ceiling)
-- [ ] Enable R2 (adds payment method; free tier covers our usage)
-- [ ] Create the CI API token above
+- [x] Billing alert / notification so spend can never surprise (~$5/mo expected, ≤$20 ceiling)
+- [x] Enable R2 (free tier covers our usage)
+- [x] Create the CI API token (needs Pages:Edit + Account Settings:Read)
 - [ ] Point `530amodel.com` at the Pages project when ready to go live (Phase 2)
