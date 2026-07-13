@@ -40,7 +40,7 @@ e2e/          # Playwright specs (user journeys UC-1..UC-7)
 
 ```sh
 pnpm install
-pnpm ci        # lint + typecheck + test + build (same as CI)
+pnpm check     # lint + typecheck + test + build (same as CI)
 pnpm --filter @530a/web dev
 ```
 
