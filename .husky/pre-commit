@@ -1,0 +1,8 @@
+pnpm lint-staged
+
+# Secret scan staged changes when gitleaks is installed locally; CI always runs it.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --verbose
+else
+  echo "warn: gitleaks not installed locally (brew install gitleaks); relying on CI scan"
+fi

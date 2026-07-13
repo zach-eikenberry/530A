@@ -1,0 +1,37 @@
+---
+import { DEFAULTS, RULES_VERIFIED_AT } from '@530a/config'
+import { formatMoney } from '@530a/engine'
+import { colors, font } from '@530a/ui'
+
+// Phase 0 "hello" page: proves the monorepo wiring (config → engine → ui → web)
+// end-to-end before any real UI ships in Phase 2.
+const seed = formatMoney(100_000n)
+const c = colors.light
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>530A Model — coming soon</title>
+    <meta
+      name="description"
+      content="A free, privacy-first calculator for 530A custodial retirement accounts."
+    />
+  </head>
+  <body style={`font-family:${font.family}; color:${c.text}; background:${c.background}; margin:0;`}>
+    <main style="max-width: 40rem; margin: 15vh auto 0; padding: 0 1.25rem;">
+      <h1 style={`color:${c.trustBlueDark};`}>530A Model</h1>
+      <p>
+        A free scenario-planning calculator for 530A custodial retirement accounts is on its way.
+        Every eligible child born 2025–2028 gets a {seed} federal seed — soon you'll be able to see
+        what it could grow into.
+      </p>
+      <p style={`color:${c.textMuted}; font-size:${font.size.sm};`}>
+        Rules verified as of {RULES_VERIFIED_AT}. Default assumption: {DEFAULTS.annualRealReturn * 100}% real
+        annual return. Estimates only — not financial advice.
+      </p>
+    </main>
+  </body>
+</html>

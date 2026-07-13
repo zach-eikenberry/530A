@@ -1,0 +1,28 @@
+{
+  "name": "530a-model",
+  "private": true,
+  "version": "0.0.1",
+  "description": "530amodel.com — free scenario-planning calculator for 530A custodial retirement accounts",
+  "packageManager": "pnpm@11.8.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
+    "typescript": "^5.9.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,json}": "biome check --write --no-errors-on-unmatched"
+  }
+}
