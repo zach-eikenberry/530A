@@ -5,12 +5,6 @@ calculator for 530A custodial retirement accounts ("Trump Accounts").
 
 No login. No email capture. No monetization. All calculation runs in your browser.
 
-## ⚠️ Deployment account warning
-
-This project deploys **exclusively to the owner's personal Cloudflare account**. Never deploy to,
-or create resources in, any other Cloudflare account. Verify with `wrangler whoami` before any
-deploy. Budget: ~$5/mo expected, ≤$20/mo ceiling.
-
 ## Structure
 
 ```
