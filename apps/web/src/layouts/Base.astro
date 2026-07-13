@@ -47,6 +47,7 @@ const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN
     {jsonLd.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
   </head>
   <body>
+    <script src="../scripts/sentry-init.ts"></script>
     <a class="skip-link" href="#main">Skip to content</a>
     <header style="border-bottom: 1px solid var(--border);">
       <nav
