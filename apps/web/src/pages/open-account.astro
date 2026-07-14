@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro'
+
+const title = 'How to Open a 530A (Trump Account) — Step-by-Step Guide'
+const description =
+  'A practical, independent walkthrough for opening a 530A account: eligibility, IRS Form 4547, trumpaccounts.gov, choosing a low-cost fund, and setting up contributions.'
+
+const steps = [
+  {
+    name: 'Confirm your child is eligible',
+    text: 'Your child needs a valid Social Security number and U.S. citizenship, and must be under 18. If they were born January 1, 2025 – December 31, 2028, they also qualify for the one-time $1,000 federal seed. Have their SSN and date of birth handy.',
+  },
+  {
+    name: 'Gather what you’ll need',
+    text: 'Typically: your identity verification (the IRS uses ID.me), your child’s SSN and birth information, and a bank account or funding source for contributions. Setting up an IRS online account in advance makes the election smoother.',
+  },
+  {
+    name: 'Elect the account',
+    text: 'Open the account by completing IRS Form 4547 through your IRS account, or start at the official portal, trumpaccounts.gov. This is where the account is formally created and the seed (if eligible) is applied.',
+  },
+  {
+    name: 'Choose a low-cost eligible fund',
+    text: 'By law, 530A money must be invested in funds that track an index of primarily U.S. companies with a low, capped expense ratio. See our Resources page for a starter list. Lower fees mean more of the growth stays in your child’s account.',
+  },
+  {
+    name: 'Set up contributions',
+    text: 'Add a one-time gift, a recurring monthly amount, or both — up to the $5,000/year combined limit across all contributors (employers max $2,500). Automating even $50–$100/month is where most of the long-term growth comes from. Invite grandparents to chip in toward the same limit.',
+  },
+  {
+    name: 'Set it and let it compound',
+    text: 'No withdrawals are allowed until the year your child turns 18, so the best thing you can do is leave it alone and let time work. Revisit once a year to adjust contributions. When your child turns 18, walk them through what they’ve been given — and the Roth conversion option.',
+  },
+]
+
+const howToLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to open a 530A (Trump Account)',
+  step: steps.map((s) => ({ '@type': 'HowToStep', name: s.name, text: s.text })),
+}
+---
+
+<Base title={title} description={description} path="/open-account" jsonLd={[howToLd]}>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Step-by-step</span>
+      <h1 class="mt-2" style="color: #fff;">How to open a 530A account</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 68ch;">
+        A practical walkthrough — from checking eligibility to setting up your first contribution.
+        We're an independent guide; you'll open the account through the official channels below.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 820px;">
+      <div class="steps" style="gap: 26px;">
+        {steps.map((s, i) => (
+          <div class="step">
+            <div class="num"></div>
+            <div>
+              <h3>{s.name}</h3>
+              <p>
+                {s.text}
+                {i === 2 && (
+                  <>
+                    {' '}
+                    Portal: <a href="https://trumpaccounts.gov" rel="noopener nofollow" target="_blank">trumpaccounts.gov</a>.
+                  </>
+                )}
+                {i === 3 && (
+                  <>
+                    {' '}
+                    <a href="/resources">Eligible fund list →</a>
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="callout callout-info mt-4">
+        <strong>Before you open one:</strong> confirm the current rules and fund options on the
+        official IRS and Treasury pages — details can change. This guide is educational and
+        independent, and is not affiliated with the government or trumpaccounts.gov.
+      </div>
+
+      <div class="grid grid-2 mt-4" style="gap: 16px;">
+        <a class="btn btn-primary btn-lg btn-block" href="https://trumpaccounts.gov" rel="noopener nofollow" target="_blank">
+          Go to trumpaccounts.gov →
+        </a>
+        <a class="btn btn-ghost btn-lg btn-block" href="/model">Project the outcome first</a>
+      </div>
+    </div>
+  </section>
+</Base>

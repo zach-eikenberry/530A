@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro'
+
+const title = '530A vs 529 vs Custodial vs Roth IRA — which is best for your child?'
+const description =
+  'Side-by-side comparison of the four common ways to invest for a child: 530A “Trump Accounts,” 529 plans, UTMA/UGMA custodial accounts, and custodial Roth IRAs.'
+---
+
+<Base title={title} description={description} path="/compare">
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Compare accounts</span>
+      <h1 class="mt-2" style="color: #fff;">530A vs. 529 vs. custodial vs. Roth IRA</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 70ch;">
+        There is no single “best” account — only the best fit for a goal. Here's how the 530A
+        compares with the other common ways to invest for a child.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="table-wrap">
+        <table class="compare">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="col-featured">530A / Trump Account</th>
+              <th>529 Plan</th>
+              <th>UTMA/UGMA Custodial</th>
+              <th>Custodial Roth IRA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th>Primary goal</th><td class="col-featured">Long-term / retirement</td><td>Education</td><td>Any use for the child</td><td>Retirement</td></tr>
+            <tr><th>Free $1,000 federal seed</th><td class="col-featured"><span class="yes">Yes (2025–2028 births)</span></td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><th>Annual contribution cap</th><td class="col-featured">$5,000 combined</td><td>Very high (gift-tax limits)</td><td>No cap (gift-tax limits)</td><td>Up to earned income / IRA limit</td></tr>
+            <tr><th>Requires child to have earned income</th><td class="col-featured"><span class="no">No</span></td><td class="no">No</td><td class="no">No</td><td><span class="yes">Yes</span></td></tr>
+            <tr><th>Investment menu</th><td class="col-featured">Low-fee U.S. index funds</td><td>Plan's fund menu</td><td>Almost anything</td><td>Almost anything</td></tr>
+            <tr><th>Tax on growth</th><td class="col-featured">Deferred</td><td>Deferred</td><td>Taxed yearly (kiddie tax)</td><td>Deferred</td></tr>
+            <tr><th>Tax-free withdrawals</th><td class="col-featured">Only your basis</td><td class="yes">Yes, for education</td><td class="no">No</td><td class="yes">Yes, in retirement</td></tr>
+            <tr><th>Who controls it</th><td class="col-featured">Child at 18</td><td>Owner keeps control</td><td>Child at 18–21</td><td>Child at 18–21</td></tr>
+            <tr><th>Early-withdrawal flexibility</th><td class="col-featured">Locked until 18, then IRA rules</td><td>Non-qualified = tax + penalty</td><td><span class="yes">Fully flexible</span></td><td>Contributions out anytime</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid grid-2 mt-4" style="gap: 24px;">
+        <div class="card">
+          <h3>When a 530A shines</h3>
+          <div class="prose" style="max-width: none;">
+            <p>
+              The 530A is at its best as a <strong>decades-early retirement head-start</strong>.
+              If your child was born in the 2025–2028 window, the free $1,000 plus 65 years of
+              compounding is hard to beat as a foundation. It's also simple: one low-cost index
+              fund, automatic contributions, no menu to manage.
+            </p>
+            <p>
+              It pairs well with a 529: use the 530A for the long horizon and the 529 for college,
+              capturing the strengths of both.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>When another account may fit better</h3>
+          <div class="prose" style="max-width: none;">
+            <p>
+              If the money is earmarked for <strong>college</strong>, a 529 usually wins —
+              potential state tax deductions, a broader investment menu, and 100% tax-free
+              withdrawals for qualified education costs. If you want <strong>total flexibility</strong>
+              for how and when the money is used, a UTMA/UGMA custodial account has no strings.
+              And if your teen has <strong>earned income</strong>, a custodial Roth IRA offers
+              tax-free retirement growth on their own contributions.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout mt-4">
+        <strong>A note on the tax fine print.</strong> Unlike a Roth, a 530A taxes the seed,
+        employer money, and all growth as ordinary income at withdrawal — only your out-of-pocket
+        contributions come out tax-free. Converting to a Roth IRA after 18 (ideally in a
+        low-income year) can change that math in your child's favor. See the
+        <a href="/faq">FAQ</a> and <a href="/methodology">Methodology</a>.
+      </div>
+
+      <div class="center mt-4">
+        <a class="btn btn-gold btn-lg" href="/model">Model a 530A for your child →</a>
+      </div>
+    </div>
+  </section>
+</Base>

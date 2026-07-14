@@ -5,7 +5,7 @@ import '../styles/global.css'
 interface Props {
   title: string
   description: string
-  /** Path starting with /, used for the canonical URL. */
+  /** Path starting with /, used for the canonical URL and nav highlighting. */
   path: string
   /** Extra JSON-LD blocks (already-serializable objects). */
   jsonLd?: object[]
@@ -19,11 +19,21 @@ const organizationLd = {
   '@type': 'Organization',
   name: '530A Model',
   url: CANONICAL_ORIGIN,
+  logo: `${CANONICAL_ORIGIN}/assets/img/mark.svg`,
   description:
     'Free, privacy-first scenario-planning calculator for 530A custodial retirement accounts.',
 }
 
 const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN
+
+const nav = [
+  { href: '/model', label: 'Advanced Model' },
+  { href: '/compare', label: '529 vs 530A' },
+  { href: '/open-account', label: 'How to Open' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/resources', label: 'Resources' },
+]
+const current = (href: string) => (path === href ? 'page' : undefined)
 ---
 
 <!doctype html>
@@ -34,54 +44,83 @@ const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="530A Model" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={`${CANONICAL_ORIGIN}/assets/img/og.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${CANONICAL_ORIGIN}/assets/img/og.png`} />
     <script type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
     {jsonLd.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
+    <script is:inline>
+      // Theme init before first paint (local-only preference, not tracking)
+      ;(() => {
+        let t = null
+        try {
+          t = localStorage.getItem('theme')
+        } catch {}
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.setAttribute('data-theme', t)
+      })()
+    </script>
+    <script src="../scripts/sentry-init.ts"></script>
   </head>
   <body>
-    <script src="../scripts/sentry-init.ts"></script>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header style="border-bottom: 1px solid var(--border);">
-      <nav
-        style="max-width: 46rem; margin: 0 auto; padding: 0.9rem 1.25rem; display: flex; gap: 1.1rem; align-items: baseline; flex-wrap: wrap;"
-        aria-label="Main"
-      >
-        <a href="/" style="font-weight: 700; text-decoration: none; color: var(--trust-blue-dark); font-size: 1.05rem;"
-          >530A<span style="color: var(--growth-green);">Model</span></a
+
+    <header class="site-header">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img class="mark" src="/assets/img/mark.svg" alt="" width="34" height="34" />
+          <span>530A&nbsp;Model</span>
+        </a>
+        <button
+          type="button"
+          class="nav-toggle"
+          aria-label="Menu"
+          aria-expanded="false"
+          aria-controls="navLinks"
         >
-        <a href="/model" class="muted" style="text-decoration: none;">Advanced Model</a>
-        <a href="/faq" class="muted" style="text-decoration: none;">FAQ</a>
-        <a href="/resources" class="muted" style="text-decoration: none;">Resources</a>
-        <a href="/why-free" class="muted" style="text-decoration: none;">Why free?</a>
-      </nav>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        </button>
+        <nav class="nav-links" id="navLinks" aria-label="Primary">
+          {nav.map((item) => (
+            <a href={item.href} aria-current={current(item.href)}>
+              {item.label}
+            </a>
+          ))}
+          <div class="nav-actions">
+            <button type="button" class="theme-toggle" aria-label="Toggle theme"></button>
+            <a class="btn btn-gold btn-sm" href="/open-account">Open an account</a>
+          </div>
+        </nav>
+      </div>
     </header>
+
     <div
       id="first-use-notice"
       hidden
-      style="background: var(--surface); border-bottom: 1px solid var(--border);"
+      style="position: fixed; inset: auto 0 0 0; z-index: 70; pointer-events: none;"
     >
-      <div
-        style="max-width: 46rem; margin: 0 auto; padding: 0.6rem 1.25rem; display: flex; gap: 0.75rem; align-items: baseline;"
-        class="muted"
-      >
-        <span
-          >Quick note: everything here is an educational estimate, not financial advice. Ranges are
-          possibilities, not promises.</span
-        >
-        <button
-          id="first-use-dismiss"
-          class="card"
-          style="cursor: pointer; padding: 0.15rem 0.6rem; margin-left: auto; white-space: nowrap;"
-          >Got it</button
-        >
+      <div class="container" style="padding-bottom: 14px; pointer-events: auto;">
+        <div class="callout-info callout" style="display: flex; gap: 12px; align-items: baseline; box-shadow: var(--shadow-lg); border-radius: var(--radius-sm); background: var(--paper);">
+          <span
+            >Quick note: everything here is an educational estimate, not financial advice. Ranges
+            are possibilities, not promises.</span
+          >
+          <button
+            type="button"
+            id="first-use-dismiss"
+            class="btn btn-ghost btn-sm"
+            style="margin-left: auto; white-space: nowrap;">Got it</button
+          >
+        </div>
       </div>
     </div>
     <script>
@@ -100,22 +139,95 @@ const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN
         /* storage unavailable → leave hidden */
       }
     </script>
+
     <main id="main">
       <slot />
     </main>
-    <footer style="border-top: 1px solid var(--border); background: var(--surface);">
-      <div style="max-width: 46rem; margin: 0 auto; padding: 1.5rem 1.25rem;" class="muted">
-        <p>
-          <strong>Estimates only — not financial, tax, or legal advice.</strong> Market projections
-          are probabilistic ranges, not guarantees. Verify rules with the primary sources on our
-          <a href="/resources">Resources</a> page before making decisions.
-        </p>
-        <p>
-          Rules verified as of {RULES_VERIFIED_AT} · <a href="/terms">Terms</a> ·
-          <a href="/privacy">Privacy</a> · No login, no cookies, no data collected.
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a class="brand" href="/" style="color: #fff;">
+              <img class="mark" src="/assets/img/mark.svg" alt="" width="34" height="34" />
+              <span>530A&nbsp;Model</span>
+            </a>
+            <p>
+              A free, open-source projection tool for 530A accounts. Runs entirely in your
+              browser — no login, no cookies, no data collected.
+            </p>
+          </div>
+          <div>
+            <div class="fh">Tools</div>
+            <a href="/">Quick calculator</a>
+            <a href="/model">Advanced Model</a>
+            <a href="/api">API &amp; MCP</a>
+          </div>
+          <div>
+            <div class="fh">Learn</div>
+            <a href="/compare">529 vs 530A</a>
+            <a href="/open-account">How to open one</a>
+            <a href="/faq">FAQ</a>
+            <a href="/methodology">Methodology</a>
+          </div>
+          <div>
+            <div class="fh">Trust</div>
+            <a href="/resources">Primary sources</a>
+            <a href="/why-free">Why it's free</a>
+            <a href="/terms">Terms</a>
+            <a href="/privacy">Privacy</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>Rules verified as of {RULES_VERIFIED_AT} · Estimates only — not financial advice.</span>
+          <span>© <span data-year></span> 530A Model</span>
+        </div>
+        <p class="footer-disclaimer">
+          Independent educational tool. Not affiliated with, or endorsed by, the U.S. government,
+          the IRS, or trumpaccounts.gov. Market projections are probabilistic ranges, not
+          guarantees — verify rules with the primary sources on our Resources page before making
+          decisions.
         </p>
       </div>
     </footer>
+
+    <script>
+      // Theme toggle + mobile nav + footer year (no analytics, no third parties)
+      const root = document.documentElement
+      const moon =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      const sun =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+      const paint = () => {
+        const dark = root.getAttribute('data-theme') === 'dark'
+        for (const b of document.querySelectorAll('.theme-toggle')) {
+          b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme')
+          b.innerHTML = dark ? sun : moon
+        }
+      }
+      paint()
+      document.addEventListener('click', (e) => {
+        const target = e.target as Element
+        if (target.closest('.theme-toggle')) {
+          const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+          root.setAttribute('data-theme', next)
+          try {
+            localStorage.setItem('theme', next)
+          } catch {}
+          paint()
+        }
+        const nt = target.closest('.nav-toggle')
+        const links = document.getElementById('navLinks')
+        if (nt && links) {
+          const open = links.classList.toggle('open')
+          nt.setAttribute('aria-expanded', open ? 'true' : 'false')
+        }
+        if (target.closest('.nav-links a') && links) links.classList.remove('open')
+      })
+      for (const el of document.querySelectorAll('[data-year]')) {
+        el.textContent = String(new Date().getFullYear())
+      }
+    </script>
     {beaconToken && (
       <script
         defer

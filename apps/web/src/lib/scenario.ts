@@ -32,6 +32,8 @@ export interface WidgetInputs {
   /** Optional one-time starting amount in whole dollars. */
   oneTimeDollars: number
   includeSeed: boolean
+  /** Assumed real annual return in percent (widget presets 5/7/10; default 7). */
+  annualReturnPct?: number
 }
 
 function isoDate(d: Date): string {
@@ -80,7 +82,7 @@ export function widgetState(inputs: WidgetInputs, asOf: Date): ScenarioState {
     includeSeed: inputs.includeSeed,
     sources,
     assumptions: {
-      annualReturn: DEFAULTS.annualRealReturn,
+      annualReturn: (inputs.annualReturnPct ?? DEFAULTS.annualRealReturn * 100) / 100,
       returnIsReal: true,
       annualInflation: 0.025,
       annualFee: DEFAULTS.annualFee,

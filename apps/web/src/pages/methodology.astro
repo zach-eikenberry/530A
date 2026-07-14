@@ -7,8 +7,15 @@ const description =
 ---
 
 <Base title={title} description={description} path="/methodology">
-  <section style="padding: 2rem 0 0;">
-    <h1>Methodology</h1>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">The math</span>
+      <h1 class="mt-2" style="color: #fff;">Methodology</h1>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container container-narrow prose">
     <p>
       Every number this site shows is reproducible. This page describes the model precisely enough
       to reimplement it — because we did exactly that, twice, and require the two implementations
@@ -70,5 +77,6 @@ const description =
       The full source, including the reference implementation and test suite, is public:
       <a href="https://github.com/zach-eikenberry/530A">github.com/zach-eikenberry/530A</a>.
     </p>
+    </div>
   </section>
 </Base>

@@ -74,12 +74,11 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
 
   return (
     <div class="card" data-tour="export">
-      <strong>Take it with you</strong>
+      <h3>Take it with you</h3>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-top: 0.5rem;">
         <button
           type="button"
-          class="btn"
-          style="cursor: pointer;"
+          class="btn btn-gold btn-sm"
           onClick={exportPdf}
           disabled={busy !== null}
           data-testid="export-pdf"
@@ -88,8 +87,7 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
         </button>
         <button
           type="button"
-          class="btn"
-          style="cursor: pointer; background: var(--growth-green);"
+          class="btn btn-primary btn-sm"
           onClick={exportXlsx}
           disabled={busy !== null}
           data-testid="export-xlsx"
@@ -102,6 +100,7 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
         <label>
           Child's first name (optional){' '}
           <input
+            class="input"
             type="text"
             maxLength={40}
             value={childName}
@@ -111,6 +110,7 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
         <label>
           Firm name for branding (optional){' '}
           <input
+            class="input"
             type="text"
             maxLength={60}
             value={firmName}

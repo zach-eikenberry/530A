@@ -10,8 +10,15 @@ const MCP_ORIGIN = 'https://530a-mcp.personal-account-fd8.workers.dev'
 ---
 
 <Base title={title} description={description} path="/api">
-  <section style="padding: 2rem 0 0;">
-    <h1>API &amp; MCP server</h1>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">For developers & AI agents</span>
+      <h1 class="mt-2" style="color: #fff;">API &amp; MCP server</h1>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container container-narrow prose">
     <p>
       The same deterministic engine behind this site is free to call: a JSON API for code and an
       MCP server for AI assistants. Identical inputs always return identical results (including
@@ -62,5 +69,6 @@ const MCP_ORIGIN = 'https://530a-mcp.personal-account-fd8.workers.dev'
       Read-only computation, rate-limited at the edge. Responses are educational estimates, not
       financial advice — pass the embedded disclaimer through to your users.
     </p>
+    </div>
   </section>
 </Base>
