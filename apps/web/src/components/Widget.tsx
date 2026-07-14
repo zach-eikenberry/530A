@@ -106,7 +106,7 @@ export default function Widget() {
 
         <div class="field">
           <div class="field-row">
-            <span class="field-label">Monthly contribution</span>
+            <span class="field-label">Monthly contribution — until age 18</span>
             <span class="field-value">${monthlyDollars}/mo</span>
           </div>
           <input
@@ -116,9 +116,13 @@ export default function Widget() {
             max={415}
             step={5}
             value={monthlyDollars}
-            aria-label="Monthly contribution"
+            aria-label="Monthly contribution until age 18"
             onInput={(e) => setMonthlyDollars(Number((e.target as HTMLInputElement).value))}
           />
+          <div class="field-hint">
+            Contributions run through age 18, then stop — the balance keeps compounding untouched to
+            36 and 72.
+          </div>
           {capped && (
             <div class="field-hint" style="color: var(--warn);">
               Capped to the $5,000/year combined contribution limit.
