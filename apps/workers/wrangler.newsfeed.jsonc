@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "530a-newsfeed",
+  "main": "src/newsfeed.ts",
+  "compatibility_date": "2026-07-01",
+  // Personal account only — verify with `wrangler whoami` before deploying.
+  "account_id": "fd89fcd385cb37ed871df05e3c7eb10b",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "530a",
+      "database_id": "ccf5319c-1f61-4520-8095-cac064a89fe7"
+    }
+  ],
+  "triggers": {
+    "crons": ["17 */6 * * *"]
+  },
+  "vars": {
+    // Comma-separated RSS/Atom feed URLs (Google Alerts etc). Empty = no-op.
+    "FEED_URLS": ""
+  }
+  // Secrets (wrangler secret put --config wrangler.newsfeed.jsonc):
+  //   ADMIN_TOKEN     — bearer token for the admin queue endpoints
+  //   DEPLOY_HOOK_URL — Pages deploy hook pinged after feed changes
+}

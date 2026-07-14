@@ -53,6 +53,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @530a/web build
+        env:
+          PLEDGES_ALLOW_FIXTURE: '1'
       - run: pnpm --filter @530a/e2e exec playwright install --with-deps chromium
       - run: pnpm --filter @530a/e2e e2e
 
@@ -103,6 +105,7 @@ jobs:
           PUBLIC_SENTRY_DSN: ${{ vars.PUBLIC_SENTRY_DSN }}
           PUBLIC_CF_BEACON_TOKEN: ${{ vars.PUBLIC_CF_BEACON_TOKEN }}
           PUBLIC_EVENTS_ENDPOINT: ${{ vars.PUBLIC_EVENTS_ENDPOINT }}
+          PLEDGES_FEED_URL: ${{ vars.PLEDGES_FEED_URL }}
       - name: Publish to Pages
         run: pnpm dlx wrangler pages deploy apps/web/dist --project-name=530a-model
         env:

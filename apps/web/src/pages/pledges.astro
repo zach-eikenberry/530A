@@ -1,0 +1,126 @@
+---
+import { CANONICAL_ORIGIN } from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { loadPledges, modelLinkFor } from '../lib/pledges'
+
+const title = '530A Pledges & Gifts — real programs contributing to children’s accounts'
+const description =
+  'A tracked feed of reported pledges, gifts, and programs contributing to 530A accounts — with human-reviewed entries you can model for your own child in one click.'
+
+const feed = await loadPledges()
+const asOfIso = new Date().toISOString().slice(0, 10)
+
+const money = (cents: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(cents / 100)
+
+const newsLd = feed.items.slice(0, 20).map((item) => ({
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: item.title,
+  url: item.source_url,
+  datePublished: item.published_at,
+  publisher: { '@type': 'Organization', name: item.source_domain },
+  description: item.excerpt,
+  isBasedOn: item.source_url,
+  mainEntityOfPage: `${CANONICAL_ORIGIN}/pledges`,
+}))
+---
+
+<Base title={title} description={description} path="/pledges" jsonLd={newsLd}>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Pledges &amp; gifts</span>
+      <h1 class="mt-2" style="color: #fff;">Who's contributing to kids' 530A accounts</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 70ch;">
+        Reported pledges and programs, collected from public sources. Entries marked
+        <strong style="color: var(--gold-400);">modelable</strong> were human-reviewed — if your
+        child qualifies, you can see what that gift could become in one click.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      {feed.source === 'fixture' && (
+        <div class="callout mt-2" data-testid="fixture-banner">
+          <strong>Demo data.</strong> These are example entries for development and testing — not
+          real pledges.
+        </div>
+      )}
+
+      {feed.items.length === 0 && (
+        <div class="card center" style="padding: 48px 26px;">
+          <h2 style="font-size: 1.3rem;">No verified entries yet</h2>
+          <p class="muted">
+            The feed is warming up. In the meantime, the calculator works with any gift you have
+            in mind.
+          </p>
+          <a class="btn btn-gold mt-2" href="/model">Model a gift yourself</a>
+        </div>
+      )}
+
+      <div class="stack mt-2">
+        {feed.items.map((item) => {
+          const link = modelLinkFor(item, asOfIso)
+          return (
+            <article class="card card-hover" data-testid="pledge-item">
+              <div class="flex gap-2 wrap items-center" style="margin-bottom: 8px;">
+                {item.tier === 'B' && item.amount_cents ? (
+                  <span class="badge badge-grow badge-dot">
+                    {money(item.amount_cents)}
+                    {item.recurring ? '/yr' : ' one-time'} · modelable
+                  </span>
+                ) : (
+                  <span class="badge">reported</span>
+                )}
+                <span class="muted" style="font-size: 0.82rem;">
+                  {item.source_domain} · {item.published_at?.slice(0, 10)}
+                </span>
+              </div>
+              <h2 style="font-size: 1.15rem; margin: 0 0 6px;">{item.title}</h2>
+              {item.excerpt && (
+                <p class="muted" style="font-size: 0.95rem; margin: 0 0 6px;">
+                  {item.excerpt}
+                  <span style="font-style: italic;"> — source excerpt</span>
+                </p>
+              )}
+              {item.qualifies_note && (
+                <p style="font-size: 0.92rem; margin: 0 0 10px;">
+                  <strong>Who may qualify:</strong> {item.qualifies_note}
+                  {item.birth_year_start && ` (born ${item.birth_year_start}–${item.birth_year_end})`}
+                </p>
+              )}
+              <div class="flex gap-2 wrap">
+                <a
+                  href={item.source_url}
+                  rel="noopener nofollow"
+                  target="_blank"
+                  class="btn btn-ghost btn-sm"
+                >
+                  Read the source ↗
+                </a>
+                {link && (
+                  <a href={link} class="btn btn-gold btn-sm" data-testid="model-this-gift">
+                    Model this gift for my child →
+                  </a>
+                )}
+              </div>
+            </article>
+          )
+        })}
+      </div>
+
+      <p class="disclaimer mt-4">
+        Entries are collected from public reporting and shown with a labeled source excerpt —
+        always verify with the linked source. “Modelable” amounts and eligibility windows were
+        reviewed by a human before being connected to the calculator, but programs change;
+        confirm with the sponsoring organization before counting on a gift. Nothing here is an
+        endorsement.
+      </p>
+    </div>
+  </section>
+</Base>

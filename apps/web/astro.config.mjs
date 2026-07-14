@@ -5,7 +5,10 @@ import { defineConfig } from 'astro/config'
 export default defineConfig({
   site: 'https://530amodel.com',
   output: 'static',
-  integrations: [preact({ compat: false }), sitemap()],
+  integrations: [
+    preact({ compat: false }),
+    sitemap({ filter: (page) => !page.includes('/admin') }),
+  ],
   build: {
     inlineStylesheets: 'auto',
   },

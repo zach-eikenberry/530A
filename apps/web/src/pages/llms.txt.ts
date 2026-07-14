@@ -31,6 +31,9 @@ export const GET: APIRoute = () => {
 
 - [Calculator](${CANONICAL_ORIGIN}/): interactive projection widget
 - [Advanced Model](${CANONICAL_ORIGIN}/model): scenario reconstruction from shareable ?s= links
+- [Pledges & gifts](${CANONICAL_ORIGIN}/pledges): tracked feed of reported 530A pledges; human-reviewed entries are modelable
+- [Compare](${CANONICAL_ORIGIN}/compare): 530A vs 529 vs custodial vs Roth IRA
+- [How to open](${CANONICAL_ORIGIN}/open-account): step-by-step guide
 - [FAQ](${CANONICAL_ORIGIN}/faq): eligibility, caps, taxes, withdrawals
 - [Resources](${CANONICAL_ORIGIN}/resources): primary sources and how to open an account
 - [Why free](${CANONICAL_ORIGIN}/why-free): no ads, no data collection, public-good project

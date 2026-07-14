@@ -1,0 +1,33 @@
+{
+  "note": "Deterministic DEMO data for tests and local dev only. Never served when PLEDGES_FEED_URL is configured; the UI labels these as examples.",
+  "items": [
+    {
+      "id": 1,
+      "title": "Example Foundation pledges $1,000 to every newborn in Example County",
+      "excerpt": "The foundation said the one-time gifts will flow into the new federal children's accounts starting this fall. (Demo item.)",
+      "source_url": "https://example.org/pledge-story",
+      "source_domain": "example.org",
+      "tier": "B",
+      "amount_cents": 100000,
+      "recurring": 0,
+      "qualifies_note": "Children born in Example County, 2025–2028",
+      "birth_year_start": 2025,
+      "birth_year_end": 2028,
+      "published_at": "2026-07-10T12:00:00Z"
+    },
+    {
+      "id": 2,
+      "title": "Statewide 530A awareness campaign launches with employer match pilots",
+      "excerpt": "Officials outlined plans to encourage employer contributions within the $2,500 cap. (Demo item.)",
+      "source_url": "https://example.org/campaign-story",
+      "source_domain": "example.org",
+      "tier": "A",
+      "amount_cents": null,
+      "recurring": 0,
+      "qualifies_note": null,
+      "birth_year_start": null,
+      "birth_year_end": null,
+      "published_at": "2026-07-09T09:00:00Z"
+    }
+  ]
+}

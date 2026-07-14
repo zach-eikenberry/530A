@@ -1,0 +1,22 @@
+---
+import AdminQueue from '../components/AdminQueue'
+import Base from '../layouts/Base.astro'
+---
+
+<Base
+  title="Admin — 530A Model"
+  description="Newsfeed review queue (token required)."
+  path="/admin"
+>
+  <section class="section-tight">
+    <div class="container container-narrow">
+      <h1>Newsfeed review queue</h1>
+      <p class="muted">
+        Tier-A items publish automatically as display-only links. Anything that can feed the
+        calculator (amounts, eligibility) requires promotion here, by a human, per the content
+        policy.
+      </p>
+      <AdminQueue client:only="preact" />
+    </div>
+  </section>
+</Base>
