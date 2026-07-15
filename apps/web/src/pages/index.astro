@@ -58,30 +58,25 @@ const howToLd = {
           <a class="btn btn-gold btn-lg" href="#calc">Run your numbers</a>
           <a class="btn btn-ghost btn-lg" href="/model">Try the Advanced Model</a>
         </div>
+        <ul class="hero-trust mt-4">
+          {[
+            'Runs 100% in your browser',
+            'No login, no cookies, no data collected',
+            'Open-source math, verified to the cent',
+            'Built on primary sources',
+          ].map((t) => (
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              {t}
+            </li>
+          ))}
+        </ul>
         <div class="mt-4" style="color: #90a3c2; font-size: 0.86rem; max-width: 46ch;">
           Independent educational tool. Not affiliated with, or endorsed by, the U.S. government
           or trumpaccounts.gov.
         </div>
       </div>
       <Widget client:load />
-    </div>
-  </section>
-
-  <section class="section-tight" style="background: var(--paper); border-bottom: 1px solid var(--line);">
-    <div class="container">
-      <div class="trust-bar">
-        {[
-          'Runs 100% in your browser',
-          'No login, no cookies, no data collected',
-          'Open-source math, verified to the cent',
-          'Built on primary sources',
-        ].map((t) => (
-          <span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            {t}
-          </span>
-        ))}
-      </div>
     </div>
   </section>
 

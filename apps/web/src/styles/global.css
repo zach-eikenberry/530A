@@ -113,7 +113,9 @@ a {
 a:hover {
   text-decoration: underline;
 }
-:root[data-theme="dark"] a {
+/* Buttons carry their own colors — without :not(.btn) this repaints
+   .btn-gold text gold-on-gold (invisible) in dark mode. */
+:root[data-theme="dark"] a:not(.btn) {
   color: var(--gold-400);
 }
 h1,
@@ -231,14 +233,16 @@ p {
   gap: 4px;
   margin-left: auto;
 }
-.nav-links a {
+/* :not(.btn) keeps these nav-link colors off the "Open an account"
+   button, which styles itself via .btn-gold. */
+.nav-links a:not(.btn) {
   color: var(--ink-2);
   font-weight: 600;
   font-size: 0.95rem;
   padding: 8px 12px;
   border-radius: 9px;
 }
-.nav-links a:hover {
+.nav-links a:not(.btn):hover {
   color: var(--ink);
   background: var(--navy-050);
   text-decoration: none;
@@ -464,21 +468,21 @@ p {
 }
 
 /* ---------- Trust bar ---------- */
-.trust-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 26px;
-  justify-content: center;
-  color: var(--muted);
-  font-size: 0.9rem;
+.hero-trust {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  color: #b9c9e0;
+  font-size: 0.92rem;
   font-weight: 600;
 }
-.trust-bar span {
-  display: inline-flex;
+.hero-trust li {
+  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
-.trust-bar svg {
+.hero-trust svg {
   color: var(--grow);
   flex: none;
 }
@@ -493,7 +497,7 @@ p {
     radial-gradient(1200px 500px at 80% -10%, rgba(194, 154, 69, 0.16), transparent 60%),
     linear-gradient(180deg, var(--navy-800), var(--navy-900));
   color: #eaf1fb;
-  padding: clamp(40px, 7vw, 84px) 0 clamp(52px, 8vw, 96px);
+  padding: clamp(36px, 5vw, 56px) 0 clamp(44px, 6vw, 64px);
 }
 .hero h1 {
   color: #fff;
@@ -508,7 +512,12 @@ p {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 44px;
-  align-items: center;
+  /* Top-aligned: the widget is far taller than the copy, and centering
+     strands the headline in a sea of empty navy. */
+  align-items: start;
+}
+.hero-grid > div:first-child {
+  padding-top: clamp(0px, 3vw, 36px);
 }
 @media (max-width: 940px) {
   .hero-grid {
@@ -541,10 +550,10 @@ p {
   overflow: hidden;
 }
 .calc-body {
-  padding: 26px;
+  padding: 20px 22px;
 }
 .calc-head {
-  padding: 20px 26px;
+  padding: 15px 22px;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -559,7 +568,7 @@ p {
 }
 
 .field {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .field:last-child {
   margin-bottom: 0;
@@ -748,13 +757,13 @@ select.input {
 /* Results */
 .results {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 .result-hero {
   background: linear-gradient(180deg, var(--navy-700), var(--navy-800));
   color: #fff;
   border-radius: var(--radius);
-  padding: 22px 24px;
+  padding: 18px 22px;
   position: relative;
   overflow: hidden;
 }
@@ -790,7 +799,7 @@ select.input {
   background: var(--canvas);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  padding: 15px 16px;
+  padding: 12px 14px;
 }
 .milestone .m-age {
   font-size: 0.8rem;
