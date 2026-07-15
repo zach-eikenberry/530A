@@ -167,6 +167,15 @@ function adminPost(body: unknown, token = TOKEN): Request {
 }
 
 describe('admin queue', () => {
+  it('rate limits admin routes before auth (429 even with a valid token)', async () => {
+    const deny = { limit: async () => ({ success: false }) } as unknown as RateLimit
+    const env = makeEnv({ RATE_LIMITER: deny })
+    expect((await handler.fetch(adminPost({ action: 'reject', id: 1 }), env)).status).toBe(429)
+    // Public feed stays unthrottled
+    const feed = await handler.fetch(new Request('https://feed.example/feed.json'), env)
+    expect(feed.status).toBe(200)
+  })
+
   it('rejects missing/wrong tokens and refuses to run without a configured token', async () => {
     const env = makeEnv()
     expect((await handler.fetch(adminPost({ action: 'reject', id: 1 }, 'wrong'), env)).status).toBe(

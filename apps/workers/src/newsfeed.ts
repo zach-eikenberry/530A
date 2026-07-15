@@ -21,6 +21,19 @@ export interface Env {
   FEED_URLS: string
   DEPLOY_HOOK_URL: string
   ADMIN_TOKEN?: string
+  /** Optional so local dev/tests run without the binding; prod has it. */
+  RATE_LIMITER?: RateLimit
+}
+
+/** Per-IP limit, checked BEFORE auth so the bearer token can't be brute-forced. */
+async function rateLimited(env: Env, request: Request): Promise<boolean> {
+  if (!env.RATE_LIMITER) return false
+  const key = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+  try {
+    return !(await env.RATE_LIMITER.limit({ key })).success
+  } catch {
+    return false
+  }
 }
 
 const MAX_ITEMS_PER_RUN = 20
@@ -224,6 +237,11 @@ export default {
     const url = new URL(request.url)
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS })
     if (url.pathname === '/feed.json' && request.method === 'GET') return handleFeed(env)
+    if (url.pathname === '/admin/items' || url.pathname === '/ingest') {
+      if (await rateLimited(env, request)) {
+        return json({ error: 'rate limited, retry shortly' }, 429, { 'Retry-After': '60' })
+      }
+    }
     if (url.pathname === '/admin/items') return handleAdmin(request, env)
     if (url.pathname === '/ingest' && request.method === 'POST') {
       // manual trigger, admin-gated (useful right after adding a feed URL)

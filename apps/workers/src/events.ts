@@ -10,6 +10,19 @@ import { z } from 'zod'
 
 export interface Env {
   EVENTS: AnalyticsEngineDataset
+  /** Optional so local dev/tests run without the binding; prod has it. */
+  RATE_LIMITER?: RateLimit
+}
+
+/** Per-IP limit; clients beacon once per session, so this only bites abuse. */
+async function rateLimited(env: Env, request: Request): Promise<boolean> {
+  if (!env.RATE_LIMITER) return false
+  const key = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+  try {
+    return !(await env.RATE_LIMITER.limit({ key })).success
+  } catch {
+    return false
+  }
 }
 
 const ALLOWED_EVENTS = new Set(['scenario_modeled', 'scenario_saved', 'link_copied', 'export'])
@@ -54,6 +67,12 @@ export default {
     }
     if (origin && !ALLOWED_ORIGINS.has(origin)) {
       return new Response('forbidden origin', { status: 403 })
+    }
+    if (await rateLimited(env, request)) {
+      return new Response('rate limited', {
+        status: 429,
+        headers: { 'Retry-After': '60', ...corsHeaders(origin) },
+      })
     }
     const length = Number(request.headers.get('Content-Length') ?? '0')
     if (length > 8192) {

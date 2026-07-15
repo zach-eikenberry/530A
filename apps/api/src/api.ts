@@ -8,6 +8,25 @@ import { BadRequest, legalFacts, runScenario, stateFromInput } from './shared'
  * stores nothing. Read-only computation only.
  */
 
+export interface Env {
+  /** Optional so local dev/tests run without the binding; prod has it. */
+  RATE_LIMITER?: RateLimit
+}
+
+/** Per-IP limit check; fails open so a limiter outage never downs the API. */
+export async function rateLimited(
+  limiter: RateLimit | undefined,
+  request: Request,
+): Promise<boolean> {
+  if (!limiter) return false
+  const key = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+  try {
+    return !(await limiter.limit({ key })).success
+  } catch {
+    return false
+  }
+}
+
 const CORS: HeadersInit = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -29,7 +48,7 @@ async function cacheKeyFor(bodyText: string): Promise<Request> {
 }
 
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env = {}): Promise<Response> {
     const url = new URL(request.url)
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS })
 
@@ -68,6 +87,12 @@ export default {
           res.headers.set('X-Cache', 'HIT')
           return res
         }
+      }
+
+      // Only uncached work is throttled: hits stay free for agent loops,
+      // and an attacker can't burn CPU by varying the body.
+      if (await rateLimited(env.RATE_LIMITER, request)) {
+        return json({ error: 'rate limited, retry shortly' }, 429, { 'Retry-After': '60' })
       }
 
       let parsedBody: unknown

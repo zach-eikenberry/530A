@@ -108,8 +108,13 @@ export function handleRpc(rpc: RpcRequest): Response {
   }
 }
 
+export interface Env {
+  /** Optional so local dev/tests run without the binding; prod has it. */
+  RATE_LIMITER?: RateLimit
+}
+
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env = {}): Promise<Response> {
     if (request.method === 'OPTIONS') return json(null, 204)
     if (request.method === 'GET') {
       // Human/agent discovery page; SSE streaming is not needed for a
@@ -122,6 +127,15 @@ export default {
       })
     }
     if (request.method !== 'POST') return json({ error: 'method not allowed' }, 405)
+
+    if (env.RATE_LIMITER) {
+      const key = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+      const limited = await env.RATE_LIMITER.limit({ key }).then(
+        (r) => !r.success,
+        () => false, // fail open: limiter outage must not down the server
+      )
+      if (limited) return rpcError(null, -32000, 'rate limited, retry shortly')
+    }
 
     let rpc: RpcRequest
     try {

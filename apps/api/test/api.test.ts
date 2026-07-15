@@ -95,6 +95,38 @@ describe('POST /v1/project', () => {
   })
 })
 
+describe('rate limiting', () => {
+  const deny = { limit: async () => ({ success: false }) }
+  const allow = { limit: async () => ({ success: true }) }
+  const broken = {
+    limit: async () => {
+      throw new Error('limiter down')
+    },
+  }
+
+  it('returns 429 with Retry-After when the per-IP limit trips', async () => {
+    const res = await handler.fetch(post(validBody), { RATE_LIMITER: deny })
+    expect(res.status).toBe(429)
+    expect(res.headers.get('Retry-After')).toBe('60')
+  })
+
+  it('passes traffic under the limit and without the binding', async () => {
+    expect((await handler.fetch(post(validBody), { RATE_LIMITER: allow })).status).toBe(200)
+    expect((await handler.fetch(post(validBody), {})).status).toBe(200)
+  })
+
+  it('fails open when the limiter itself errors', async () => {
+    expect((await handler.fetch(post(validBody), { RATE_LIMITER: broken })).status).toBe(200)
+  })
+
+  it('does not throttle the read-only GET endpoints', async () => {
+    const res = await handler.fetch(new Request('https://api.example/v1/rules'), {
+      RATE_LIMITER: deny,
+    })
+    expect(res.status).toBe(200)
+  })
+})
+
 describe('openapi ↔ zod schema consistency', () => {
   it('required fields and bounds match', () => {
     const doc = openApiSpec.components.schemas.Scenario

@@ -18,8 +18,17 @@
   "vars": {
     // Comma-separated RSS/Atom feed URLs (Google Alerts etc). Empty = no-op.
     "FEED_URLS": ""
-  }
+  },
   // Secrets (wrangler secret put --config wrangler.newsfeed.jsonc):
   //   ADMIN_TOKEN     — bearer token for the admin queue endpoints
   //   DEPLOY_HOOK_URL — Pages deploy hook pinged after feed changes
+  // §7 hardening: per-IP throttle on /admin/* and /ingest, applied before
+  // auth so the bearer token cannot be brute-forced.
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "1002",
+      "simple": { "limit": 20, "period": 60 }
+    }
+  ]
 }

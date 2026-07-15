@@ -4,5 +4,14 @@
   "main": "src/api.ts",
   "compatibility_date": "2026-07-01",
   // Personal account only — verify with `wrangler whoami` before deploying.
-  "account_id": "fd89fcd385cb37ed871df05e3c7eb10b"
+  "account_id": "fd89fcd385cb37ed871df05e3c7eb10b",
+  // §7 hardening: per-IP throttle on uncached POST /v1/project (cache
+  // hits bypass it — they cost ~zero CPU and are the intended hot path).
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 30, "period": 60 }
+    }
+  ]
 }

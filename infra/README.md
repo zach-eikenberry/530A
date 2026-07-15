@@ -29,6 +29,26 @@ API tokens are and live only in Cloudflare/GitHub encrypted secrets.
 - GitHub secret `CLOUDFLARE_ACCOUNT_ID` — `fd89fcd385cb37ed871df05e3c7eb10b`.
 - GitHub repo variable `DEPLOY_ENABLED=true`.
 
+## Hardening (§7)
+
+Shipped in code (no dashboard work): strict CSP with per-build inline-script
+hashes + HSTS + COOP (generated into `dist/_headers` by
+`apps/web/scripts/csp.mjs`), and per-IP rate limiting on all four Workers via
+`ratelimits` bindings (fail-open; limits in each `wrangler.*.jsonc`).
+
+Zone-level knobs live only in the dashboard (no zone-scoped API token on this
+machine, by design). One-time, all on the Free plan, for `530amodel.com`:
+
+- [ ] Security → WAF → Managed rules: enable the **Cloudflare Free Managed
+      Ruleset** (on by default for new zones — just confirm)
+- [ ] Security → Bots: enable **Bot Fight Mode** (the site has no logged-in
+      or scripted user flows; the public API/MCP workers are on workers.dev
+      and unaffected)
+- [ ] SSL/TLS → Edge Certificates: set **Minimum TLS 1.2** and enable
+      **Always Use HTTPS**
+- [ ] SSL/TLS → Overview: set encryption mode **Full (strict)** (Pages
+      origin supports it)
+
 ## Owner checklist (dashboard-only, one-time)
 
 - [x] Billing alert / notification so spend can never surprise (~$5/mo expected, ≤$20 ceiling)

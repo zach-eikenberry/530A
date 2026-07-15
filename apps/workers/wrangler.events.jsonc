@@ -10,5 +10,14 @@
       "binding": "EVENTS",
       "dataset": "site_events"
     }
+  ],
+  // §7 hardening: per-IP throttle on beacon POSTs (clients send one per
+  // session; anything faster is not the widget).
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "1004",
+      "simple": { "limit": 30, "period": 60 }
+    }
   ]
 }
