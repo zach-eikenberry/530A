@@ -24,9 +24,12 @@ export const openApiSpec = {
     },
   },
   servers: [{ url: 'https://api.530amodel.com' }],
+  // Explicitly auth-free (GPT Actions and linters want this stated).
+  security: [],
   paths: {
     '/v1/project': {
       post: {
+        operationId: 'projectScenario',
         summary: 'Project a 530A scenario',
         description:
           'Accepts either an explicit scenario or {"s": "<state>"} using the share-link encoding. ' +
@@ -107,6 +110,7 @@ export const openApiSpec = {
     },
     '/v1/rules': {
       get: {
+        operationId: 'getRules',
         summary: 'Verified 530A legal facts with sources',
         responses: {
           '200': {
@@ -135,6 +139,7 @@ export const openApiSpec = {
     },
     '/v1/returns': {
       get: {
+        operationId: 'getReturns',
         summary: 'Live trailing returns for the eligible funds',
         description:
           'Nominal annualized returns (CAGR, dividends reinvested) over the trailing 1, 5, and ' +
