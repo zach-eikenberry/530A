@@ -142,3 +142,21 @@ test('at-18 branch: 529 honestly marked not permitted; tax paths estimate', asyn
   await page.getByRole('radio', { name: /convert to roth/i }).check()
   await expect(page.getByText(/tax then \(paid from outside/i)).toBeVisible()
 })
+
+test('switching to an older child never crashes and clamps the target age', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/model')
+  await waitForResults(page)
+
+  // Regression (Sentry JAVASCRIPT-2): oldest birth year + a low target age
+  // used to throw an unhandled RangeError from the at-18 tax panel.
+  await page.getByTestId('target-age-slider').fill('18')
+  await page.getByTestId('birth-year').selectOption('2008')
+
+  await expect(page.getByTestId('headline')).toBeVisible({ timeout: 20_000 })
+  const target = Number(await page.getByTestId('target-age').textContent())
+  const birthYearAge = new Date().getFullYear() - 2008
+  expect(target).toBeGreaterThan(birthYearAge)
+  expect(errors).toEqual([])
+})

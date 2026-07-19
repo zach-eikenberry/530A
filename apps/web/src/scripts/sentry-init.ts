@@ -14,6 +14,16 @@ if (dsn) {
     // Keep all errors while traffic is small; drop below 1.0 at scale.
     sampleRate: 1.0,
     sendDefaultPii: false,
+    // Third-party noise, not our code: the Cloudflare analytics beacon
+    // failing on pre-Array.prototype.at browsers, and injected/extension
+    // scripts. Our own bundles all live under /_astro/.
+    denyUrls: [
+      /static\.cloudflareinsights\.com/,
+      /^chrome-extension:\/\//,
+      /^moz-extension:\/\//,
+      /^safari-(web-)?extension:\/\//,
+    ],
+    ignoreErrors: [/has no method 'updateFrom'/],
     beforeSend(event) {
       // Belt-and-braces: the site never handles PII; strip request headers.
       if (event.request?.headers) delete event.request.headers

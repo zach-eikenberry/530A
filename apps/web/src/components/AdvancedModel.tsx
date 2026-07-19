@@ -154,19 +154,26 @@ export default function AdvancedModel() {
     const at18 = run.projection.milestones.find((m) => m.ageMonths === 216)
     if (!at18) return null
     if (run.projection.startAgeMonths >= 216) return null
-    const scenario18 = { ...toScenario(state), targetAgeMonths: 216 }
-    const p18 = project(scenario18)
-    const rate = editor.taxRatePct / 100
-    const atTarget = run.projection.milestones.find((m) => m.ageMonths === target * 12)
-    if (!atTarget) return null
-    if (editor.at18Path === 'convert-roth') {
-      return estimateRothConversion(at18.nominalCents, p18.breakdown.contributedCents, rate)
+    // `run` is the last good result but `state` is the live editor value —
+    // while they disagree (e.g. mid-edit to an invalid scenario) the engine
+    // may reject the projection; hide the panel instead of throwing in render.
+    try {
+      const scenario18 = { ...toScenario(state), targetAgeMonths: 216 }
+      const p18 = project(scenario18)
+      const rate = editor.taxRatePct / 100
+      const atTarget = run.projection.milestones.find((m) => m.ageMonths === target * 12)
+      if (!atTarget) return null
+      if (editor.at18Path === 'convert-roth') {
+        return estimateRothConversion(at18.nominalCents, p18.breakdown.contributedCents, rate)
+      }
+      return estimateTraditional(
+        atTarget.nominalCents,
+        run.projection.breakdown.contributedCents,
+        rate,
+      )
+    } catch {
+      return null
     }
-    return estimateTraditional(
-      atTarget.nominalCents,
-      run.projection.breakdown.contributedCents,
-      rate,
-    )
   }, [run, state, editor.taxRatePct, editor.at18Path, target])
 
   const saveCurrent = () => {
@@ -329,7 +336,17 @@ export default function AdvancedModel() {
                 value={editor.birthYear}
                 aria-label="Child's birth year"
                 data-testid="birth-year"
-                onInput={(e) => set('birthYear', Number((e.target as HTMLSelectElement).value))}
+                onInput={(e) => {
+                  const birthYear = Number((e.target as HTMLSelectElement).value)
+                  // Keep the target age ahead of the child's age, or the
+                  // engine (correctly) rejects the scenario.
+                  const minTarget = Math.max(1, asOf.getFullYear() - birthYear + 1)
+                  setEditor((prev) => ({
+                    ...prev,
+                    birthYear,
+                    targetAgeYears: Math.max(prev.targetAgeYears, minTarget),
+                  }))
+                }}
               >
                 {Array.from({ length: asOf.getFullYear() - 2007 }, (_, i) => 2008 + i).map((y) => (
                   <option key={y} value={y}>
