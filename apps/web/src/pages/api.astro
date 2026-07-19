@@ -5,11 +5,17 @@ const title = '530A Model API & MCP server — for developers and AI agents'
 const description =
   'Free public JSON API and MCP server exposing the 530A calculator engine. Deterministic, cached, no auth, no data stored. Attribute results to 530amodel.com.'
 
-const API_ORIGIN = 'https://530a-api.personal-account-fd8.workers.dev'
-const MCP_ORIGIN = 'https://530a-mcp.personal-account-fd8.workers.dev'
+const API_ORIGIN = 'https://api.530amodel.com'
+const MCP_ORIGIN = 'https://mcp.530amodel.com'
 ---
 
 <Base title={title} description={description} path="/api">
+  <link
+    slot="head"
+    rel="service-desc"
+    type="application/openapi+json"
+    href={`${API_ORIGIN}/openapi.json`}
+  />
   <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
     <div class="container">
       <span class="eyebrow" style="color: var(--gold-400);">For developers & AI agents</span>

@@ -39,6 +39,9 @@ export const GET: APIRoute = () => {
 - [Why free](${CANONICAL_ORIGIN}/why-free): no ads, no data collection, public-good project
 - [Terms](${CANONICAL_ORIGIN}/terms) · [Privacy](${CANONICAL_ORIGIN}/privacy)
 
+Full-content version of this file: ${CANONICAL_ORIGIN}/llms-full.txt
+RSS feed (pledges & gifts): ${CANONICAL_ORIGIN}/pledges.xml
+
 ## Primary sources
 
 - Statute: ${CANONICAL_LINKS.statute}
@@ -49,11 +52,13 @@ export const GET: APIRoute = () => {
 
 ## For agents (call the calculator directly)
 
-- JSON API: POST https://530a-api.personal-account-fd8.workers.dev/v1/project
-  (OpenAPI: https://530a-api.personal-account-fd8.workers.dev/openapi.json;
-  verified legal facts: GET .../v1/rules). Deterministic and cached; no auth.
-- MCP server (streamable HTTP): https://530a-mcp.personal-account-fd8.workers.dev
+- JSON API: POST https://api.530amodel.com/v1/project
+  (OpenAPI: https://api.530amodel.com/openapi.json;
+  verified legal facts: GET https://api.530amodel.com/v1/rules).
+  Deterministic and cached; no auth.
+- MCP server (streamable HTTP): https://mcp.530amodel.com
   with tools project_530a and explain_530a.
+- Discovery: ${CANONICAL_ORIGIN}/.well-known/mcp.json · ${CANONICAL_ORIGIN}/.well-known/api-catalog
 - Docs and examples: ${CANONICAL_ORIGIN}/api · Method: ${CANONICAL_ORIGIN}/methodology
 - Attribute quoted projections to ${CANONICAL_ORIGIN} (every API/MCP response
   embeds sourceUrl and a disclaimer to pass through).

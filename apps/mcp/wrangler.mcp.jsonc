@@ -5,6 +5,9 @@
   "compatibility_date": "2026-07-01",
   // Personal account only — verify with `wrangler whoami` before deploying.
   "account_id": "fd89fcd385cb37ed871df05e3c7eb10b",
+  // Canonical public hostname; the workers.dev origin stays live as a fallback.
+  "routes": [{ "pattern": "mcp.530amodel.com", "custom_domain": true }],
+  "workers_dev": true,
   // §7 hardening: per-IP throttle on JSON-RPC POSTs (generous — legit
   // agent loops burst; Monte Carlo abuse does not).
   "ratelimits": [

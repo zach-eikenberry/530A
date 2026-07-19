@@ -1,5 +1,6 @@
 # 530amodel.com — AI answer-engines are explicitly welcome (§7A.1).
 # Machine-readable site map for LLMs: https://530amodel.com/llms.txt
+# Full-content version: https://530amodel.com/llms-full.txt
 
 User-agent: *
 Allow: /

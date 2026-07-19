@@ -1,0 +1,13 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://api.530amodel.com/",
+      "service-desc": [
+        { "href": "https://api.530amodel.com/openapi.json", "type": "application/openapi+json" }
+      ],
+      "service-doc": [
+        { "href": "https://530amodel.com/api", "type": "text/html" }
+      ]
+    }
+  ]
+}
