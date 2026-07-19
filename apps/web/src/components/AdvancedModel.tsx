@@ -169,8 +169,11 @@ export default function AdvancedModel() {
   // before the user starts typing must not overwrite their input.
   const periodPickRef = useRef(periodPick)
   periodPickRef.current = periodPick
-  // While blurred the return field reads as xx.xx; free-form while typing.
-  const [returnFocused, setReturnFocused] = useState(false)
+  // The return field renders xx.xx when idle. While editing, `returnDraft`
+  // mirrors the raw text so the DOM value never changes underneath the
+  // user (or a test's fill()) — a mid-edit controlled reset would clear
+  // the field's selection and corrupt typed input.
+  const [returnDraft, setReturnDraft] = useState<string | null>(null)
   useEffect(() => {
     if (activeNominal === null || periodPickRef.current === 'custom') return
     const fund = FUNDS.find((f) => f.ticker === fundPick)
@@ -524,20 +527,19 @@ export default function AdvancedModel() {
                   step={0.01}
                   min={-10}
                   max={15}
-                  value={returnFocused ? editor.returnPct : editor.returnPct.toFixed(2)}
+                  value={returnDraft ?? editor.returnPct.toFixed(2)}
                   data-testid="return-input"
-                  onFocus={() => setReturnFocused(true)}
-                  onBlur={() => setReturnFocused(false)}
+                  onFocus={() => setReturnDraft(editor.returnPct.toFixed(2))}
+                  onBlur={() => setReturnDraft(null)}
                   onInput={(e) => {
                     // Typing takes over from any live preset (xx.xx precision).
                     // The ref updates synchronously so an already-scheduled
                     // preset effect can't overwrite what was just typed.
                     periodPickRef.current = 'custom'
                     setPeriodPick('custom')
-                    set(
-                      'returnPct',
-                      Math.round(Number((e.target as HTMLInputElement).value) * 100) / 100,
-                    )
+                    const raw = (e.target as HTMLInputElement).value
+                    setReturnDraft(raw)
+                    set('returnPct', Math.round(Number(raw) * 100) / 100)
                   }}
                 />
               </div>

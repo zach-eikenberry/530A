@@ -52,6 +52,13 @@ export function newSourceId(): string {
   return `src-${sourceCounter++}`
 }
 
+/**
+ * Percent fields hold exactly 2 decimals. Deriving them from decimal rates
+ * (0.07 * 100 === 7.000000000000001) leaks float noise into the number
+ * inputs, where it breaks value round-trips.
+ */
+const pct2 = (rate: number): number => Math.round(rate * 100 * 100) / 100
+
 export function defaultEditorState(asOf: Date): EditorState {
   return {
     birthYear: Math.min(asOf.getFullYear(), 2028),
@@ -61,8 +68,8 @@ export function defaultEditorState(asOf: Date): EditorState {
     volPreset: 'med',
     showRange: true,
     realView: true,
-    returnPct: DEFAULTS.annualRealReturn * 100,
-    feePct: DEFAULTS.annualFee * 100,
+    returnPct: pct2(DEFAULTS.annualRealReturn),
+    feePct: pct2(DEFAULTS.annualFee),
     inflationPct: 2.5,
     includeFees: true,
     includeEmployer: true,
@@ -168,10 +175,10 @@ export function fromScenarioState(state: ScenarioState, asOf: Date): EditorState
     includeSeed: state.includeSeed,
     targetAgeYears: Math.round(state.targetAgeMonths / 12),
     volPreset,
-    returnPct: state.assumptions.annualReturn * 100,
-    feePct: (state.assumptions.annualFee || DEFAULTS.annualFee) * 100,
+    returnPct: pct2(state.assumptions.annualReturn),
+    feePct: pct2(state.assumptions.annualFee || DEFAULTS.annualFee),
     includeFees: state.assumptions.annualFee > 0,
-    inflationPct: state.assumptions.annualInflation * 100,
+    inflationPct: pct2(state.assumptions.annualInflation),
     mcSeed: state.mcSeed,
     sources: state.sources.map((s) => ({
       id: s.id,
