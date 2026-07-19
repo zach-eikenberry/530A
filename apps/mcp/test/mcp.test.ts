@@ -28,7 +28,7 @@ describe('MCP server', () => {
   it('lists both tools with schemas', async () => {
     const { body } = await rpc('tools/list')
     const tools = (body as { result: { tools: { name: string }[] } }).result.tools
-    expect(tools.map((t) => t.name)).toEqual(['project_530a', 'explain_530a'])
+    expect(tools.map((t) => t.name)).toEqual(['project_530a', 'explain_530a', 'search', 'fetch'])
   })
 
   it('project_530a runs end-to-end and carries attribution', async () => {
@@ -86,5 +86,79 @@ describe('MCP server', () => {
       new Request('https://mcp.example/', { method: 'POST', body: '{not json' }),
     )
     expect(((await res.json()) as { error: { code: number } }).error.code).toBe(-32700)
+  })
+})
+
+describe('protocol + agent-platform surface', () => {
+  it('negotiates a supported protocol version and keeps ours otherwise', async () => {
+    const older = await rpc('initialize', { protocolVersion: '2025-03-26' })
+    expect((older.body as { result: { protocolVersion: string } }).result.protocolVersion).toBe(
+      '2025-03-26',
+    )
+    const unknown = await rpc('initialize', { protocolVersion: '1999-01-01' })
+    expect((unknown.body as { result: { protocolVersion: string } }).result.protocolVersion).toBe(
+      '2025-06-18',
+    )
+  })
+
+  it('declares read-only annotations and output schemas on every tool', async () => {
+    const { body } = await rpc('tools/list', {})
+    const tools = (
+      body as {
+        result: {
+          tools: { annotations?: { readOnlyHint?: boolean }; outputSchema?: object }[]
+        }
+      }
+    ).result.tools
+    for (const tool of tools) {
+      expect(tool.annotations?.readOnlyHint).toBe(true)
+      expect(tool.outputSchema).toBeTruthy()
+    }
+  })
+
+  it('returns structuredContent alongside text content', async () => {
+    const { body } = await rpc('tools/call', { name: 'explain_530a', arguments: {} })
+    const result = (
+      body as { result: { structuredContent?: { sourceUrl?: string }; content: unknown[] } }
+    ).result
+    expect(result.structuredContent?.sourceUrl).toBe('https://530amodel.com')
+    expect(result.content).toHaveLength(1)
+  })
+
+  it('search returns the OpenAI connector shape and fetch round-trips an id', async () => {
+    const search = await rpc('tools/call', {
+      name: 'search',
+      arguments: { query: 'employer contribution cap' },
+    })
+    const { results } = (
+      search.body as {
+        result: { structuredContent: { results: { id: string; title: string; url: string }[] } }
+      }
+    ).result.structuredContent
+    expect(results.length).toBeGreaterThan(0)
+    for (const r of results) {
+      expect(r.id).toBeTruthy()
+      expect(r.title).toBeTruthy()
+      expect(r.url).toMatch(/^https:\/\/530amodel\.com\//)
+    }
+
+    const fetched = await rpc('tools/call', { name: 'fetch', arguments: { id: results[0]?.id } })
+    const doc = (
+      fetched.body as {
+        result: { structuredContent: { id: string; title: string; text: string; url: string } }
+      }
+    ).result.structuredContent
+    expect(doc.id).toBe(results[0]?.id)
+    expect(doc.text.length).toBeGreaterThan(40)
+  })
+
+  it('fetch with an unknown id is a tool error, not a crash', async () => {
+    const { body } = await rpc('tools/call', { name: 'fetch', arguments: { id: 'nope' } })
+    expect((body as { result: { isError?: boolean } }).result.isError).toBe(true)
+  })
+
+  it('exposes MCP headers to browser clients', async () => {
+    const res = await handler.fetch(new Request('https://mcp.example/', { method: 'OPTIONS' }))
+    expect(res.headers.get('Access-Control-Expose-Headers')).toContain('Mcp-Session-Id')
   })
 })

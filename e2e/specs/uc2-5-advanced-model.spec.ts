@@ -194,9 +194,11 @@ test('live return presets set the return field from market data', async ({ page 
   await page.getByTestId('fund-VTI').click()
   await expect(page.getByTestId('period-10y')).toBeDisabled()
 
-  // Typing in the field hands control back to Custom
+  // Typing in the field hands control back to Custom; the raw text stays
+  // while editing and formats to xx.xx on blur
   await page.getByTestId('fund-IVV').click()
   await page.getByTestId('return-input').fill('6.789')
   await expect(page.getByTestId('period-custom')).toHaveAttribute('aria-pressed', 'true')
+  await page.getByTestId('return-input').blur()
   await expect(page.getByTestId('return-input')).toHaveValue('6.79')
 })
