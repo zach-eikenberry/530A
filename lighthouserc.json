@@ -2,7 +2,13 @@
   "ci": {
     "collect": {
       "staticDistDir": "./apps/web/dist",
-      "url": ["http://localhost/", "http://localhost/faq/", "http://localhost/model/"],
+      "url": [
+        "http://localhost/",
+        "http://localhost/faq/",
+        "http://localhost/model/",
+        "http://localhost/compare/",
+        "http://localhost/open-account/"
+      ],
       "numberOfRuns": 3,
       "settings": {
         "preset": "desktop"
