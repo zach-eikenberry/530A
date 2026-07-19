@@ -1,13 +1,22 @@
 ---
 import { CANONICAL_LINKS, FUNDS, RULES_VERIFIED_AT } from '@530a/config'
 import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
 
 const title = '530A Resources — primary sources and how to open an account'
 const description =
   'Primary sources for 530A “Trump Account” rules: the statute, IRS guidance, CRS and SEC explainers, and where to open an account.'
+
+const resourcesLd = articleLd({ headline: title, description, path: '/resources' })
 ---
 
-<Base title={title} description={description} path="/resources">
+<Base
+  title={title}
+  description={description}
+  path="/resources"
+  jsonLd={[resourcesLd]}
+  ogType="article"
+>
   <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
     <div class="container">
       <span class="eyebrow" style="color: var(--gold-400);">Primary sources</span>

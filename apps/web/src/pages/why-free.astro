@@ -1,12 +1,21 @@
 ---
 import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
 
 const title = 'Why is 530A Model free?'
 const description =
   '530A Model is a public-good passion project: no ads, no upsells, no email capture, no data sold. Here’s why it exists and how it stays free.'
+
+const whyFreeLd = articleLd({ headline: title, description, path: '/why-free' })
 ---
 
-<Base title={title} description={description} path="/why-free">
+<Base
+  title={title}
+  description={description}
+  path="/why-free"
+  jsonLd={[whyFreeLd]}
+  ogType="article"
+>
   <section class="section-tight">
     <div class="container container-narrow prose">
     <h1>Why is this free?</h1>

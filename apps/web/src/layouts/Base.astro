@@ -1,5 +1,6 @@
 ---
 import { CANONICAL_ORIGIN, RULES_VERIFIED_AT } from '@530a/config'
+import { GITHUB_URL, ORG_ID, WEBSITE_ID } from '../lib/seo'
 import '../styles/global.css'
 
 interface Props {
@@ -9,20 +10,64 @@ interface Props {
   path: string
   /** Extra JSON-LD blocks (already-serializable objects). */
   jsonLd?: object[]
+  /** OpenGraph type; 'article' also emits article:modified_time (rules-verified date). */
+  ogType?: 'website' | 'article'
+  /** Keep the page out of search indexes (admin, 404). */
+  noindex?: boolean
 }
 
-const { title, description, path, jsonLd = [] } = Astro.props
+const { title, description, path, jsonLd = [], ogType = 'website', noindex = false } = Astro.props
 const canonical = `${CANONICAL_ORIGIN}${path === '/' ? '/' : path.replace(/\/$/, '')}`
 
 const organizationLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': ORG_ID,
   name: '530A Model',
   url: CANONICAL_ORIGIN,
   logo: `${CANONICAL_ORIGIN}/assets/img/mark.svg`,
   description:
     'Free, privacy-first scenario-planning calculator for 530A custodial retirement accounts.',
+  sameAs: [GITHUB_URL],
 }
+
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': WEBSITE_ID,
+  name: '530A Model',
+  url: CANONICAL_ORIGIN,
+  description:
+    'Free, privacy-first scenario-planning calculator for 530A custodial retirement accounts.',
+  inLanguage: 'en',
+  publisher: { '@id': ORG_ID },
+}
+
+// Breadcrumb labels for indexable subpages (admin/404 intentionally absent).
+const crumbLabels: Record<string, string> = {
+  '/model': 'Advanced Model',
+  '/compare': 'Compare accounts',
+  '/open-account': 'How to open',
+  '/faq': 'FAQ',
+  '/resources': 'Resources',
+  '/methodology': 'Methodology',
+  '/pledges': 'Pledges & gifts',
+  '/api': 'API & MCP',
+  '/why-free': 'Why free',
+  '/terms': 'Terms',
+  '/privacy': 'Privacy',
+}
+const crumbLabel = crumbLabels[path.replace(/\/$/, '')]
+const breadcrumbLd = crumbLabel
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${CANONICAL_ORIGIN}/` },
+        { '@type': 'ListItem', position: 2, name: crumbLabel, item: canonical },
+      ],
+    }
+  : null
 
 const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN
 
@@ -46,17 +91,35 @@ const current = (href: string) => (path === href ? 'page' : undefined)
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta property="og:type" content="website" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="530A Pledges & Gifts"
+      href={`${CANONICAL_ORIGIN}/pledges.xml`}
+    />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="530A Model" />
     <meta property="og:image" content={`${CANONICAL_ORIGIN}/assets/img/og.png`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="530A Model — free 530A account calculator" />
+    {ogType === 'article' && (
+      <meta property="article:modified_time" content={RULES_VERIFIED_AT} />
+    )}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${CANONICAL_ORIGIN}/assets/img/og.png`} />
     <script type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteLd)} />
+    {breadcrumbLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+    )}
+    <slot name="head" />
     {jsonLd.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
     <script is:inline>
       // Theme init before first paint (local-only preference, not tracking)

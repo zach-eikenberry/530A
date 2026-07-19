@@ -1,12 +1,60 @@
 ---
+import { CANONICAL_ORIGIN } from '@530a/config'
 import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
 
 const title = '530A vs 529 vs Custodial vs Roth IRA — which is best for your child?'
 const description =
   'Side-by-side comparison of the four common ways to invest for a child: 530A “Trump Accounts,” 529 plans, UTMA/UGMA custodial accounts, and custodial Roth IRAs.'
+
+const compareLd = articleLd({ headline: title, description, path: '/compare' })
+
+// The four accounts compared, as an addressable list for answer engines.
+const accountListLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Ways to invest for a child, compared',
+  url: `${CANONICAL_ORIGIN}/compare`,
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: '530A / Trump Account',
+      description:
+        'Tax-advantaged custodial account with a one-time $1,000 federal seed for 2025–2028 births; $5,000/yr combined cap; behaves like a Traditional IRA at 18.',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '529 Plan',
+      description:
+        'Education-savings plan with tax-free withdrawals for qualified education costs and high contribution limits.',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: 'UTMA/UGMA Custodial Account',
+      description:
+        'Fully flexible custodial brokerage account; growth taxed yearly (kiddie tax); child takes control at 18–21.',
+    },
+    {
+      '@type': 'ListItem',
+      position: 4,
+      name: 'Custodial Roth IRA',
+      description:
+        'Tax-free retirement growth on a child’s own earned income, up to the IRA limit.',
+    },
+  ],
+}
 ---
 
-<Base title={title} description={description} path="/compare">
+<Base
+  title={title}
+  description={description}
+  path="/compare"
+  jsonLd={[compareLd, accountListLd]}
+  ogType="article"
+>
   <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
     <div class="container">
       <span class="eyebrow" style="color: var(--gold-400);">Compare accounts</span>

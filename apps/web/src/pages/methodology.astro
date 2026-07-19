@@ -1,12 +1,26 @@
 ---
 import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
 
 const title = 'Methodology — how 530A Model computes projections'
 const description =
   'Exactly how this calculator works: integer-cent arithmetic, monthly compounding, cap enforcement, seeded Monte-Carlo ranges, and independent cross-verification to the cent.'
+
+const methodologyLd = articleLd({
+  headline: title,
+  description,
+  path: '/methodology',
+  type: 'TechArticle',
+})
 ---
 
-<Base title={title} description={description} path="/methodology">
+<Base
+  title={title}
+  description={description}
+  path="/methodology"
+  jsonLd={[methodologyLd]}
+  ogType="article"
+>
   <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
     <div class="container">
       <span class="eyebrow" style="color: var(--gold-400);">The math</span>
