@@ -153,6 +153,65 @@ export function contentCorpus(origin: string): ContentDoc[] {
         'vectors before any release.',
     },
     {
+      id: 'withdrawal-rules',
+      title: '530A withdrawal rules — when the money can come out',
+      url: `${origin}/withdrawals`,
+      text:
+        'No withdrawals before the year the child turns 18 — no hardship or education ' +
+        'carve-outs in the statute as verified. At 18 the child owns the account and it follows ' +
+        'Traditional-IRA treatment: earnings taxed as ordinary income on withdrawal, ' +
+        'penalty-free at 59½ with IRA-style exceptions before that (the exact 530A ' +
+        'early-withdrawal penalty is pending confirmation). Only after-tax family ' +
+        'contributions (basis) come out tax-free; the federal seed, employer money, and growth ' +
+        'are taxable. After 18, converting to a Roth IRA taxes the non-basis amount once and ' +
+        'makes later growth tax-free. A 529 rollover is not currently permitted as far as ' +
+        'primary sources show.',
+    },
+    {
+      id: 'contribution-timing',
+      title: '530A contribution timing — start date, deadlines, caps by year',
+      url: `${origin}/contribution-deadline`,
+      text:
+        'Contributions open July 4, 2026 — none are permitted earlier, even for accounts ' +
+        'opened before then. The $5,000 cap applies per child per calendar year across all ' +
+        'sources combined and unused room does not roll over. The cap is indexed to inflation ' +
+        'after 2027 (mechanics pending guidance). Contributions can be made until the year the ' +
+        'child turns 18. Earlier money compounds longer, but consistency beats timing.',
+    },
+    {
+      id: 'employer-contributions',
+      title: '530A employer contributions — the $2,500 benefit',
+      url: `${origin}/employer-contributions`,
+      text:
+        'Employers may contribute up to $2,500 per child per year to a 530A, counted within ' +
+        'the $5,000 combined annual cap. Employer money is not basis — like the federal seed, ' +
+        'it and its growth are taxed on withdrawal. Families should coordinate employer and ' +
+        'family amounts so combined contributions stay inside the cap.',
+    },
+    {
+      id: '530a-vs-529',
+      title: '530A vs 529 for college — which account, or both',
+      url: `${origin}/530a-vs-529`,
+      text:
+        'For money earmarked for education a 529 usually wins: tax-free qualified withdrawals, ' +
+        'possible state deductions, usable at 18–22. The 530A is a retirement head start: free ' +
+        '$1,000 seed for 2025–2028 births, low-fee index investing, locked until 18 then ' +
+        'Traditional-IRA-like. Neither account can roll into the other as far as primary ' +
+        'sources verify. Many families fund both: 530A for the long horizon, 529 for tuition.',
+    },
+    {
+      id: 'glossary',
+      title: '530A glossary — key terms defined',
+      url: `${origin}/glossary`,
+      text:
+        'Definitions of the terms around 530A accounts: basis (after-tax contributions, ' +
+        'tax-free at withdrawal), variance drain (volatility’s drag on compounding), expense ' +
+        'ratio (annual fund fee, ~0.03% for eligible funds), kiddie tax (yearly tax on ' +
+        'custodial-account gains that 530As defer), Traditional-IRA treatment (the at-18 ' +
+        'behavior), Roth conversion (paying tax once for tax-free growth), Monte Carlo ' +
+        'percentile bands, and nominal vs real dollars.',
+    },
+    {
       id: 'primary-sources',
       title: '530A primary sources',
       url: `${origin}/resources`,

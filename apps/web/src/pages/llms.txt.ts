@@ -33,8 +33,14 @@ export const GET: APIRoute = () => {
 - [Advanced Model](${CANONICAL_ORIGIN}/model): scenario reconstruction from shareable ?s= links
 - [Pledges & gifts](${CANONICAL_ORIGIN}/pledges): tracked feed of reported 530A pledges; human-reviewed entries are modelable
 - [Compare](${CANONICAL_ORIGIN}/compare): 530A vs 529 vs custodial vs Roth IRA
+- [530A vs 529 deep dive](${CANONICAL_ORIGIN}/530a-vs-529): which for college, and why usually both
 - [How to open](${CANONICAL_ORIGIN}/open-account): step-by-step guide
 - [FAQ](${CANONICAL_ORIGIN}/faq): eligibility, caps, taxes, withdrawals
+- [Withdrawal rules](${CANONICAL_ORIGIN}/withdrawals): locked until 18, IRA rules after, Roth option
+- [Contribution timing](${CANONICAL_ORIGIN}/contribution-deadline): starts July 4 2026; per-calendar-year cap
+- [Employer contributions](${CANONICAL_ORIGIN}/employer-contributions): the $2,500 benefit inside the cap
+- [Glossary](${CANONICAL_ORIGIN}/glossary): every term defined
+- [Updates](${CANONICAL_ORIGIN}/updates): dated changelog of rule re-verifications and features
 - [Resources](${CANONICAL_ORIGIN}/resources): primary sources and how to open an account
 - [Why free](${CANONICAL_ORIGIN}/why-free): no ads, no data collection, public-good project
 - [Terms](${CANONICAL_ORIGIN}/terms) · [Privacy](${CANONICAL_ORIGIN}/privacy)

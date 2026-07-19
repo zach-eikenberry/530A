@@ -1,0 +1,140 @@
+---
+import { CANONICAL_ORIGIN } from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
+
+const title = '530A / Trump Account Glossary — every term, plainly defined'
+const description =
+  'Plain-English definitions of every term you’ll meet around 530A “Trump Accounts”: basis, variance drain, expense ratio, kiddie tax, Roth conversion, and more.'
+
+// Rendered on-page AND emitted as DefinedTerm structured data — identical.
+const terms = [
+  {
+    id: '530a-account',
+    term: '530A account ("Trump Account")',
+    def: 'A tax-advantaged custodial investment account for minors created by the One Big Beautiful Bill Act of 2025 (IRC §530A). Money is invested in a low-cost U.S. index fund and grows tax-deferred; the child takes ownership at 18.',
+  },
+  {
+    id: 'federal-seed',
+    term: 'Federal seed',
+    def: 'The one-time $1,000 contribution the federal government makes to a 530A for U.S.-citizen children born January 1, 2025 through December 31, 2028 who have a Social Security number.',
+  },
+  {
+    id: 'contribution-cap',
+    term: 'Contribution cap',
+    def: 'The $5,000-per-child-per-year limit on 530A contributions from all sources combined, indexed to inflation after 2027. Employer contributions count within it.',
+  },
+  {
+    id: 'basis',
+    term: 'Basis',
+    def: 'The total of after-tax contributions made to the account. Basis comes out tax-free at withdrawal; everything above it (the federal seed, employer money, and growth) is taxed as income when withdrawn.',
+  },
+  {
+    id: 'custodial-account',
+    term: 'Custodial account',
+    def: 'An account an adult manages on behalf of a minor. The child is the legal owner; control transfers to them at the age set by law — 18 for a 530A.',
+  },
+  {
+    id: 'index-fund',
+    term: 'Index fund',
+    def: 'A fund that passively tracks a market index (like the S&P 500) instead of paying managers to pick stocks. 530A money must by law sit in low-cost funds tracking an index of primarily U.S. companies.',
+  },
+  {
+    id: 'expense-ratio',
+    term: 'Expense ratio',
+    def: 'The annual fee a fund charges, as a percentage of your balance. The default 530A-eligible funds charge about 0.03%/yr — $3 per year on a $10,000 balance.',
+  },
+  {
+    id: 'traditional-ira-treatment',
+    term: 'Traditional-IRA treatment',
+    def: 'What happens to a 530A at 18: it behaves like a Traditional IRA. Penalty-free withdrawals begin at 59½, with IRA-style exceptions before that, and earnings are taxed as income when withdrawn.',
+  },
+  {
+    id: 'roth-conversion',
+    term: 'Roth conversion',
+    def: 'Moving money from Traditional-IRA-like treatment into a Roth IRA, paying income tax now on the non-basis amount so that later growth and withdrawals are tax-free. An option for 530A owners after 18 — often attractive in a low-income year.',
+  },
+  {
+    id: 'kiddie-tax',
+    term: 'Kiddie tax',
+    def: 'The rule that taxes a child’s investment income above a threshold at rates designed to stop income-shifting. It applies yearly to UTMA/UGMA custodial accounts — one reason tax-deferred accounts like the 530A can compound faster.',
+  },
+  {
+    id: 'nominal-vs-real',
+    term: 'Nominal vs. real dollars',
+    def: 'Nominal dollars are face values in the future; real dollars are adjusted for inflation into today’s purchasing power. This site defaults to real dollars so a projection for 2090 means something today.',
+  },
+  {
+    id: 'monte-carlo',
+    term: 'Monte Carlo simulation',
+    def: 'Running thousands of randomized market paths to show a range of outcomes instead of a single line. This site runs seeded simulations — the same inputs always reproduce the same percentile bands.',
+  },
+  {
+    id: 'variance-drain',
+    term: 'Variance drain',
+    def: 'Why a bumpy sequence of returns averaging 7% grows less than a steady 7% every year: volatility drags on compounding. It is why the Monte-Carlo median sits below the smooth deterministic projection.',
+  },
+  {
+    id: 'percentile-bands',
+    term: 'Percentile bands',
+    def: 'The 10th/25th/50th/75th/90th percentile outcomes across simulated market paths. The 50th (median) is the middle outcome; the 10th–90th band shows the plausible range, not a guarantee.',
+  },
+  {
+    id: 'qualified-class',
+    term: 'Qualified class (pending)',
+    def: 'The precise definition of investments eligible inside a 530A. Final details are expected in Treasury regulations (anticipated March 2026); this site flags the item as unverified until then.',
+  },
+]
+
+const glossaryLd = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTermSet',
+  '@id': `${CANONICAL_ORIGIN}/glossary#terms`,
+  name: '530A / Trump Account glossary',
+  hasDefinedTerm: terms.map((t) => ({
+    '@type': 'DefinedTerm',
+    '@id': `${CANONICAL_ORIGIN}/glossary#${t.id}`,
+    name: t.term,
+    description: t.def,
+  })),
+}
+
+const pageLd = articleLd({ headline: title, description, path: '/glossary' })
+---
+
+<Base
+  title={title}
+  description={description}
+  path="/glossary"
+  jsonLd={[pageLd, glossaryLd]}
+  ogType="article"
+>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Glossary</span>
+      <h1 class="mt-2" style="color: #fff;">530A terms, plainly defined</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        Every term used on this site — and in the statute, IRS guidance, and news coverage —
+        defined without jargon.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container container-narrow prose">
+      <dl>
+        {terms.map((t) => (
+          <>
+            <dt id={t.id}><strong>{t.term}</strong></dt>
+            <dd style="margin: 0 0 1.1em 0;">{t.def}</dd>
+          </>
+        ))}
+      </dl>
+      <p class="mt-4">
+        See the terms in action: the <a href="/faq">FAQ</a> answers the common questions, the
+        <a href="/methodology">methodology</a> shows exactly how the math works, and the
+        <a href="/model">Advanced Model</a> lets you change every assumption yourself.
+      </p>
+    </div>
+  </section>
+</Base>

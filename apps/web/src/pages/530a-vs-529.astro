@@ -1,0 +1,118 @@
+---
+import { RULES_VERIFIED_AT } from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
+
+const title = '530A vs 529 for College — which account, or both?'
+const description =
+  'A deep-dive comparison of 530A “Trump Accounts” and 529 plans for college savers: taxes, flexibility, the free $1,000 seed, and why the honest answer is usually both.'
+
+const faqs = [
+  {
+    q: 'Should college money go into a 530A or a 529?',
+    a: 'If the money is earmarked for college, a 529 usually wins: withdrawals for qualified education costs are 100% tax-free, many states add a tax deduction, and the money is usable exactly when tuition is due. A 530A is locked until 18 and taxes earnings on withdrawal.',
+  },
+  {
+    q: 'Then what is the 530A for?',
+    a: 'The decades after college. Its edge is the free $1,000 federal seed (2025–2028 births), dead-simple low-fee index investing, and an enforced lock-up that lets compounding run to 59½ untouched. As a retirement head start it can outgrow its college usefulness by an order of magnitude.',
+  },
+  {
+    q: 'Can 530A money pay for college at 18?',
+    a: 'Technically the child owns it at 18 under Traditional-IRA treatment, but tapping it then means paying ordinary income tax on the earnings — and possibly a penalty, pending final guidance. It is a poor college fund and an excellent retirement one.',
+  },
+  {
+    q: 'Can a 530A roll into a 529, or a 529 into a 530A?',
+    a: 'Neither is verified. The statute specifies Traditional-IRA treatment at 18 with no 529 rollover provision we can find, and 529→530A transfers are not provided for either. This site flags both paths "not currently permitted" until primary sources say otherwise.',
+  },
+  {
+    q: 'How does financial aid treat each account?',
+    a: 'A parent-owned 529 is a parental asset on the FAFSA (assessed at up to 5.64%). How 530A balances will be treated for aid purposes is not yet settled in guidance — treat any claim you read as provisional, including ours.',
+  },
+  {
+    q: 'What does “both” look like in practice?',
+    a: 'A common split: automate what you can afford, route the first dollars to the 530A while its $1,000 seed and early years compound (capped at $5,000/yr anyway), and direct education-specific gifts and state-deductible dollars to the 529. Model your own split in the Advanced Model.',
+  },
+]
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+}
+const pageLd = articleLd({ headline: title, description, path: '/530a-vs-529' })
+---
+
+<Base
+  title={title}
+  description={description}
+  path="/530a-vs-529"
+  jsonLd={[pageLd, faqLd]}
+  ogType="article"
+>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Deep dive</span>
+      <h1 class="mt-2" style="color: #fff;">530A vs 529 for college</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 70ch;">
+        They answer different questions: the 529 asks “how do we pay for college?”, the 530A asks
+        “what will our child retire on?”. Rules verified as of {RULES_VERIFIED_AT}.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="grid grid-2" style="gap: 24px;">
+        <div class="card">
+          <h2 style="font-size: 1.25rem;">Choose the 529 when…</h2>
+          <div class="prose" style="max-width: none;">
+            <ul>
+              <li>The money is <strong>for education</strong> — tax-free qualified withdrawals
+                beat everything.</li>
+              <li>Your state offers a <strong>tax deduction</strong> for 529 contributions.</li>
+              <li>You need the money <strong>usable at 18–22</strong>, not 59½.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h2 style="font-size: 1.25rem;">Choose the 530A when…</h2>
+          <div class="prose" style="max-width: none;">
+            <ul>
+              <li>Your child was born <strong>2025–2028</strong> — the free $1,000 seed is on
+                the table.</li>
+              <li>The goal is a <strong>retirement head start</strong> measured in decades.</li>
+              <li>You want <strong>one simple account</strong>: low-fee index fund, automatic
+                contributions, nothing to manage.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion mt-4">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <div class="acc-body">
+              <p>{f.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <div class="callout mt-4">
+        <strong>See the whole field.</strong> The <a href="/compare">full comparison table</a>
+        adds UTMA/UGMA and custodial Roth IRAs; <a href="/withdrawals">withdrawal rules</a>
+        covers the at-18 mechanics; the <a href="/glossary">glossary</a> defines every term used
+        here.
+      </div>
+
+      <div class="center mt-4">
+        <a class="btn btn-gold btn-lg" href="/model">Model your split →</a>
+      </div>
+    </div>
+  </section>
+</Base>

@@ -56,6 +56,12 @@ const crumbLabels: Record<string, string> = {
   '/why-free': 'Why free',
   '/terms': 'Terms',
   '/privacy': 'Privacy',
+  '/glossary': 'Glossary',
+  '/withdrawals': 'Withdrawal rules',
+  '/contribution-deadline': 'Contribution timing',
+  '/employer-contributions': 'Employer contributions',
+  '/530a-vs-529': '530A vs 529',
+  '/updates': 'Updates',
 }
 const crumbLabel = crumbLabels[path.replace(/\/$/, '')]
 const breadcrumbLd = crumbLabel
@@ -231,12 +237,16 @@ const current = (href: string) => (path === href ? 'page' : undefined)
             <a href="/pledges">Pledges &amp; gifts</a>
             <a href="/compare">529 vs 530A</a>
             <a href="/open-account">How to open one</a>
+            <a href="/withdrawals">Withdrawal rules</a>
+            <a href="/employer-contributions">Employer contributions</a>
             <a href="/faq">FAQ</a>
+            <a href="/glossary">Glossary</a>
             <a href="/methodology">Methodology</a>
           </div>
           <div>
             <div class="fh">Trust</div>
             <a href="/resources">Primary sources</a>
+            <a href="/updates">Updates</a>
             <a href="/why-free">Why it's free</a>
             <a href="/terms">Terms</a>
             <a href="/privacy">Privacy</a>

@@ -1,0 +1,46 @@
+---
+import { RULES_VERIFIED_AT } from '@530a/config'
+import { updates } from '../data/updates'
+import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
+
+const title = '530A Model Updates — what changed and when'
+const description =
+  'A dated log of every meaningful change to 530amodel.com: rule re-verifications, new guides, calculator features, and API/MCP releases.'
+
+const pageLd = {
+  ...articleLd({ headline: title, description, path: '/updates' }),
+  dateModified: updates[0]?.date ?? RULES_VERIFIED_AT,
+}
+---
+
+<Base title={title} description={description} path="/updates" jsonLd={[pageLd]} ogType="article">
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Changelog</span>
+      <h1 class="mt-2" style="color: #fff;">Updates</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        530A rules are young and still evolving — this log records every rule re-verification
+        and site change, dated. Rules last verified {RULES_VERIFIED_AT}.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container container-narrow prose">
+      {updates.map((u) => (
+        <div class="mt-3">
+          <p class="muted" style="margin-bottom: 2px; font-size: 0.85rem;">
+            <time datetime={u.date}>{u.date}</time>
+          </p>
+          <h2 style="font-size: 1.15rem; margin-top: 0;">{u.title}</h2>
+          <p>{u.text}</p>
+        </div>
+      ))}
+      <p class="mt-4 muted">
+        Watching for the March 2026 Treasury regulations? They will settle the flagged items on
+        the <a href="/resources">resources page</a>; re-verifications land here first.
+      </p>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,89 @@
+---
+import { CANONICAL_LINKS, RULES_VERIFIED_AT } from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
+
+const title = '530A Employer Contributions — the $2,500 benefit explained'
+const description =
+  'How employer contributions to 530A “Trump Accounts” work: up to $2,500/yr per child, counted inside the $5,000 cap — what parents should ask for and what employers should know.'
+
+const faqs = [
+  {
+    q: 'How much can an employer contribute to a 530A?',
+    a: 'Up to $2,500 per child per year. Employer money counts within the overall $5,000 annual cap, so a full employer contribution leaves $2,500 of family capacity in that year.',
+  },
+  {
+    q: 'Is an employer 530A contribution taxable to me?',
+    a: 'Employer contributions do not form part of your basis — like the federal seed, they and their growth are taxed as income when eventually withdrawn. The near-term benefit is real: it is money compounding for your child that didn’t come out of your paycheck.',
+  },
+  {
+    q: 'What should I ask my employer or HR team?',
+    a: 'Whether a 530A / Trump Account contribution benefit is offered or planned, whether it covers all dependents born in the seed window and beyond, and how it coordinates with the $5,000 cap so the family doesn’t accidentally over-contribute across sources.',
+  },
+  {
+    q: 'Why would an employer offer this?',
+    a: 'It is a family-friendly benefit with a hard per-child cost ceiling ($2,500/yr), simple mechanics compared to many benefits, and visible long-horizon impact — $2,500/yr from birth to 18 can compound into a six-figure head start by retirement age.',
+  },
+  {
+    q: 'What happens if employer plus family contributions exceed $5,000?',
+    a: 'The cap applies across all sources combined. This calculator clips contributions at the cap in source order and reports what was clipped rather than silently counting it — coordinate amounts so real-world contributions stay inside the limit.',
+  },
+]
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+}
+const pageLd = articleLd({ headline: title, description, path: '/employer-contributions' })
+---
+
+<Base
+  title={title}
+  description={description}
+  path="/employer-contributions"
+  jsonLd={[pageLd, faqLd]}
+  ogType="article"
+>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Employer contributions</span>
+      <h1 class="mt-2" style="color: #fff;">The $2,500 employer benefit</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        Employers can put up to <strong style="color: #fff;">$2,500 per child per year</strong>
+        into a 530A, inside the $5,000 combined cap. Verified as of {RULES_VERIFIED_AT} against
+        the <a href={CANONICAL_LINKS.statute} style="color: var(--gold-400);">statute</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="accordion">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <div class="acc-body">
+              <p>{f.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <div class="callout mt-4">
+        <strong>Model it.</strong> The <a href="/model">Advanced Model</a> supports an employer
+        contribution source alongside family and gifts, enforces the caps in source order, and
+        shows exactly what an employer match adds by 18 — and by 65. Timing questions are
+        covered in <a href="/contribution-deadline">contribution dates &amp; deadlines</a>.
+      </div>
+
+      <div class="center mt-4">
+        <a class="btn btn-gold btn-lg" href="/model">Add an employer source →</a>
+      </div>
+    </div>
+  </section>
+</Base>

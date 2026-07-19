@@ -1,0 +1,96 @@
+---
+import { CANONICAL_LINKS, RULES_VERIFIED_AT } from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
+
+const title = '530A Withdrawal Rules — when can the money come out?'
+const description =
+  'When 530A “Trump Account” money can be withdrawn: nothing before 18, Traditional-IRA rules after, penalty-free at 59½, and how basis, taxes, and the Roth conversion work.'
+
+const faqs = [
+  {
+    q: 'Can I withdraw from a 530A before my child turns 18?',
+    a: 'No. The statute permits no withdrawals before the year the child turns 18. There is no hardship, education, or emergency carve-out in the law as verified — the account is locked by design so compounding can work.',
+  },
+  {
+    q: 'What happens at 18?',
+    a: 'The child becomes the owner and the account behaves like a Traditional IRA. That means withdrawals are possible but earnings are taxed as ordinary income, and before age 59½ the IRA-style rules (with their usual exceptions) apply.',
+  },
+  {
+    q: 'When are withdrawals penalty-free?',
+    a: 'At 59½, following Traditional-IRA treatment. Before that, IRA-style exceptions exist; whether the standard 10% early-withdrawal penalty applies to 530A accounts specifically is still pending confirmation in guidance, so this site labels it an assumption rather than fact.',
+  },
+  {
+    q: 'What part of a withdrawal is tax-free?',
+    a: 'Only the basis — the after-tax contributions your family made. The $1,000 federal seed, any employer contributions, and all growth are taxed as ordinary income when withdrawn.',
+  },
+  {
+    q: 'Can the money move to a Roth IRA instead?',
+    a: 'After 18, converting to a Roth IRA is an option: income tax is due on the non-basis amount at conversion, and growth afterward is tax-free. Converting in a low-income year (like college) can meaningfully improve the lifetime outcome — model both paths in the Advanced Model.',
+  },
+  {
+    q: 'Can a 530A roll into a 529 college plan?',
+    a: 'Not that we can verify. The statute specifies Traditional-IRA treatment at 18 and we could not find a 529 rollover provision, so this site marks that path "not currently permitted" until primary sources confirm otherwise.',
+  },
+]
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+}
+const pageLd = articleLd({ headline: title, description, path: '/withdrawals' })
+---
+
+<Base
+  title={title}
+  description={description}
+  path="/withdrawals"
+  jsonLd={[pageLd, faqLd]}
+  ogType="article"
+>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Withdrawal rules</span>
+      <h1 class="mt-2" style="color: #fff;">When can 530A money come out?</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        The short answer: not before 18, and after that it follows Traditional-IRA rules. The
+        details — verified as of {RULES_VERIFIED_AT} against the
+        <a href={CANONICAL_LINKS.statute} style="color: var(--gold-400);">statute</a> and
+        <a href={CANONICAL_LINKS.irsNotice} style="color: var(--gold-400);">IRS Notice 2025-68</a> —
+        are below.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="accordion">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <div class="acc-body">
+              <p>{f.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <div class="callout mt-4">
+        <strong>The timeline at a glance.</strong> Locked until 18 → Traditional-IRA treatment
+        (taxable withdrawals, IRA rules) → penalty-free at 59½ — or convert to a Roth IRA after
+        18 and pay the tax once. Unverified items (the exact early-withdrawal penalty, 529
+        rollover) are flagged, never assumed. See the <a href="/glossary">glossary</a> for any
+        term, or <a href="/model">model both at-18 paths</a> with your own numbers.
+      </div>
+
+      <div class="center mt-4">
+        <a class="btn btn-gold btn-lg" href="/model">See what the lock-up earns →</a>
+      </div>
+    </div>
+  </section>
+</Base>

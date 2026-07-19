@@ -1,0 +1,95 @@
+---
+import { CANONICAL_LINKS, RULES_VERIFIED_AT } from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
+
+const title = '530A Contribution Timing — start date, deadlines, and caps by year'
+const description =
+  'When 530A “Trump Account” contributions can start (July 4, 2026), how the $5,000 annual cap works by calendar year, and why starting early matters more than timing.'
+
+const faqs = [
+  {
+    q: 'When can I start contributing to a 530A?',
+    a: 'July 4, 2026. The statute permits no contributions before that date, even for accounts opened earlier — accounts opened before then simply hold the $1,000 federal seed (if eligible) until contributions open.',
+  },
+  {
+    q: 'Is there an annual contribution deadline?',
+    a: 'The $5,000 cap applies per calendar year, per child, from all sources combined. Unused room does not roll over — a year you skip is capacity gone for good, which is the real deadline that matters.',
+  },
+  {
+    q: 'How much can be contributed in 2026?',
+    a: 'The $5,000 cap applies to calendar-year 2026 even though contributions only open July 4 — meaning the full year’s cap is available in the half year that remains. As always: verify with the primary sources before acting.',
+  },
+  {
+    q: 'Does the cap grow over time?',
+    a: 'Yes — it is indexed to inflation after 2027. The exact indexing mechanics are pending guidance, so this calculator models the $5,000 figure and flags indexing as approximate.',
+  },
+  {
+    q: 'Is it better to contribute monthly or once a year?',
+    a: 'Earlier money compounds longer, so a January lump beats a December lump, and monthly automation beats waiting. But the difference between contribution timings is small compared to the difference between contributing and not — automate an amount you can sustain.',
+  },
+  {
+    q: 'Until what age can contributions be made?',
+    a: 'Contributions can be made until the year the child turns 18. After that the account transitions to Traditional-IRA treatment and the 530A contribution window closes.',
+  },
+]
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+}
+const pageLd = articleLd({ headline: title, description, path: '/contribution-deadline' })
+---
+
+<Base
+  title={title}
+  description={description}
+  path="/contribution-deadline"
+  jsonLd={[pageLd, faqLd]}
+  ogType="article"
+>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Contribution timing</span>
+      <h1 class="mt-2" style="color: #fff;">530A contribution dates &amp; deadlines</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        Contributions open <strong style="color: #fff;">July 4, 2026</strong>; the $5,000 cap is
+        per calendar year and unused room never rolls over. Verified as of {RULES_VERIFIED_AT}
+        against the
+        <a href={CANONICAL_LINKS.statute} style="color: var(--gold-400);">statute</a> and
+        <a href={CANONICAL_LINKS.irsNotice} style="color: var(--gold-400);">IRS Notice 2025-68</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="accordion">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <div class="acc-body">
+              <p>{f.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <div class="callout mt-4">
+        <strong>What actually moves the number:</strong> years in the market. A child born in
+        2026 has ~18 years of contribution room — <a href="/">see what each year is worth</a>,
+        or read <a href="/employer-contributions">how employer money fits inside the cap</a> and
+        <a href="/open-account">how to open the account</a> before the window opens.
+      </div>
+
+      <div class="center mt-4">
+        <a class="btn btn-gold btn-lg" href="/">Calculate a monthly amount →</a>
+      </div>
+    </div>
+  </section>
+</Base>
