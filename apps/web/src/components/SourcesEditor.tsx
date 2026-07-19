@@ -116,11 +116,16 @@ export default function SourcesEditor({ sources, onChange }: Props) {
                 type="number"
                 min={0}
                 max={1_000_000}
+                step={1}
                 value={s.amountDollars}
-                aria-label="Amount in dollars"
+                aria-label="Amount in US dollars"
                 onInput={(e) =>
                   update(s.id, {
-                    amountDollars: Math.max(0, Number((e.target as HTMLInputElement).value)),
+                    // USD, whole cents: clamp negatives and sub-cent noise.
+                    amountDollars: Math.max(
+                      0,
+                      Math.round(Number((e.target as HTMLInputElement).value) * 100) / 100,
+                    ),
                   })
                 }
               />

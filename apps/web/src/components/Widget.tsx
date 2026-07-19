@@ -63,7 +63,7 @@ export default function Widget() {
     <div class="calc" id="calc" data-hydrated={hydrated || undefined}>
       <div class="calc-head">
         <p class="calc-title" style="margin: 0;">
-          Your child's projection
+          Child's Investment Return Projection
         </p>
         {/* biome-ignore lint/a11y/useSemanticElements: fieldset styling breaks the segmented control; role=group is valid ARIA */}
         <div class="segmented" role="group" aria-label="Return assumption">

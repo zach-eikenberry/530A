@@ -411,12 +411,18 @@ export default function AdvancedModel() {
                 id="adv-return"
                 class="input"
                 type="number"
-                step={0.5}
+                step={0.01}
                 min={-10}
                 max={15}
                 value={editor.returnPct}
                 data-testid="return-input"
-                onInput={(e) => set('returnPct', Number((e.target as HTMLInputElement).value))}
+                onInput={(e) =>
+                  set(
+                    'returnPct',
+                    // Cap at two decimal places — finer precision is noise.
+                    Math.round(Number((e.target as HTMLInputElement).value) * 100) / 100,
+                  )
+                }
               />
             </div>
             <div class="grid grid-2" style="gap: 12px;">
