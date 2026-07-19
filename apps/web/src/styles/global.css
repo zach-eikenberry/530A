@@ -957,7 +957,8 @@ table.compare thead th {
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  /* --ink-2, not --muted: WCAG AA contrast on --canvas-2 at this size */
+  color: var(--ink-2);
   position: sticky;
   top: 0;
 }
@@ -976,11 +977,15 @@ table.compare tr:last-child th {
   border-bottom: 0;
 }
 .yes {
-  color: var(--grow);
+  /* Darker than --grow: WCAG AA (≥4.5) on both white and the gold tint */
+  color: #157a52;
   font-weight: 700;
 }
+:root[data-theme="dark"] .yes {
+  color: var(--grow);
+}
 .no {
-  color: var(--muted);
+  color: var(--ink-2);
 }
 
 /* FAQ / accordion */
@@ -1045,6 +1050,11 @@ table.compare tr:last-child th {
   border-color: var(--navy-500);
   background: var(--navy-050);
   color: var(--ink-2);
+}
+.callout a {
+  /* Underline so links inside tinted callouts don't rely on color alone */
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .callout strong {
   color: inherit;
