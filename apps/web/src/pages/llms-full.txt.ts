@@ -7,13 +7,13 @@ import {
   EMPLOYER_CAP_CENTS,
   FEDERAL_SEED_CENTS,
   FUNDS,
+  faqs,
+  openAccountSteps,
   RULES_VERIFIED_AT,
   SEED_BIRTH_WINDOW,
   WITHDRAWAL_AGE,
 } from '@530a/config'
 import type { APIRoute } from 'astro'
-import { faqs } from '../data/faqs'
-import { openAccountSteps } from '../data/open-steps'
 
 /**
  * llms-full.txt: the long-form companion to llms.txt for AI answer-engines —
