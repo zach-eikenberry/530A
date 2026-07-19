@@ -1,4 +1,5 @@
 import { openApiSpec } from './openapi'
+import { buildReturnsPayload } from './returns'
 import { BadRequest, legalFacts, runScenario, stateFromInput } from './shared'
 
 /**
@@ -55,6 +56,35 @@ export default {
     if (request.method === 'GET' && url.pathname === '/v1/rules') {
       return json(legalFacts(), 200, { 'Cache-Control': 'public, max-age=86400' })
     }
+
+    if (request.method === 'GET' && url.pathname === '/v1/returns') {
+      // Live market data, refreshed at most every 6h via the edge cache; the
+      // upstream fetch is throttled like other uncached work.
+      const cacheKey = new Request('https://cache.530amodel.com/v1/returns')
+      const cache = (globalThis as { caches?: CacheStorage }).caches?.default
+      if (cache) {
+        const hit = await cache.match(cacheKey)
+        if (hit) {
+          const res = new Response(hit.body, hit)
+          res.headers.set('X-Cache', 'HIT')
+          return res
+        }
+      }
+      if (await rateLimited(env.RATE_LIMITER, request)) {
+        return json({ error: 'rate limited, retry shortly' }, 429, { 'Retry-After': '60' })
+      }
+      const payload = await buildReturnsPayload()
+      const anyData = Object.values(payload.funds).some((f) =>
+        Object.values(f).some((v) => v !== null),
+      )
+      const res = json(payload, anyData ? 200 : 503, {
+        // Upstream failure caches briefly so we retry soon, not for 6h.
+        'Cache-Control': anyData ? 'public, max-age=21600' : 'public, max-age=300',
+        'X-Cache': 'MISS',
+      })
+      if (cache && anyData) await cache.put(cacheKey, res.clone())
+      return res
+    }
     if (
       request.method === 'GET' &&
       (url.pathname === '/openapi.json' || url.pathname === '/v1/openapi.json')
@@ -69,6 +99,7 @@ export default {
         endpoints: {
           'POST /v1/project': 'run a projection',
           'GET /v1/rules': 'verified legal facts',
+          'GET /v1/returns': 'live trailing returns for the eligible funds',
         },
       })
     }

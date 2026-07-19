@@ -1,3 +1,4 @@
+import { FUNDS } from '@530a/config'
 import {
   decodeState,
   encodeState,
@@ -21,6 +22,7 @@ import {
   VOL_PRESETS,
 } from '../lib/editor'
 import { cancelBefore, type McRun, runMonteCarlo, SUPERSEDED } from '../lib/mc-client'
+import { fetchReturns, type Period, type ReturnsPayload, toRealReturn } from '../lib/returns-client'
 import { toScenario } from '../lib/scenario'
 import ExportButtons from './ExportButtons'
 import FanChart from './FanChart'
@@ -74,6 +76,16 @@ export default function AdvancedModel() {
   const [computing, setComputing] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState<SavedScenario[]>([])
+
+  // Return presets: pick a fund + trailing period and the return field is set
+  // from live market data (converted to after-inflation terms). 'custom'
+  // means the manual field is in charge.
+  const [fundPick, setFundPick] = useState(FUNDS.find((f) => f.isDefault)?.ticker ?? 'SPYM')
+  const [periodPick, setPeriodPick] = useState<Period | 'custom'>('custom')
+  const [liveReturns, setLiveReturns] = useState<ReturnsPayload | null | 'unavailable'>(null)
+  useEffect(() => {
+    fetchReturns().then((r) => setLiveReturns(r ?? 'unavailable'))
+  }, [])
   const [copied, setCopied] = useState(false)
   const [cohortSize, setCohortSize] = useState(100)
   const [cohortBudget, setCohortBudget] = useState(100_000)
@@ -143,6 +155,31 @@ export default function AdvancedModel() {
 
   const set = <K extends keyof EditorState>(key: K, value: EditorState[K]) =>
     setEditor((prev) => ({ ...prev, [key]: value }))
+
+  // Nominal CAGR for the active fund+period preset, or null when 'custom'
+  // is selected or the data isn't (yet) available.
+  const activeNominal =
+    periodPick !== 'custom' && liveReturns && liveReturns !== 'unavailable'
+      ? (liveReturns.funds[fundPick]?.[periodPick] ?? null)
+      : null
+
+  // A live preset drives the return field (in after-inflation terms, so it
+  // tracks the user's inflation setting) and the fund's expense ratio. The
+  // ref guards a race: effects flush a tick late, so a preset scheduled just
+  // before the user starts typing must not overwrite their input.
+  const periodPickRef = useRef(periodPick)
+  periodPickRef.current = periodPick
+  // While blurred the return field reads as xx.xx; free-form while typing.
+  const [returnFocused, setReturnFocused] = useState(false)
+  useEffect(() => {
+    if (activeNominal === null || periodPickRef.current === 'custom') return
+    const fund = FUNDS.find((f) => f.ticker === fundPick)
+    setEditor((prev) => ({
+      ...prev,
+      returnPct: Math.round(toRealReturn(activeNominal, prev.inflationPct / 100) * 10_000) / 100,
+      ...(fund ? { feePct: fund.expenseRatio * 100 } : {}),
+    }))
+  }, [activeNominal, fundPick, editor.inflationPct])
 
   const target = editor.targetAgeYears
   const real = editor.realView
@@ -403,27 +440,107 @@ export default function AdvancedModel() {
             <div class="pg-title">Assumptions</div>
             <div class="field">
               <div class="field-row">
+                <span class="field-label" id="fund-dial-label">
+                  Fund
+                </span>
+              </div>
+              {/* biome-ignore lint/a11y/useSemanticElements: fieldset styling breaks the segmented control; role=group is valid ARIA */}
+              <div class="segmented wrap" role="group" aria-labelledby="fund-dial-label">
+                {FUNDS.map((f) => (
+                  <button
+                    type="button"
+                    key={f.ticker}
+                    title={`${f.name} (${(f.expenseRatio * 100).toFixed(2)}% fee)`}
+                    aria-pressed={fundPick === f.ticker}
+                    data-testid={`fund-${f.ticker}`}
+                    onClick={() => setFundPick(f.ticker)}
+                  >
+                    {f.ticker}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div class="field">
+              <div class="field-row">
+                <span class="field-label" id="period-dial-label">
+                  Return from historic average
+                </span>
+              </div>
+              {/* biome-ignore lint/a11y/useSemanticElements: fieldset styling breaks the segmented control; role=group is valid ARIA */}
+              <div class="segmented wrap" role="group" aria-labelledby="period-dial-label">
+                {(['1y', '5y', '10y'] as const).map((p) => {
+                  const value =
+                    liveReturns && liveReturns !== 'unavailable'
+                      ? liveReturns.funds[fundPick]?.[p]
+                      : null
+                  return (
+                    <button
+                      type="button"
+                      key={p}
+                      aria-pressed={periodPick === p}
+                      disabled={value == null}
+                      data-testid={`period-${p}`}
+                      onClick={() => setPeriodPick(p)}
+                    >
+                      {p === '1y' ? 'Last yr' : p === '5y' ? '5 yr' : '10 yr'}
+                    </button>
+                  )
+                })}
+                <button
+                  type="button"
+                  aria-pressed={periodPick === 'custom'}
+                  data-testid="period-custom"
+                  onClick={() => setPeriodPick('custom')}
+                >
+                  Custom
+                </button>
+              </div>
+              {activeNominal !== null && liveReturns && liveReturns !== 'unavailable' && (
+                <p class="field-hint" data-testid="live-return-hint">
+                  {fundPick}{' '}
+                  {periodPick === '1y' ? 'last-year' : periodPick === '5y' ? '5-year' : '10-year'}{' '}
+                  average: {(activeNominal * 100).toFixed(2)}%/yr nominal →{' '}
+                  {editor.returnPct.toFixed(2)}% after {editor.inflationPct}% inflation · market
+                  data as of {liveReturns.asOf}
+                </p>
+              )}
+              {liveReturns === 'unavailable' && (
+                <p class="field-hint">
+                  Live market data is unavailable right now — enter a return manually.
+                </p>
+              )}
+            </div>
+            <div class="field">
+              <div class="field-row">
                 <label class="field-label" for="adv-return">
-                  Annual return (after inflation) %
+                  Annual return (after inflation)
                 </label>
               </div>
-              <input
-                id="adv-return"
-                class="input"
-                type="number"
-                step={0.01}
-                min={-10}
-                max={15}
-                value={editor.returnPct}
-                data-testid="return-input"
-                onInput={(e) =>
-                  set(
-                    'returnPct',
-                    // Cap at two decimal places — finer precision is noise.
-                    Math.round(Number((e.target as HTMLInputElement).value) * 100) / 100,
-                  )
-                }
-              />
+              <div class="input-pct">
+                <input
+                  id="adv-return"
+                  class="input"
+                  type="number"
+                  step={0.01}
+                  min={-10}
+                  max={15}
+                  value={returnFocused ? editor.returnPct : editor.returnPct.toFixed(2)}
+                  data-testid="return-input"
+                  onFocus={() => setReturnFocused(true)}
+                  onBlur={() => setReturnFocused(false)}
+                  onInput={(e) => {
+                    // Typing takes over from any live preset (xx.xx precision).
+                    // The ref updates synchronously so an already-scheduled
+                    // preset effect can't overwrite what was just typed.
+                    periodPickRef.current = 'custom'
+                    setPeriodPick('custom')
+                    set(
+                      'returnPct',
+                      Math.round(Number((e.target as HTMLInputElement).value) * 100) / 100,
+                    )
+                  }}
+                />
+              </div>
             </div>
             <div class="grid grid-2" style="gap: 12px;">
               <div class="field" style="margin: 0;">

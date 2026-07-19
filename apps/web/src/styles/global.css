@@ -667,6 +667,23 @@ select.input {
   padding-left: 26px;
   width: 100%;
 }
+.input-pct {
+  position: relative;
+}
+.input-pct::after {
+  content: "%";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-weight: 700;
+  pointer-events: none;
+}
+.input-pct input {
+  padding-right: 30px;
+  width: 100%;
+}
 
 /* Toggle */
 .toggle {
@@ -743,6 +760,13 @@ select.input {
   border-radius: 9px;
   cursor: pointer;
   color: var(--ink-2);
+}
+.segmented.wrap {
+  flex-wrap: wrap;
+}
+.segmented button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 .segmented button[aria-pressed="true"],
 .segmented button[aria-selected="true"] {

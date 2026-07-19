@@ -19,6 +19,9 @@ import { fileURLToPath } from 'node:url'
 /** Origins the client fetches beyond its own (see AdminQueue.tsx). */
 export const NEWSFEED_ORIGIN = 'https://530a-newsfeed.personal-account-fd8.workers.dev'
 
+/** Public API origin (live fund returns; see returns-client.ts). */
+export const API_ORIGIN = 'https://api.530amodel.com'
+
 /** Same-site aliases: the site is served on both the apex and Pages domains. */
 const SITE_ORIGINS = ['https://530amodel.com', 'https://530a-model.pages.dev']
 
@@ -130,6 +133,7 @@ function main() {
     connectOrigins: [
       ...SITE_ORIGINS,
       NEWSFEED_ORIGIN,
+      API_ORIGIN,
       originOf(process.env.PUBLIC_EVENTS_ENDPOINT),
       originOf(process.env.PUBLIC_SENTRY_DSN),
     ],

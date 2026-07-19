@@ -160,3 +160,43 @@ test('switching to an older child never crashes and clamps the target age', asyn
   expect(target).toBeGreaterThan(birthYearAge)
   expect(errors).toEqual([])
 })
+
+test('live return presets set the return field from market data', async ({ page }) => {
+  await page.route('**/v1/returns', (route) =>
+    route.fulfill({
+      json: {
+        asOf: '2026-07-18',
+        source: 'test',
+        note: 'test',
+        funds: {
+          SPYM: { '1y': 0.2, '5y': 0.12, '10y': 0.15 },
+          IVV: { '1y': 0.18, '5y': 0.11, '10y': 0.1 },
+          VTI: { '1y': null, '5y': null, '10y': null },
+          SPTM: { '1y': 0.19, '5y': 0.12, '10y': 0.14 },
+          ITOT: { '1y': 0.17, '5y': 0.11, '10y': 0.13 },
+        },
+      },
+    }),
+  )
+  await page.goto('/model')
+  await waitForResults(page)
+
+  // Default fund (SPYM), 10-yr: 15% nominal → 12.20% after the default 2.5% inflation
+  await page.getByTestId('period-10y').click()
+  await expect(page.getByTestId('return-input')).toHaveValue('12.20')
+  await expect(page.getByTestId('live-return-hint')).toContainText('market data as of 2026-07-18')
+
+  // Switching fund recomputes: IVV 10-yr 10% nominal → 7.32%
+  await page.getByTestId('fund-IVV').click()
+  await expect(page.getByTestId('return-input')).toHaveValue('7.32')
+
+  // A fund with no data disables the period dials
+  await page.getByTestId('fund-VTI').click()
+  await expect(page.getByTestId('period-10y')).toBeDisabled()
+
+  // Typing in the field hands control back to Custom
+  await page.getByTestId('fund-IVV').click()
+  await page.getByTestId('return-input').fill('6.789')
+  await expect(page.getByTestId('period-custom')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByTestId('return-input')).toHaveValue('6.79')
+})

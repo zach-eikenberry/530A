@@ -62,6 +62,19 @@ export const openApiSpec = {
         },
       },
     },
+    '/v1/returns': {
+      get: {
+        summary: 'Live trailing returns for the eligible funds',
+        description:
+          'Nominal annualized returns (CAGR, dividends reinvested) over the trailing 1, 5, and ' +
+          '10 years for each statute-eligible fund, from public market data. Cached ~6h. ' +
+          'Periods without enough history are null. Past performance does not predict results.',
+        responses: {
+          '200': { description: 'asOf date, data source, and per-ticker {1y,5y,10y} decimals' },
+          '503': { description: 'Upstream market data temporarily unavailable' },
+        },
+      },
+    },
   },
   components: {
     schemas: {

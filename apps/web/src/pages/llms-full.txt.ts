@@ -90,7 +90,8 @@ ${openAccountSteps.map((s, i) => `${i + 1}. **${s.name}** — ${s.text}`).join('
 
 - JSON API: POST https://api.530amodel.com/v1/project
   (OpenAPI: https://api.530amodel.com/openapi.json;
-  verified legal facts: GET https://api.530amodel.com/v1/rules).
+  verified legal facts: GET https://api.530amodel.com/v1/rules;
+  live fund returns: GET https://api.530amodel.com/v1/returns).
   Deterministic and cached; no auth.
 - MCP server (streamable HTTP): https://mcp.530amodel.com
   with tools project_530a and explain_530a.
