@@ -57,3 +57,9 @@ machine, by design). One-time, all on the Free plan, for `530amodel.com`:
 - [x] Point `530amodel.com` at the Pages project (live)
 - [ ] Create a Google Alerts RSS feed for 530A/Trump Account news and add its URL to FEED_URLS in apps/workers/wrangler.newsfeed.jsonc
 - [ ] Admin queue: token in `.admin-token.local` (repo root, never committed) — use it at 530amodel.com/admin
+- [ ] Email Routing (~2 min, dashboard): the OpenAPI spec publishes
+      `api@530amodel.com` as the project contact. Dashboard → 530amodel.com →
+      Email → Email Routing → Enable (auto-adds MX/SPF; the zone has no other
+      email), add destination `zach.eikenberry@gmail.com` (click the
+      verification email), then a routing rule `api@530amodel.com` → forward
+      to that destination. Catch-all can stay Drop.

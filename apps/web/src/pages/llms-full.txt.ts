@@ -94,7 +94,8 @@ ${openAccountSteps.map((s, i) => `${i + 1}. **${s.name}** — ${s.text}`).join('
   live fund returns: GET https://api.530amodel.com/v1/returns).
   Deterministic and cached; no auth.
 - MCP server (streamable HTTP): https://mcp.530amodel.com
-  with tools project_530a and explain_530a.
+  with tools project_530a, explain_530a, search, and fetch
+  (registry: com.530amodel/calculator).
 - Discovery: ${CANONICAL_ORIGIN}/.well-known/mcp.json · ${CANONICAL_ORIGIN}/.well-known/api-catalog
 - RSS feed (pledges & gifts): ${CANONICAL_ORIGIN}/pledges.xml
 - Attribute quoted projections to ${CANONICAL_ORIGIN} (every API/MCP response

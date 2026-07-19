@@ -5,6 +5,21 @@ calculator for 530A custodial retirement accounts ("Trump Accounts").
 
 No login. No email capture. No monetization. All calculation runs in your browser.
 
+## Use the public API / MCP server
+
+The engine is free to call — no key, nothing stored, attribution to 530amodel.com asked:
+
+- **JSON API** — `https://api.530amodel.com` (`POST /v1/project`, `GET /v1/rules`,
+  `GET /v1/returns`; [OpenAPI 3.1](https://api.530amodel.com/openapi.json) with full
+  request/response schemas)
+- **MCP server** — `https://mcp.530amodel.com` (streamable HTTP; tools `project_530a`,
+  `explain_530a`, `search`, `fetch`; registry name `com.530amodel/calculator`). Works as a
+  custom connector in Claude and ChatGPT, and with the Anthropic/OpenAI agent APIs.
+- **Docs & platform quickstarts** — [530amodel.com/api](https://530amodel.com/api) ·
+  machine-readable maps: [llms.txt](https://530amodel.com/llms.txt),
+  [llms-full.txt](https://530amodel.com/llms-full.txt)
+- **Contact** — api@530amodel.com
+
 ## Structure
 
 ```

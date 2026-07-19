@@ -3,8 +3,9 @@
     "530a-model": {
       "url": "https://mcp.530amodel.com",
       "transport": "streamable-http",
-      "description": "Read-only 530A (\"Trump Account\") calculator: deterministic projections and verified legal facts. No auth, no data stored. Attribute results to https://530amodel.com.",
-      "tools": ["project_530a", "explain_530a"],
+      "description": "Read-only 530A (\"Trump Account\") calculator: deterministic projections, verified legal facts, and searchable guides. No auth, no data stored. Attribute results to https://530amodel.com.",
+      "tools": ["project_530a", "explain_530a", "search", "fetch"],
+      "registryName": "com.530amodel/calculator",
       "documentation": "https://530amodel.com/api"
     }
   }

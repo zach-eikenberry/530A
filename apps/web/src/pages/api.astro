@@ -7,6 +7,88 @@ const description =
 
 const API_ORIGIN = 'https://api.530amodel.com'
 const MCP_ORIGIN = 'https://mcp.530amodel.com'
+
+const curlSnippet = `curl -X POST ${API_ORIGIN}/v1/project \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "asOf": "2026-07-12",
+    "birthDate": "2026-01-15",
+    "targetAgeMonths": 864,
+    "sources": [{
+      "id": "family", "kind": "family",
+      "schedule": { "type": "monthly", "amountCents": "10000",
+                    "startAgeMonths": 6, "endAgeMonths": 216 }
+    }]
+  }'`
+
+const jsSnippet = `const res = await fetch('${API_ORIGIN}/v1/project', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    asOf: '2026-07-12',
+    birthDate: '2026-01-15',
+    targetAgeMonths: 864,
+    sources: [{ id: 'family', kind: 'family',
+      schedule: { type: 'monthly', amountCents: '10000',
+                  startAgeMonths: 6, endAgeMonths: 216 } }],
+  }),
+})
+const projection = await res.json()
+// cents-as-strings: BigInt(projection.deterministic.finalNominalCents)`
+
+const pySnippet = `import requests
+
+projection = requests.post('${API_ORIGIN}/v1/project', json={
+    'asOf': '2026-07-12',
+    'birthDate': '2026-01-15',
+    'targetAgeMonths': 864,
+    'sources': [{'id': 'family', 'kind': 'family',
+                 'schedule': {'type': 'monthly', 'amountCents': '10000',
+                              'startAgeMonths': 6, 'endAgeMonths': 216}}],
+}).json()
+print(projection['deterministic']['finalNominalCents'])  # integer cents, string`
+
+const claudeCodeSnippet = `claude mcp add --transport http 530a ${MCP_ORIGIN}`
+
+const genericMcpSnippet = `{
+  "mcpServers": {
+    "530a-model": {
+      "type": "http",
+      "url": "${MCP_ORIGIN}"
+    }
+  }
+}`
+
+const anthropicApiSnippet = `POST https://api.anthropic.com/v1/messages
+{
+  "model": "claude-sonnet-5",
+  "max_tokens": 1024,
+  "mcp_servers": [{
+    "type": "url",
+    "url": "${MCP_ORIGIN}",
+    "name": "530a-model"
+  }],
+  "messages": [{ "role": "user",
+    "content": "Model $100/mo for a newborn 530A to age 18" }]
+}`
+
+const openaiApiSnippet = `POST https://api.openai.com/v1/responses
+{
+  "model": "gpt-5",
+  "tools": [{
+    "type": "mcp",
+    "server_label": "530a-model",
+    "server_url": "${MCP_ORIGIN}",
+    "require_approval": "never"
+  }],
+  "input": "Model $100/mo for a newborn 530A to age 18"
+}`
+
+const examplePrompts = [
+  'Use the MCP server at https://mcp.530amodel.com to model a 530A with $150/month for my daughter born March 2026 — what could it be worth at 18 and at retirement?',
+  'Ask the 530A Model connector what the contribution caps and tax rules are, with primary sources.',
+  'Compare $50/mo vs $200/mo in a 530A for a newborn, using the 530amodel.com calculator tools, and show the Monte-Carlo ranges.',
+]
 ---
 
 <Base title={title} description={description} path="/api">
@@ -34,46 +116,91 @@ const MCP_ORIGIN = 'https://mcp.530amodel.com'
       exactly that purpose.
     </p>
 
+    <h2>Use it from your AI assistant</h2>
+    <p>
+      If you use Claude, ChatGPT, or any MCP-capable assistant, you don't need to write code.
+      Connect the server — <code>{MCP_ORIGIN}</code> — once, then just ask. Example prompts:
+    </p>
+    <ul>
+      {examplePrompts.map((p) => <li><em>“{p}”</em></li>)}
+    </ul>
+
+    <h3>Claude (claude.ai and desktop)</h3>
+    <p>
+      Settings → Connectors → <strong>Add custom connector</strong> → paste
+      <code>{MCP_ORIGIN}</code> (no authentication needed). In Claude Code:
+    </p>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>{claudeCodeSnippet}</code></pre>
+
+    <h3>ChatGPT</h3>
+    <p>
+      Settings → Connectors → enable developer mode if prompted →
+      <strong>Add custom connector</strong> with <code>{MCP_ORIGIN}</code> (no auth). The server
+      implements ChatGPT's <code>search</code>/<code>fetch</code> compatibility schema, so it also
+      works with deep research and connector search — not just developer-mode tool calls.
+    </p>
+
+    <h3>Cursor, VS Code, and other MCP clients</h3>
+    <p>Any client that accepts a streamable-HTTP MCP server works. Typical config:</p>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>{genericMcpSnippet}</code></pre>
+    <p>
+      Tools: <code>project_530a</code> (full projection with percentile ranges),
+      <code>explain_530a</code> (verified legal facts + sources), and
+      <code>search</code>/<code>fetch</code> (site knowledge for answer engines). All tools are
+      read-only and declare <code>readOnlyHint</code>. Registry name:
+      <code>com.530amodel/calculator</code>.
+    </p>
+
+    <h2>Build with it (agent APIs)</h2>
+    <p>Anthropic Messages API (MCP connector):</p>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>{anthropicApiSnippet}</code></pre>
+    <p>OpenAI Responses API (remote MCP tool):</p>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>{openaiApiSnippet}</code></pre>
+
     <h2>JSON API</h2>
     <p>
       Base URL: <code>{API_ORIGIN}</code> ·
-      <a href={`${API_ORIGIN}/openapi.json`}>OpenAPI spec</a>
+      <a href={`${API_ORIGIN}/openapi.json`}>OpenAPI 3.1 spec</a> (full request and response
+      schemas — also importable as a custom GPT Action; privacy policy:
+      <a href="/privacy">530amodel.com/privacy</a>)
     </p>
-    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>curl -X POST {API_ORIGIN}/v1/project \
-  -H "Content-Type: application/json" \
-  -d '&#123;
-    "asOf": "2026-07-12",
-    "birthDate": "2026-01-15",
-    "targetAgeMonths": 864,
-    "sources": [&#123;
-      "id": "family", "kind": "family",
-      "schedule": &#123; "type": "monthly", "amountCents": "10000",
-                    "startAgeMonths": 6, "endAgeMonths": 216 &#125;
-    &#125;]
-  &#125;'</code></pre>
     <ul>
-      <li><code>POST /v1/project</code> — run a projection. Accepts the scenario JSON above or
+      <li><code>POST /v1/project</code> — run a projection. Accepts the scenario JSON below or
         <code>&#123;"s": "&lt;share-link state&gt;"&#125;</code>. Money is integer cents as strings.</li>
       <li><code>GET /v1/rules</code> — verified 530A legal facts with primary-source URLs and
         explicit flags for anything not yet verifiable.</li>
+      <li><code>GET /v1/returns</code> — live trailing 1/5/10-year returns (nominal CAGR,
+        dividends reinvested) for each eligible fund, cached ~6 hours.</li>
     </ul>
+    <h3>curl</h3>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>{curlSnippet}</code></pre>
+    <h3>JavaScript</h3>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>{jsSnippet}</code></pre>
+    <h3>Python</h3>
+    <pre class="card" style="overflow-x: auto; font-size: 0.8rem;"><code>{pySnippet}</code></pre>
     <p class="muted">
       Monte-Carlo path counts are clamped to a per-request compute budget; the response reports
       <code>mcPathsSimulated</code>. For heavy research use, run the
       <a href="https://github.com/zach-eikenberry/530A">open-source engine</a> directly.
     </p>
 
-    <h2>MCP server</h2>
-    <p>
-      Streamable-HTTP endpoint: <code>{MCP_ORIGIN}</code> — add it to any MCP-capable assistant.
-      Tools: <code>project_530a</code> (full projection with percentile ranges) and
-      <code>explain_530a</code> (verified legal facts + sources).
-    </p>
+    <h2>Limits, versioning, contact</h2>
+    <ul>
+      <li><strong>Rate limits:</strong> API — 30 uncached requests/min per IP (cache hits are
+        unlimited; identical bodies hit the edge cache). MCP — 60 requests/min per IP. Both
+        return a retry hint when exceeded.</li>
+      <li><strong>Versioning:</strong> <code>/v1</code> is stable. Changes are additive only;
+        anything breaking would ship as <code>/v2</code> with <code>/v1</code> kept running, and
+        be announced in the <a href="https://github.com/zach-eikenberry/530A">repository</a>.</li>
+      <li><strong>Contact:</strong> <a href="mailto:api@530amodel.com">api@530amodel.com</a> or
+        <a href="https://github.com/zach-eikenberry/530A/issues">GitHub issues</a>.</li>
+    </ul>
 
     <h2>Fair use</h2>
     <p class="muted">
       Read-only computation, rate-limited at the edge. Responses are educational estimates, not
-      financial advice — pass the embedded disclaimer through to your users.
+      financial advice — pass the embedded disclaimer through to your users. See the
+      <a href="/terms">terms</a> and <a href="/privacy">privacy policy</a>.
     </p>
     </div>
   </section>
