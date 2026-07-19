@@ -70,8 +70,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @530a/web build
-      - name: Run Lighthouse CI
+      - name: Run Lighthouse CI (desktop)
         run: pnpm dlx @lhci/cli@0.15.x autorun --config=lighthouserc.json
+      - name: Run Lighthouse CI (mobile)
+        run: pnpm dlx @lhci/cli@0.15.x autorun --config=lighthouserc.mobile.json
 
   gitleaks:
     name: Secret scan
