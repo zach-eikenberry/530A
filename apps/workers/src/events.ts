@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { reportError } from './sentry'
 
 /**
  * Anonymized event beacon (§2.1, §10.2): one POST per session from the
@@ -12,6 +13,8 @@ export interface Env {
   EVENTS: AnalyticsEngineDataset
   /** Optional so local dev/tests run without the binding; prod has it. */
   RATE_LIMITER?: RateLimit
+  /** Ingest-only Sentry DSN (public by design); unset → reporting inert. */
+  SENTRY_DSN?: string
 }
 
 /** Per-IP limit; clients beacon once per session, so this only bites abuse. */
@@ -57,7 +60,18 @@ function corsHeaders(origin: string | null): HeadersInit {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
+    try {
+      return await handle(request, env)
+    } catch (e) {
+      reportError(e, { dsn: env.SENTRY_DSN, request, ctx, environment: 'worker-events' })
+      return new Response('internal error', { status: 500 })
+    }
+  },
+}
+
+async function handle(request: Request, env: Env): Promise<Response> {
+  {
     const origin = request.headers.get('Origin')
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(origin) })
@@ -101,5 +115,5 @@ export default {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
     })
-  },
+  }
 }

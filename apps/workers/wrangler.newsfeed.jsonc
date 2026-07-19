@@ -16,6 +16,7 @@
     "crons": ["17 */6 * * *"]
   },
   "vars": {
+    "SENTRY_DSN": "https://e580ebe794d11b0cf23cdad69b078221@o4511725472514048.ingest.us.sentry.io/4511725477691392",
     // Comma-separated RSS/Atom feed URLs (Google Alerts etc). Empty = no-op.
     "FEED_URLS": ""
   },

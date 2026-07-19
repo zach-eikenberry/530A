@@ -1,4 +1,5 @@
 import { openApiSpec } from '@530a/api/src/openapi'
+import { reportError } from '@530a/api/src/sentry'
 import { BadRequest, legalFacts, runScenario, stateFromInput } from '@530a/api/src/shared'
 import { CANONICAL_ORIGIN, type ContentDoc, contentCorpus, searchCorpus } from '@530a/config'
 
@@ -246,10 +247,23 @@ export function handleRpc(rpc: RpcRequest): Response {
 export interface Env {
   /** Optional so local dev/tests run without the binding; prod has it. */
   RATE_LIMITER?: RateLimit
+  /** Ingest-only Sentry DSN (public by design); unset → reporting inert. */
+  SENTRY_DSN?: string
 }
 
 export default {
-  async fetch(request: Request, env: Env = {}): Promise<Response> {
+  async fetch(request: Request, env: Env = {}, ctx?: ExecutionContext): Promise<Response> {
+    try {
+      return await handleFetch(request, env)
+    } catch (e) {
+      reportError(e, { dsn: env.SENTRY_DSN, request, ctx, environment: 'worker-mcp' })
+      return rpcError(null, -32603, 'internal error')
+    }
+  },
+}
+
+async function handleFetch(request: Request, env: Env): Promise<Response> {
+  {
     if (request.method === 'OPTIONS') return preflight()
     if (request.method === 'GET') {
       // Human/agent discovery page; SSE streaming is not needed for a
@@ -282,5 +296,5 @@ export default {
       return rpcError(rpc.id ?? null, -32600, 'invalid request')
     }
     return handleRpc(rpc)
-  },
+  }
 }

@@ -5,6 +5,10 @@
   "compatibility_date": "2026-07-01",
   // Personal account only — verify with `wrangler whoami` before deploying.
   "account_id": "fd89fcd385cb37ed871df05e3c7eb10b",
+  // Ingest-only DSN — public by design (the web bundle ships the same one).
+  "vars": {
+    "SENTRY_DSN": "https://e580ebe794d11b0cf23cdad69b078221@o4511725472514048.ingest.us.sentry.io/4511725477691392"
+  },
   // Canonical public hostname (matches the OpenAPI servers entry);
   // the workers.dev origin stays live as a fallback.
   "routes": [{ "pattern": "api.530amodel.com", "custom_domain": true }],

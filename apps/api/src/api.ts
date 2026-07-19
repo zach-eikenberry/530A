@@ -1,5 +1,6 @@
 import { openApiSpec } from './openapi'
 import { buildReturnsPayload } from './returns'
+import { reportError } from './sentry'
 import { BadRequest, legalFacts, runScenario, stateFromInput } from './shared'
 
 /**
@@ -12,6 +13,8 @@ import { BadRequest, legalFacts, runScenario, stateFromInput } from './shared'
 export interface Env {
   /** Optional so local dev/tests run without the binding; prod has it. */
   RATE_LIMITER?: RateLimit
+  /** Ingest-only Sentry DSN (public by design); unset → reporting inert. */
+  SENTRY_DSN?: string
 }
 
 /** Per-IP limit check; fails open so a limiter outage never downs the API. */
@@ -49,7 +52,18 @@ async function cacheKeyFor(bodyText: string): Promise<Request> {
 }
 
 export default {
-  async fetch(request: Request, env: Env = {}): Promise<Response> {
+  async fetch(request: Request, env: Env = {}, ctx?: ExecutionContext): Promise<Response> {
+    try {
+      return await handle(request, env)
+    } catch (e) {
+      reportError(e, { dsn: env.SENTRY_DSN, request, ctx, environment: 'worker-api' })
+      return json({ error: 'internal error' }, 500)
+    }
+  },
+}
+
+async function handle(request: Request, env: Env): Promise<Response> {
+  {
     const url = new URL(request.url)
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS })
 
@@ -150,5 +164,5 @@ export default {
     }
 
     return json({ error: 'not found', docs: 'https://530amodel.com/api' }, 404)
-  },
+  }
 }

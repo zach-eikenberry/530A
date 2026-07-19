@@ -9,6 +9,7 @@
     "deploy:events": "wrangler deploy --config wrangler.events.jsonc"
   },
   "dependencies": {
+    "toucan-js": "^4.1.1",
     "zod": "^4.3.5"
   },
   "devDependencies": {

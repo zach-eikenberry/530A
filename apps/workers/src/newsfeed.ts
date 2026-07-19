@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { dedupeHash, parseFeed, toPlainText, validateItem } from './rss'
+import { reportError } from './sentry'
 
 /**
  * Newsfeed worker (§7, safety per §2.6):
@@ -23,6 +24,8 @@ export interface Env {
   ADMIN_TOKEN?: string
   /** Optional so local dev/tests run without the binding; prod has it. */
   RATE_LIMITER?: RateLimit
+  /** Ingest-only Sentry DSN (public by design); unset → reporting inert. */
+  SENTRY_DSN?: string
 }
 
 /** Per-IP limit, checked BEFORE auth so the bearer token can't be brute-forced. */
@@ -233,7 +236,22 @@ async function handleFeed(env: Env): Promise<Response> {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
+    try {
+      return await handle(request, env)
+    } catch (e) {
+      reportError(e, { dsn: env.SENTRY_DSN, request, ctx, environment: 'worker-newsfeed' })
+      return json({ error: 'internal error' }, 500)
+    }
+  },
+
+  async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(runIngest(env, new Date().toISOString()).then(() => undefined))
+  },
+}
+
+async function handle(request: Request, env: Env): Promise<Response> {
+  {
     const url = new URL(request.url)
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS })
     if (url.pathname === '/feed.json' && request.method === 'GET') return handleFeed(env)
@@ -249,9 +267,5 @@ export default {
       return json(await runIngest(env, new Date().toISOString()))
     }
     return json({ error: 'not found' }, 404)
-  },
-
-  async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    ctx.waitUntil(runIngest(env, new Date().toISOString()).then(() => undefined))
-  },
+  }
 }
