@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.530amodel/calculator",
   "title": "530A Model calculator",
-  "description": "Free, deterministic 530A (\"Trump Account\") projections with Monte-Carlo ranges, verified legal facts with primary sources, and searchable guides. Read-only, no auth, nothing stored.",
+  "description": "Free, deterministic 530A (Trump Account) projections, verified rules, and searchable guides.",
   "websiteUrl": "https://530amodel.com/api",
   "repository": {
     "url": "https://github.com/zach-eikenberry/530A",
