@@ -16,7 +16,7 @@
     "@530a/ui": "workspace:*",
     "@astrojs/preact": "^6.0.1",
     "@astrojs/sitemap": "^3.7.3",
-    "@sentry/browser": "^10.65.0",
+    "@sentry/browser": "^10.66.0",
     "astro": "^6.4.6",
     "exceljs": "^4.4.0",
     "pdf-lib": "^1.17.1",
