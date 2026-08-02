@@ -1,5 +1,6 @@
 ---
 import { openAccountSteps as steps } from '@530a/config'
+import EligibilityCheck from '../components/EligibilityCheck'
 import Base from '../layouts/Base.astro'
 
 const title = 'How to Open a 530A (Trump Account) — Step-by-Step Guide'
@@ -34,6 +35,9 @@ const howToLd = {
 
   <section class="section">
     <div class="container" style="max-width: 820px;">
+      <div class="mb-4" style="margin-bottom: 32px;">
+        <EligibilityCheck client:visible />
+      </div>
       <div class="steps" style="gap: 26px;">
         {steps.map((s) => (
           <div class="step">

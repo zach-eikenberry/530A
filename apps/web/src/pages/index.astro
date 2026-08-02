@@ -1,5 +1,6 @@
 ---
 import { CANONICAL_LINKS, CANONICAL_ORIGIN, RULES_VERIFIED_AT } from '@530a/config'
+import EligibilityCheck from '../components/EligibilityCheck'
 import Widget from '../components/Widget'
 import Base from '../layouts/Base.astro'
 import { APP_ID, humanDate, ORG_ID, WEBSITE_ID } from '../lib/seo'
@@ -55,9 +56,11 @@ const howToSteps = [
           of 2025. Move the sliders to see how small, steady contributions could compound over a
           lifetime.
         </p>
-        <div class="flex gap-2 wrap mt-4">
-          <a class="btn btn-gold btn-lg" href="#calc">Run your numbers</a>
-          <a class="btn btn-ghost btn-lg" href="/model">Try the Advanced Model</a>
+        {/* One primary action (§U8): the widget answers the first question;
+            everything else is secondary. */}
+        <div class="flex gap-2 wrap mt-4" style="align-items: center;">
+          <a class="btn btn-gold btn-lg" href="#calc">See your number</a>
+          <a href="/model" style="color: #b9c9e0;">or open the Advanced Model →</a>
         </div>
         <ul class="hero-trust mt-4">
           {[
@@ -87,9 +90,13 @@ const howToSteps = [
         <span class="eyebrow">The basics</span>
         <h2 class="mt-2">A retirement head-start, opened the year your child is born</h2>
         <p class="lead mt-2" style="margin-inline: auto;">
-          Think of a 530A as an IRA that starts decades early. Money is invested in a low-cost
-          U.S. stock index fund, grows tax-deferred, and belongs to your child when they turn 18.
+          Think of a 530A as an IRA — a tax-advantaged retirement account — that starts decades
+          early. Money is invested in a low-cost U.S. stock index fund, grows tax-deferred, and
+          belongs to your child when they turn 18.
         </p>
+      </div>
+      <div class="mt-4" style="max-width: 820px; margin-inline: auto;">
+        <EligibilityCheck client:visible />
       </div>
       <div class="grid grid-4 mt-4">
         <div class="card feature card-hover">

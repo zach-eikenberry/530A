@@ -187,7 +187,8 @@ const current = (href: string) => (path === href ? 'page' : undefined)
             </a>
           ))}
           <div class="nav-actions">
-            <a class="btn btn-gold btn-sm" href="/open-account">Open an account</a>
+            {/* "How to open one" — the site guides; it can't open accounts */}
+            <a class="btn btn-gold btn-sm" href="/open-account" data-track="open_account_click">How to open one</a>
           </div>
         </nav>
         {/* Outside the collapsible nav so it stays reachable on mobile without
@@ -294,6 +295,7 @@ const current = (href: string) => (path === href ? 'page' : undefined)
 
     <script>
       // Theme toggle + mobile nav + footer year (local-only preferences)
+      import { track } from '../lib/analytics'
       const root = document.documentElement
       const moon =
         '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
@@ -341,6 +343,30 @@ const current = (href: string) => (path === href ? 'page' : undefined)
       for (const el of document.querySelectorAll('[data-year]')) {
         el.textContent = String(new Date().getFullYear())
       }
+
+      // Funnel events (anonymous; names + coarse buckets only — see analytics.ts)
+      document.addEventListener('click', (e) => {
+        const a = (e.target as Element).closest('a')
+        if (!a) return
+        if (a.matches('[data-track="open_account_click"]')) track('open_account_click')
+        const href = a.getAttribute('href') ?? ''
+        if (/^https?:\/\//.test(href)) {
+          try {
+            const host = new URL(href).hostname
+            if (host !== location.hostname) track('outbound_click', host.replace(/^www\./, ''))
+          } catch {}
+        }
+      })
+      document.addEventListener(
+        'toggle',
+        (e) => {
+          const d = e.target as HTMLElement
+          if (d instanceof HTMLDetailsElement && d.open && d.closest('.accordion')) {
+            track('faq_opened', d.id || undefined)
+          }
+        },
+        true,
+      )
     </script>
     {beaconToken && (
       <script

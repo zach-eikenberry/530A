@@ -1,5 +1,6 @@
 import { formatMoney, type Projection } from '@530a/engine'
 import { useEffect, useMemo, useState } from 'preact/hooks'
+import { track, trackOnce } from '../lib/analytics'
 import { milestoneAt, runWidget } from '../lib/scenario'
 import NumberField from './NumberField'
 
@@ -42,6 +43,7 @@ export default function Widget() {
   const [returnPct, setReturnPct] = useState(7)
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
+  const touched = () => trackOnce('widget_interacted')
 
   const asOf = useMemo(() => new Date(), [])
   const result = useMemo(
@@ -103,7 +105,10 @@ export default function Widget() {
             value={ageYears}
             aria-labelledby="w-age-label"
             aria-label="Child's age today"
-            onInput={(e) => setAgeYears(Number((e.target as HTMLInputElement).value))}
+            onInput={(e) => {
+              touched()
+              setAgeYears(Number((e.target as HTMLInputElement).value))
+            }}
           />
         </div>
 
@@ -120,7 +125,10 @@ export default function Widget() {
             step={5}
             value={monthlyDollars}
             aria-label="Monthly contribution until age 18"
-            onInput={(e) => setMonthlyDollars(Number((e.target as HTMLInputElement).value))}
+            onInput={(e) => {
+              touched()
+              setMonthlyDollars(Number((e.target as HTMLInputElement).value))
+            }}
           />
           <div class="field-hint">
             Contributions run through age 18, then stop — the balance keeps compounding untouched to
@@ -184,7 +192,7 @@ export default function Widget() {
 
           <div class="milestones">
             {[
-              { age: 36, value: at36, note: 'first house years' },
+              { age: 36, value: at36, note: 'career & family years' },
               { age: 72, value: at72, note: 'retirement' },
             ].map(({ age, value, note }) => (
               <div class="milestone" key={age}>
@@ -226,11 +234,20 @@ export default function Widget() {
           </p>
 
           <div class="flex gap-2 wrap mt-2">
-            <a class="btn btn-gold" href={shareHref} data-testid="widget-cta">
+            <a
+              class="btn btn-gold"
+              href={shareHref}
+              data-testid="widget-cta"
+              onClick={() => track('cta_model_click', 'widget')}
+            >
               See the full picture →
             </a>
-            <a class="btn btn-ghost" href="/model">
-              Add Monte Carlo &amp; taxes
+            <a
+              class="btn btn-ghost"
+              href="/model"
+              onClick={() => track('cta_model_click', 'plain')}
+            >
+              See ranges &amp; taxes
             </a>
           </div>
         </div>

@@ -114,14 +114,17 @@ test('UC-5: advisor controls assumptions and the range toggle works', async ({ p
   await expect(page.getByTestId('headline')).not.toHaveText(med, { timeout: 20_000 })
 })
 
-test('walkthrough shows once and the first-use notice can be dismissed', async ({ browser }) => {
+test('walkthrough is opt-in and the first-use notice can be dismissed', async ({ browser }) => {
   // Fresh context: no pre-dismissed storage
   const ctx = await browser.newContext()
   const page = await ctx.newPage()
   await page.goto('/model')
 
-  // Tour appears; step through it
-  await expect(page.getByTestId('tour-next')).toBeVisible({ timeout: 15_000 })
+  // No auto-modal ambush — the tour opens from its link and steps through
+  await expect(page.getByTestId('tour-open')).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByTestId('tour-next')).toHaveCount(0)
+  await page.getByTestId('tour-open').click()
+  await expect(page.getByTestId('tour-next')).toBeVisible()
   for (let i = 0; i < 4; i++) {
     await page.getByTestId('tour-next').click()
   }
@@ -132,10 +135,10 @@ test('walkthrough shows once and the first-use notice can be dismissed', async (
   await page.locator('#first-use-dismiss').click()
   await expect(page.locator('#first-use-notice')).toBeHidden()
 
-  // Both stay dismissed on reload
+  // Notice stays dismissed on reload; the tour stays available on demand
   await page.reload()
-  await expect(page.getByTestId('tour-next')).toHaveCount(0)
   await expect(page.locator('#first-use-notice')).toBeHidden()
+  await expect(page.getByTestId('tour-open')).toBeVisible({ timeout: 15_000 })
   await ctx.close()
 })
 

@@ -28,18 +28,13 @@ const STEPS = [
 const KEY = '530a-walkthrough-done'
 
 export default function Walkthrough() {
+  // Opt-in (§U8): a "Take the tour" link instead of an auto-modal — the
+  // old modal ambushed first-time visitors and stacked on the first-use
+  // notice. KEY is still written so old sessions stay consistent.
   const [step, setStep] = useState(-1)
   const dialogRef = useRef<HTMLDivElement>(null)
   const restoreFocus = useRef<HTMLElement | null>(null)
   const open = step >= 0
-
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(KEY)) setStep(0)
-    } catch {
-      /* storage unavailable → skip the tour */
-    }
-  }, [])
 
   // Modal focus management: initial focus in, Tab cycles within, Escape
   // closes, and focus returns to wherever the user was on close.
@@ -85,7 +80,18 @@ export default function Walkthrough() {
     setStep(-1)
   }
 
-  if (step < 0) return null
+  if (step < 0) {
+    return (
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        data-testid="tour-open"
+        onClick={() => setStep(0)}
+      >
+        Take the 30-second tour
+      </button>
+    )
+  }
   const s = STEPS[step]
   if (!s) return null
 

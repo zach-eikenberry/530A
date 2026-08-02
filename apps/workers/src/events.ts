@@ -28,7 +28,18 @@ async function rateLimited(env: Env, request: Request): Promise<boolean> {
   }
 }
 
-const ALLOWED_EVENTS = new Set(['scenario_modeled', 'scenario_saved', 'link_copied', 'export'])
+const ALLOWED_EVENTS = new Set([
+  'scenario_modeled',
+  'scenario_saved',
+  'link_copied',
+  'export',
+  'widget_interacted',
+  'cta_model_click',
+  'open_account_click',
+  'outbound_click',
+  'faq_opened',
+  'eligibility_checked',
+])
 
 const BodySchema = z.object({
   v: z.literal(1),
@@ -37,6 +48,7 @@ const BodySchema = z.object({
       z.object({
         n: z.string().min(1).max(32),
         b: z.string().min(1).max(16).optional(),
+        p: z.string().min(1).max(64).optional(),
       }),
     )
     .min(1)
@@ -104,7 +116,7 @@ async function handle(request: Request, env: Env): Promise<Response> {
     for (const event of parsed.events) {
       if (!ALLOWED_EVENTS.has(event.n)) continue
       env.EVENTS.writeDataPoint({
-        blobs: [event.n, event.b ?? ''],
+        blobs: [event.n, event.b ?? '', event.p ?? ''],
         doubles: [1],
         indexes: [event.n],
       })
