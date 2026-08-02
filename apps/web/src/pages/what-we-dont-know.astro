@@ -1,0 +1,83 @@
+---
+import { FLAGS, RULES_VERIFIED_AT } from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { articleLd, humanDate } from '../lib/seo'
+
+const title = "What We Don't Know Yet — 530A rules still pending confirmation"
+const description =
+  'The 530A questions this site refuses to guess at: 529 rollovers, the exact early-withdrawal penalty, the "qualified class" definition, and cap-indexing mechanics — each tracked until a primary source settles it.'
+
+const pageLd = articleLd({ headline: title, description, path: '/what-we-dont-know' })
+
+// Human framing for each machine flag — same order, same source of truth.
+const FLAG_COPY: Record<keyof typeof FLAGS, { name: string; expect: string }> = {
+  rollover529At18: {
+    name: '529 rollover at 18',
+    expect: 'Would require an amendment or explicit guidance; none found in the statute.',
+  },
+  earlyWithdrawalPenalty: {
+    name: 'Exact early-withdrawal penalty',
+    expect: 'Expected in IRS/Treasury guidance implementing §530A.',
+  },
+  qualifiedClassDefinition: {
+    name: '"Qualified class" for charity/government contributions',
+    expect:
+      'Expected in the Treasury regulations (originally anticipated March 2026, still pending as of our last review).',
+  },
+  post2027CapIndexing: {
+    name: 'Cap-indexing mechanics after 2027',
+    expect: 'Expected alongside the first indexed cap announcement.',
+  },
+}
+const flagEntries = (Object.keys(FLAGS) as (keyof typeof FLAGS)[]).map((k) => ({
+  key: k,
+  flag: FLAGS[k],
+  copy: FLAG_COPY[k],
+}))
+---
+
+<Base
+  title={title}
+  description={description}
+  path="/what-we-dont-know"
+  jsonLd={[pageLd]}
+  ogType="article"
+>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Honesty ledger</span>
+      <h1 class="mt-2" style="color: #fff;">What we don't know yet</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 70ch;">
+        These are the 530A questions no primary source has settled. Rather than guess, the
+        calculator keeps each one behind a flag — off until it can cite a source. Last reviewed
+        <time datetime={RULES_VERIFIED_AT}>{humanDate(RULES_VERIFIED_AT)}</time>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      {flagEntries.map(({ key, flag, copy }) => (
+        <div class="card mt-3" id={key}>
+          <h2 style="font-size: 1.2rem; margin-top: 0;">
+            {copy.name}
+            <span class="muted" style="font-weight: 600; font-size: 0.85rem;">
+              {' '}· {flag.enabled ? 'verified' : 'unverified — treated as not permitted / estimated'}
+            </span>
+          </h2>
+          <p style="margin-bottom: 6px;">{flag.pendingReason}</p>
+          <p class="muted" style="font-size: 0.9rem; margin: 0;">
+            <strong>When it should resolve:</strong> {copy.expect}
+          </p>
+        </div>
+      ))}
+
+      <div class="callout mt-4">
+        <strong>How this list works.</strong> Each entry mirrors a feature flag in the
+        <a href="https://github.com/zach-eikenberry/530A">open-source code</a> — the calculator
+        literally cannot use an unverified rule. When a primary source lands, the flag flips
+        with a citation and the change appears in <a href="/updates">updates</a>.
+      </div>
+    </div>
+  </section>
+</Base>

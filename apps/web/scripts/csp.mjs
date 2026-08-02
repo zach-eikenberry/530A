@@ -150,6 +150,7 @@ function main() {
       API_ORIGIN,
       originOf(process.env.PUBLIC_EVENTS_ENDPOINT),
       originOf(process.env.PUBLIC_SENTRY_DSN),
+      originOf(process.env.PUBLIC_STATS_ENDPOINT),
       ...(beaconEnabled ? [BEACON_SCRIPT_ORIGIN, BEACON_RUM_ORIGIN] : []),
     ],
   })

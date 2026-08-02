@@ -40,7 +40,10 @@ test('UC-2: parent toggles affordability presets and compares scenarios', async 
   // Comparison table shows both plus a combined row
   const compare = page.getByTestId('compare-table')
   await expect(compare).toBeVisible()
-  await expect(compare).toContainText('Scenario 1')
+  // Saved rows are renameable — the label lives in an input now
+  await expect(compare.locator('input[aria-label="Scenario name"]').first()).toHaveValue(
+    'Scenario 1',
+  )
   await expect(compare).toContainText('Combined')
 })
 
@@ -86,6 +89,8 @@ test('UC-4: charity sizes a cohort and works backward from a budget', async ({ p
   // Compliance honesty: qualified-class caveat is visible
   await expect(page.getByText(/qualified class/i)).toBeVisible()
 
+  // Destructive action: first click asks to confirm, second applies
+  await page.getByTestId('apply-per-child').click()
   await page.getByTestId('apply-per-child').click()
   await waitForResults(page)
   await expect(page.getByTestId('breakdown')).toContainText('$1,000 contributed')

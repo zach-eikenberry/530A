@@ -134,47 +134,106 @@ export default function AdvancedModel() {
   const errProps = (id: string) =>
     errField === id ? { 'aria-invalid': true, 'aria-describedby': 'model-error' } : {}
 
-  // Restore from ?s= (and comparison scenarios from ?s2=, ?s3=) on mount
+  /** Recent scenarios from previous sessions (encoded states, newest first). */
+  const [recent, setRecent] = useState<{ s: string; at: string }[]>([])
+
+  // Restore on mount: a shared ?s= link wins; otherwise the last session's
+  // editor state and saved comparisons come back from localStorage (same
+  // local-only storage policy as theme/dismissals — nothing leaves the device).
   useEffect(() => {
     document.getElementById('model-skeleton')?.remove()
     const params = new URLSearchParams(window.location.search)
     const s = params.get('s')
+    const addSaved = (st: ScenarioState, label?: string) => {
+      runMonteCarlo(st)
+        .result.then((r) =>
+          setSaved((prev) =>
+            prev.length < 3
+              ? [
+                  ...prev,
+                  {
+                    id: newScenarioId(),
+                    label: label ?? `Scenario ${prev.length + 2}`,
+                    state: st,
+                    run: r,
+                  },
+                ]
+              : prev,
+          ),
+        )
+        .catch(() => {
+          /* comparison extras are best-effort */
+        })
+    }
+
+    let lastStored: string | null = null
+    try {
+      lastStored = localStorage.getItem('530a-editor-last')
+    } catch {}
+
     if (s) {
       try {
         setEditor(fromScenarioState(decodeState(s), asOf))
       } catch {
         setLinkWarning('That shared link could not be read; starting fresh.')
       }
-    }
-    for (const key of ['s2', 's3', 's4']) {
-      const extra = params.get(key)
-      if (!extra) continue
+    } else if (lastStored) {
       try {
-        const st = decodeState(extra)
-        runMonteCarlo(st)
-          .result.then((r) =>
-            setSaved((prev) =>
-              prev.length < 3
-                ? [
-                    ...prev,
-                    {
-                      id: newScenarioId(),
-                      label: `Scenario ${prev.length + 2}`,
-                      state: st,
-                      run: r,
-                    },
-                  ]
-                : prev,
-            ),
-          )
-          .catch(() => {
-            /* comparison extras are best-effort */
-          })
+        setEditor(fromScenarioState(decodeState(lastStored), asOf))
       } catch {
-        // ignore malformed extras
+        /* stale/incompatible stored state → default editor */
       }
     }
+
+    // Recent list: the previous session's last state becomes a recent entry.
+    try {
+      const rec: { s: string; at: string }[] = JSON.parse(
+        localStorage.getItem('530a-recent') ?? '[]',
+      )
+      if (lastStored && rec[0]?.s !== lastStored) {
+        rec.unshift({ s: lastStored, at: new Date().toISOString().slice(0, 10) })
+      }
+      const trimmed = rec.slice(0, 5)
+      localStorage.setItem('530a-recent', JSON.stringify(trimmed))
+      setRecent(trimmed)
+    } catch {}
+
+    const extras = ['s2', 's3', 's4']
+      .map((key) => params.get(key))
+      .filter((v): v is string => Boolean(v))
+    if (extras.length > 0) {
+      for (const extra of extras) {
+        try {
+          addSaved(decodeState(extra))
+        } catch {
+          // ignore malformed extras
+        }
+      }
+    } else {
+      try {
+        const stored: { label: string; s: string }[] = JSON.parse(
+          localStorage.getItem('530a-saved') ?? '[]',
+        )
+        for (const entry of stored.slice(0, 3)) {
+          addSaved(decodeState(entry.s), entry.label)
+        }
+      } catch {}
+    }
   }, [asOf])
+
+  // Persist the comparison set whenever it changes (labels + encoded states).
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        '530a-saved',
+        JSON.stringify(
+          saved
+            .map((sv) => ({ label: sv.label, s: encodeStateSafe(sv.state) }))
+            .filter((x): x is { label: string; s: string } => x.s !== null),
+        ),
+      )
+    } catch {}
+  }, [saved])
 
   // Debounced Monte-Carlo run + URL sync on every editor change. Invalid
   // scenarios never reach the worker — `det` already surfaced the error.
@@ -199,6 +258,9 @@ export default function AdvancedModel() {
             const url = new URL(window.location.href)
             url.searchParams.set('s', encoded)
             history.replaceState(null, '', url)
+            try {
+              localStorage.setItem('530a-editor-last', encoded)
+            } catch {}
           }
           const median = pctAt(r.mc, Math.round(state.targetAgeMonths / 12), 2, true)
           if (median !== null) track('scenario_modeled', magnitudeBucket(Number(median) / 100))
@@ -290,6 +352,24 @@ export default function AdvancedModel() {
     ])
     track('scenario_saved')
   }
+  const renameSaved = (id: string, label: string) =>
+    setSaved((prev) => prev.map((sv) => (sv.id === id ? { ...sv, label } : sv)))
+  const deleteSaved = (id: string) => setSaved((prev) => prev.filter((sv) => sv.id !== id))
+  const moveSaved = (id: string, dir: -1 | 1) =>
+    setSaved((prev) => {
+      const i = prev.findIndex((sv) => sv.id === id)
+      const j = i + dir
+      if (i < 0 || j < 0 || j >= prev.length) return prev
+      const next = [...prev]
+      const a = next[i] as SavedScenario
+      next[i] = next[j] as SavedScenario
+      next[j] = a
+      return next
+    })
+
+  // Two-step confirm: "Model this per-child gift" replaces every contribution
+  // source, which is destructive to a hand-built scenario.
+  const [confirmingApply, setConfirmingApply] = useState(false)
 
   const copyLink = async () => {
     if (!encoded) return
@@ -409,7 +489,12 @@ export default function AdvancedModel() {
                   type="button"
                   class="btn btn-ghost btn-sm mt-1"
                   data-testid="apply-per-child"
-                  onClick={() =>
+                  onClick={() => {
+                    if (editor.sources.length > 0 && !confirmingApply) {
+                      setConfirmingApply(true)
+                      return
+                    }
+                    setConfirmingApply(false)
                     setEditor((prev) => ({
                       ...prev,
                       sources: [
@@ -426,9 +511,12 @@ export default function AdvancedModel() {
                         },
                       ],
                     }))
-                  }
+                  }}
+                  onBlur={() => setConfirmingApply(false)}
                 >
-                  Model this per-child gift
+                  {confirmingApply
+                    ? 'Replace current contributions? Click again'
+                    : 'Model this per-child gift'}
                 </button>{' '}
                 The projection is per child; multiply by {cohortSize.toLocaleString()} for the
                 program total.
@@ -696,6 +784,49 @@ export default function AdvancedModel() {
                 <option value="high">Wild markets ({VOL_PRESETS.high * 100}% volatility)</option>
               </select>
             </div>
+            <details class="mt-2">
+              <summary class="field-label" style="cursor: pointer;">
+                Advanced: simulation settings
+              </summary>
+              <div class="grid grid-2 mt-2" style="gap: 12px;">
+                <div class="field" style="margin: 0;">
+                  <div class="field-row">
+                    <label class="field-label" for="adv-mc-seed">
+                      Random seed
+                    </label>
+                  </div>
+                  <NumberField
+                    id="adv-mc-seed"
+                    min={0}
+                    step={1}
+                    value={editor.mcSeed}
+                    data-testid="mc-seed"
+                    onCommit={(n) => set('mcSeed', Math.max(0, Math.round(n)))}
+                  />
+                </div>
+                <div class="field" style="margin: 0;">
+                  <div class="field-row">
+                    <label class="field-label" for="adv-mc-paths">
+                      Simulated paths
+                    </label>
+                  </div>
+                  <NumberField
+                    id="adv-mc-paths"
+                    min={100}
+                    max={20000}
+                    step={100}
+                    value={editor.mcPaths}
+                    data-testid="mc-paths"
+                    onCommit={(n) => set('mcPaths', Math.max(100, Math.min(20000, Math.round(n))))}
+                  />
+                </div>
+              </div>
+              <p class="field-hint">
+                Same seed, paths, and inputs always reproduce identical ranges — that's what makes
+                share links exact. More paths = smoother percentiles, slower simulation (max
+                20,000).
+              </p>
+            </details>
             <div class="stack mt-2" style="--stack-gap: 8px;">
               <label class="toggle">
                 <input
@@ -793,7 +924,7 @@ export default function AdvancedModel() {
                 <div class="rh-label">
                   {heroFromDet
                     ? `At ${target} · expected path`
-                    : `At ${target} · median of 5,000 simulations`}
+                    : `At ${target} · median of ${state.mcPaths.toLocaleString()} simulations`}
                 </div>
                 <div class="rh-value">{formatCents(heroValue)}</div>
                 <div class="rh-sub">
@@ -808,7 +939,7 @@ export default function AdvancedModel() {
           })()}
           {!run && computing && (
             <div class="card" role="status">
-              Simulating 5,000 market paths for percentile ranges…
+              Simulating {state.mcPaths.toLocaleString()} market paths for percentile ranges…
             </div>
           )}
           {run && (
@@ -836,7 +967,8 @@ export default function AdvancedModel() {
               </div>
 
               <p class="muted" style="font-size: 0.92rem; margin: 0;">
-                In about 90% of the 5,000 simulated markets, the balance at {target} is at least{' '}
+                In about 90% of the {state.mcPaths.toLocaleString()} simulated markets, the balance
+                at {target} is at least{' '}
                 <strong>{formatCents(pctAt(run.mc, target, 0, real))}</strong>
                 {real ? ' in today’s dollars' : ''}. The chart shows the median path
                 {editor.showRange ? ' with 25–75% and 10–90% bands' : ''}; age runs along the
@@ -889,7 +1021,8 @@ export default function AdvancedModel() {
               {/* At 18, what next? */}
               {run.projection.startAgeMonths < 216 && tax && (
                 <div class="card">
-                  <h3>At 18, what next?</h3>
+                  {/* h2: /model has an h1 and no intervening h2s (heading-order) */}
+                  <h2 style="font-size: 1.17rem; margin-top: 0;">At 18, what next?</h2>
                   <div class="flex gap-3 wrap mt-2" style="align-items: center;">
                     <fieldset
                       class="flex gap-3 wrap"
@@ -948,13 +1081,18 @@ export default function AdvancedModel() {
               )}
 
               {/* Exports */}
-              {encoded && (
+              {encoded ? (
                 <ExportButtons
                   state={state}
                   projection={run.projection}
                   mc={run.mc}
                   shareUrl={`https://530amodel.com/model?s=${encoded}`}
                 />
+              ) : (
+                <div class="callout" role="status" style="border-color: var(--warn);">
+                  This scenario can't be encoded into a share link or export (a value is out of the
+                  encodable range) — adjust the inputs and it will come back.
+                </div>
               )}
 
               {/* Compare & share */}
@@ -1005,36 +1143,96 @@ export default function AdvancedModel() {
                         <tr>
                           <th>Scenario</th>
                           <th>Median at 18</th>
-                          <th>Median at {target}</th>
+                          {/* Each row is computed at its own scenario's target
+                              age — labeled per row, not by the editor's. */}
+                          <th>Median at target age</th>
+                          <th aria-label="Manage" />
                         </tr>
                       </thead>
                       <tbody>
-                        {[{ id: 'current', label: 'Current', state, run }, ...saved].map((sv) => (
-                          <tr key={sv.id}>
-                            <th>{sv.label}</th>
-                            <td>{formatCents(pctAt(sv.run.mc, 18, 2, real))}</td>
-                            <td>
-                              {formatCents(
-                                pctAt(
-                                  sv.run.mc,
-                                  Math.round(sv.state.targetAgeMonths / 12),
-                                  2,
-                                  real,
-                                ),
-                              )}
-                            </td>
-                          </tr>
-                        ))}
+                        <tr>
+                          <th>Current</th>
+                          <td>{formatCents(pctAt(run.mc, 18, 2, real))}</td>
+                          <td>
+                            {formatCents(pctAt(run.mc, target, 2, real))}{' '}
+                            <span class="muted">at {target}</span>
+                          </td>
+                          <td />
+                        </tr>
+                        {saved.map((sv, i) => {
+                          const age = Math.round(sv.state.targetAgeMonths / 12)
+                          return (
+                            <tr key={sv.id}>
+                              <th>
+                                <input
+                                  class="input"
+                                  type="text"
+                                  value={sv.label}
+                                  aria-label="Scenario name"
+                                  style="width: 9rem; padding: 6px 8px; font-weight: 600;"
+                                  onInput={(e) =>
+                                    renameSaved(sv.id, (e.target as HTMLInputElement).value)
+                                  }
+                                />
+                              </th>
+                              <td>{formatCents(pctAt(sv.run.mc, 18, 2, real))}</td>
+                              <td>
+                                {formatCents(pctAt(sv.run.mc, age, 2, real))}{' '}
+                                <span class="muted">at {age}</span>
+                              </td>
+                              <td style="white-space: nowrap;">
+                                <button
+                                  type="button"
+                                  class="icon-btn"
+                                  aria-label={`Move ${sv.label} up`}
+                                  disabled={i === 0}
+                                  onClick={() => moveSaved(sv.id, -1)}
+                                >
+                                  ↑
+                                </button>{' '}
+                                <button
+                                  type="button"
+                                  class="icon-btn"
+                                  aria-label={`Move ${sv.label} down`}
+                                  disabled={i === saved.length - 1}
+                                  onClick={() => moveSaved(sv.id, 1)}
+                                >
+                                  ↓
+                                </button>{' '}
+                                <button
+                                  type="button"
+                                  class="icon-btn"
+                                  aria-label={`Remove ${sv.label}`}
+                                  onClick={() => deleteSaved(sv.id)}
+                                >
+                                  ✕
+                                </button>
+                              </td>
+                            </tr>
+                          )
+                        })}
                         <tr>
                           <th>Combined</th>
                           <td style="font-weight: 700;">
                             {formatCents(sumMedians([{ state, run }, ...saved], 18, real))}
                           </td>
                           <td>—</td>
+                          <td />
                         </tr>
                       </tbody>
                     </table>
                   </div>
+                )}
+                {recent.length > 0 && (
+                  <p class="field-hint" data-testid="recent-scenarios">
+                    Recent scenarios:{' '}
+                    {recent.map((r, i) => (
+                      <span key={r.s}>
+                        {i > 0 && ' · '}
+                        <a href={`/model?s=${r.s}`}>{r.at}</a>
+                      </span>
+                    ))}
+                  </p>
                 )}
                 {saved.length > 0 && (
                   <p class="field-hint" style="margin-bottom: 0;">

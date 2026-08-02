@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro'
+import { articleLd, GITHUB_URL, ORG_ID } from '../lib/seo'
+
+const title = 'About 530A Model — who builds it and why'
+const description =
+  'Who is behind 530amodel.com, why it exists, why it is free, and how to reach the maintainer.'
+
+const pageLd = articleLd({ headline: title, description, path: '/about' })
+const aboutOrgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': ORG_ID,
+  name: '530A Model',
+  founder: { '@type': 'Person', name: 'Zach Eikenberry' },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'api@530amodel.com',
+    contactType: 'general',
+  },
+  sameAs: [GITHUB_URL],
+}
+---
+
+<Base title={title} description={description} path="/about" jsonLd={[pageLd, aboutOrgLd]} ogType="article">
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">About</span>
+      <h1 class="mt-2" style="color: #fff;">Who builds this</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        530A Model is an independent, open-source public-good project — one person, no company
+        behind it, nothing for sale.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container container-narrow prose">
+      <h2>The person</h2>
+      <p>
+        The site is built and maintained by <strong>Zach Eikenberry</strong> as a personal
+        project. All of the code — the calculator engine, this site, the API, and the test
+        suites — is public at
+        <a href={GITHUB_URL}>github.com/zach-eikenberry/530A</a>.
+      </p>
+
+      <h2>Why it exists</h2>
+      <p>
+        The 530A is a brand-new kind of account, and most of what families first read about it
+        is either marketing or guesswork. This project takes the opposite approach: verify every
+        figure against <a href="/resources">primary sources</a>, flag
+        <a href="/what-we-dont-know">what isn't yet knowable</a>, and let the math itself be
+        <a href="/methodology">checked by anyone</a>.
+      </p>
+
+      <h2>What it will never do</h2>
+      <ul>
+        <li>Sell ads, funds, or your attention — see <a href="/why-free">why it's free</a>.</li>
+        <li>Collect personal data — your inputs never leave your device.</li>
+        <li>Present an estimate as a promise.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>
+        Corrections and questions: open a <a href={`${GITHUB_URL}/issues`}>GitHub issue</a> or
+        email <a href="mailto:api@530amodel.com">api@530amodel.com</a>. Press inquiries: see the
+        <a href="/press">press page</a>.
+      </p>
+    </div>
+  </section>
+</Base>

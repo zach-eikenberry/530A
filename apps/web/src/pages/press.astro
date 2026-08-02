@@ -1,0 +1,79 @@
+---
+import {
+  ANNUAL_CAP_CENTS,
+  EMPLOYER_CAP_CENTS,
+  FEDERAL_SEED_CENTS,
+  RULES_VERIFIED_AT,
+  SEED_BIRTH_WINDOW,
+} from '@530a/config'
+import Base from '../layouts/Base.astro'
+import { articleLd, GITHUB_URL, humanDate } from '../lib/seo'
+
+const title = '530A Model Press Kit — boilerplate, facts, and assets'
+const description =
+  'Press resources for 530amodel.com: what the project is, verified 530A fact sheet, logo assets, permitted use, and contact.'
+
+const pageLd = articleLd({ headline: title, description, path: '/press' })
+const usd = (cents: bigint) => `$${(Number(cents) / 100).toLocaleString('en-US')}`
+---
+
+<Base title={title} description={description} path="/press" jsonLd={[pageLd]} ogType="article">
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Press</span>
+      <h1 class="mt-2" style="color: #fff;">Press kit</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 66ch;">
+        Everything needed to cover the project accurately — boilerplate, a verified fact sheet,
+        and assets.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container container-narrow prose">
+      <h2>Boilerplate</h2>
+      <p>
+        <strong>530A Model</strong> (530amodel.com) is a free, open-source calculator for 530A
+        custodial retirement accounts — the "Trump Accounts" created by the One Big Beautiful
+        Bill Act of 2025. Every figure is verified against primary sources (the statute, IRS
+        guidance, CRS analysis), all calculation runs in the visitor's browser with no login and
+        no personal data collected, and the projection engine is independently tested to the
+        cent. It is an independent educational project, not affiliated with the U.S. government.
+      </p>
+
+      <h2>Fact sheet (verified as of <time datetime={RULES_VERIFIED_AT}>{humanDate(RULES_VERIFIED_AT)}</time>)</h2>
+      <ul>
+        <li>One-time {usd(FEDERAL_SEED_CENTS.value)} federal seed for U.S.-citizen children born
+          {SEED_BIRTH_WINDOW.value.start} through {SEED_BIRTH_WINDOW.value.end} (SSN required).</li>
+        <li>Contribution cap: {usd(ANNUAL_CAP_CENTS.value)} per child per year from all sources
+          combined; employers up to {usd(EMPLOYER_CAP_CENTS.value)}/yr within the cap.</li>
+        <li>Contributions permitted since July 4, 2026; none were allowed earlier.</li>
+        <li>No withdrawals before 18; Traditional-IRA treatment afterward.</li>
+        <li>Unsettled questions are tracked openly at
+          <a href="/what-we-dont-know">/what-we-dont-know</a>.</li>
+      </ul>
+
+      <h2>Assets</h2>
+      <ul>
+        <li><a href="/assets/img/mark.svg" download>Logo mark (SVG)</a> — navy/gold, scales to any size.</li>
+        <li><a href="/assets/og/home.png">Site card image (PNG, 1200×630)</a>.</li>
+      </ul>
+
+      <h2>Permitted use</h2>
+      <p>
+        Quote, screenshot, and link freely with attribution to
+        <strong>530amodel.com</strong>. Site content may be reused under
+        <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>;
+        the code is open source at <a href={GITHUB_URL}>GitHub</a>. Please present projections
+        as the estimates they are — never as promised outcomes.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        <a href="mailto:api@530amodel.com">api@530amodel.com</a> ·
+        <a href={`${GITHUB_URL}/issues`}>GitHub issues</a> · more background on
+        <a href="/about">the about page</a>.
+      </p>
+    </div>
+  </section>
+</Base>

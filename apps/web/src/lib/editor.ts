@@ -45,6 +45,8 @@ export interface EditorState {
   at18Path: 'stay-traditional' | 'convert-roth'
   sources: EditorSource[]
   mcSeed: number
+  /** Monte-Carlo path count (100..DEFAULTS.monteCarlo.maxPaths). */
+  mcPaths: number
 }
 
 let sourceCounter = 1
@@ -89,6 +91,7 @@ export function defaultEditorState(asOf: Date): EditorState {
       },
     ],
     mcSeed: 530,
+    mcPaths: DEFAULTS.monteCarlo.defaultPaths,
   }
 }
 
@@ -153,7 +156,10 @@ export function toScenarioState(editor: EditorState, asOf: Date): ScenarioState 
     },
     targetAgeMonths: editor.targetAgeYears * 12,
     mcSeed: editor.mcSeed,
-    mcPaths: DEFAULTS.monteCarlo.defaultPaths,
+    mcPaths: Math.min(
+      DEFAULTS.monteCarlo.maxPaths,
+      Math.max(100, Math.round(editor.mcPaths) || DEFAULTS.monteCarlo.defaultPaths),
+    ),
   }
 }
 
@@ -180,6 +186,7 @@ export function fromScenarioState(state: ScenarioState, asOf: Date): EditorState
     includeFees: state.assumptions.annualFee > 0,
     inflationPct: pct2(state.assumptions.annualInflation),
     mcSeed: state.mcSeed,
+    mcPaths: state.mcPaths || base.mcPaths,
     sources: state.sources.map((s) => ({
       id: s.id,
       kind: s.kind,

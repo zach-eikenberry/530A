@@ -1,0 +1,80 @@
+---
+import Base from '../layouts/Base.astro'
+import { articleLd } from '../lib/seo'
+
+const title = '530A Model Stats — public aggregate usage'
+const description =
+  'The same anonymous aggregates we see: scenarios modeled, exports built, links shared. No identifiers, no per-visitor data — updated daily from event counts.'
+
+const pageLd = articleLd({ headline: title, description, path: '/stats' })
+const statsEndpoint = import.meta.env.PUBLIC_STATS_ENDPOINT as string | undefined
+---
+
+<Base title={title} description={description} path="/stats" jsonLd={[pageLd]}>
+  <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
+    <div class="container">
+      <span class="eyebrow" style="color: var(--gold-400);">Open stats</span>
+      <h1 class="mt-2" style="color: #fff;">Public aggregate stats</h1>
+      <p class="lead mt-2" style="color: #b9c9e0; max-width: 68ch;">
+        This is everything the site's analytics can see — anonymous event counts, published for
+        anyone. No identifiers, no IPs, no cookies; the full pipeline is described in the
+        <a href="/privacy" style="color: var(--gold-400);">privacy policy</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="mc-stats" id="stats-grid" data-endpoint={statsEndpoint ?? ''}>
+        <div class="mc-stat mid">
+          <div class="lbl">Scenarios modeled</div>
+          <div class="v" data-stat="scenario_modeled">—</div>
+        </div>
+        <div class="mc-stat high">
+          <div class="lbl">Exports built</div>
+          <div class="v" data-stat="export">—</div>
+        </div>
+        <div class="mc-stat low">
+          <div class="lbl">Links shared</div>
+          <div class="v" data-stat="link_copied">—</div>
+        </div>
+      </div>
+      <p class="muted mt-2" id="stats-note" role="status">
+        Counting the last 90 days of anonymous events…
+      </p>
+
+      <div class="callout mt-4">
+        <strong>How this works.</strong> The calculator batches anonymous event names (never your
+        inputs) into one beacon per visit; a daily job aggregates the counts and publishes them
+        here. If the numbers read “—”, the aggregation pipeline is still warming up.
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const grid = document.getElementById('stats-grid')
+    const note = document.getElementById('stats-note')
+    const endpoint = grid?.dataset.endpoint
+    const setNote = (text: string) => {
+      if (note) note.textContent = text
+    }
+    if (!endpoint) {
+      setNote('Aggregate stats are still warming up — check back soon.')
+    } else {
+      fetch(endpoint)
+        .then((r) => r.json())
+        .then((data: { updatedAt: string | null; totals: Record<string, number> }) => {
+          if (!data.updatedAt) {
+            setNote('Aggregate stats are still warming up — check back soon.')
+            return
+          }
+          for (const el of document.querySelectorAll<HTMLElement>('[data-stat]')) {
+            const key = el.dataset.stat as string
+            el.textContent = (data.totals[key] ?? 0).toLocaleString()
+          }
+          setNote(`Anonymous event counts over the last 90 days, updated ${data.updatedAt}.`)
+        })
+        .catch(() => setNote('Stats are unavailable right now — try again later.'))
+    }
+  </script>
+</Base>

@@ -54,7 +54,7 @@ export default function EligibilityCheck() {
 
   return (
     <div class="card" data-testid="eligibility-check">
-      <h3 style="margin-top: 0;">Is your child eligible?</h3>
+      <h2 style="font-size: 1.17rem; margin-top: 0;">Is your child eligible?</h2>
       <p class="muted" style="font-size: 0.92rem;">
         Three questions, answered on your device — nothing is sent anywhere.
       </p>

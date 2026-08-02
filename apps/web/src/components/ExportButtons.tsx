@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function ExportButtons({ state, projection, mc, shareUrl }: Props) {
-  const [busy, setBusy] = useState<'pdf' | 'xlsx' | null>(null)
+  const [busy, setBusy] = useState<'pdf' | 'xlsx' | 'csv' | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [firmName, setFirmName] = useState('')
   const [childName, setChildName] = useState('')
@@ -41,6 +41,26 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
       const bytes = await renderPdf(payload)
       downloadBlob(bytes, '530a-projection.pdf', 'application/pdf')
       track('export', 'pdf')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const exportCsv = async () => {
+    setBusy('csv')
+    setError(null)
+    try {
+      const [{ buildExportPayload }, { renderCsv }, { downloadBlob }] = await Promise.all([
+        import('../lib/export-data'),
+        import('../lib/csv-export'),
+        import('../lib/pdf-export'),
+      ])
+      const payload = buildExportPayload(state, projection, mc, shareUrl, branding())
+      const csv = renderCsv(payload)
+      downloadBlob(new TextEncoder().encode(csv), '530a-projection.csv', 'text/csv;charset=utf-8')
+      track('export', 'csv')
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -74,7 +94,7 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
 
   return (
     <div class="card" data-tour="export">
-      <h3>Take it with you</h3>
+      <h2 style="font-size: 1.17rem; margin-top: 0;">Take it with you</h2>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-top: 0.5rem;">
         <button
           type="button"
@@ -93,6 +113,15 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
           data-testid="export-xlsx"
         >
           {busy === 'xlsx' ? 'Building…' : 'Download Excel'}
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          onClick={exportCsv}
+          disabled={busy !== null}
+          data-testid="export-csv"
+        >
+          {busy === 'csv' ? 'Building…' : 'Download CSV'}
         </button>
         <span class="muted" role="status">
           {busy !== null
