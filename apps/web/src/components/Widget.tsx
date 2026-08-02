@@ -1,6 +1,7 @@
 import { formatMoney, type Projection } from '@530a/engine'
 import { useEffect, useMemo, useState } from 'preact/hooks'
 import { milestoneAt, runWidget } from '../lib/scenario'
+import NumberField from './NumberField'
 
 function breakdownAt18(p: Projection): { contributed: bigint; seed: bigint; growth: bigint } {
   // Widget sources all stop at 18, so total contributions == contributions by 18.
@@ -57,7 +58,9 @@ export default function Widget() {
   const at72 = milestoneAt(result.projection, 72)
   const b18 = breakdownAt18(result.projection)
   const shareHref = `/model?s=${result.shareState}`
-  const capped = monthlyDollars > 416
+  // The engine reports contributions clipped by the $5,000/yr combined cap —
+  // surface that instead of guessing from the slider position.
+  const capped = result.projection.warnings.length > 0
 
   return (
     <div class="calc" id="calc" data-hydrated={hydrated || undefined}>
@@ -125,7 +128,8 @@ export default function Widget() {
           </div>
           {capped && (
             <div class="field-hint" style="color: var(--warn);">
-              Capped to the $5,000/year combined contribution limit.
+              Contributions above the $5,000/year combined limit aren't counted — the projection
+              uses the capped amount.
             </div>
           )}
         </div>
@@ -136,18 +140,14 @@ export default function Widget() {
               <span class="field-label">One-time gift</span>
             </div>
             <div class="input-money">
-              <input
+              <NumberField
                 id="w-once"
-                class="input"
-                type="number"
                 min={0}
                 step={50}
                 value={oneTimeDollars}
                 placeholder="0"
                 aria-label="One-time starting gift"
-                onInput={(e) =>
-                  setOneTimeDollars(Math.max(0, Number((e.target as HTMLInputElement).value)))
-                }
+                onCommit={(n) => setOneTimeDollars(Math.max(0, n))}
               />
             </div>
           </div>

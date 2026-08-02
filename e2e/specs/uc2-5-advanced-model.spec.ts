@@ -16,6 +16,10 @@ test.beforeEach(async ({ page }) => {
 async function waitForResults(page: Page): Promise<string> {
   const headline = page.getByTestId('headline')
   await expect(headline).toBeVisible({ timeout: 20_000 })
+  // The headline paints instantly with the deterministic expected path, then
+  // upgrades in place once the seeded Monte-Carlo run lands — wait for the
+  // settled state so captured text is reproducible across pages.
+  await expect(headline).toContainText('median of 5,000 simulations', { timeout: 20_000 })
   return (await headline.textContent()) ?? ''
 }
 

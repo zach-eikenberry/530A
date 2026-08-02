@@ -16,6 +16,9 @@ test('a shared link reproduces identical numbers in a fresh context', async ({ b
   await pageA.goto('/model')
   const headline = pageA.getByTestId('headline')
   await expect(headline).toBeVisible({ timeout: 20_000 })
+  // Wait past the instant deterministic paint for the seeded MC result —
+  // only the settled text is reproducible across contexts.
+  await expect(headline).toContainText('median of 5,000 simulations', { timeout: 20_000 })
   const defaultHeadline = await headline.textContent()
   await expect
     .poll(() => new URL(pageA.url()).searchParams.get('s'), { timeout: 20_000 })
@@ -28,6 +31,7 @@ test('a shared link reproduces identical numbers in a fresh context', async ({ b
   await pageA.getByTestId('quick-250').click()
   await pageA.getByTestId('target-age-slider').fill('60')
   await expect(headline).toContainText('At 60', { timeout: 20_000 })
+  await expect(headline).toContainText('median of 5,000 simulations', { timeout: 20_000 })
   await expect(headline).not.toHaveText(defaultHeadline ?? '', { timeout: 20_000 })
   await expect
     .poll(() => new URL(pageA.url()).searchParams.get('s'), { timeout: 20_000 })
@@ -45,6 +49,9 @@ test('a shared link reproduces identical numbers in a fresh context', async ({ b
   })
   await pageB.goto(shareUrl)
   await expect(pageB.getByTestId('headline')).toContainText('At 60', { timeout: 20_000 })
+  await expect(pageB.getByTestId('headline')).toContainText('median of 5,000 simulations', {
+    timeout: 20_000,
+  })
   await expect(pageB.getByTestId('headline')).toHaveText(headlineA ?? '', { timeout: 20_000 })
   await expect(pageB.getByTestId('target-age')).toHaveText('60')
   await ctxB.close()

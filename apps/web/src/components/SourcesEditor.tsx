@@ -1,5 +1,6 @@
 import type { SourceKind } from '@530a/engine'
 import { type EditorSource, newSourceId } from '../lib/editor'
+import NumberField from './NumberField'
 
 /**
  * Contribution sources editor (§5.2): family/relative/charity/employer
@@ -111,22 +112,15 @@ export default function SourcesEditor({ sources, onChange }: Props) {
               <option value="once">One-time</option>
             </select>
             <div class="input-money" style="flex: 1;">
-              <input
-                class="input"
-                type="number"
+              <NumberField
                 min={0}
                 max={1_000_000}
                 step={1}
                 value={s.amountDollars}
                 aria-label="Amount in US dollars"
-                onInput={(e) =>
-                  update(s.id, {
-                    // USD, whole cents: clamp negatives and sub-cent noise.
-                    amountDollars: Math.max(
-                      0,
-                      Math.round(Number((e.target as HTMLInputElement).value) * 100) / 100,
-                    ),
-                  })
+                onCommit={(n) =>
+                  // USD, whole cents: clamp negatives and sub-cent noise.
+                  update(s.id, { amountDollars: Math.max(0, Math.round(n * 100) / 100) })
                 }
               />
             </div>

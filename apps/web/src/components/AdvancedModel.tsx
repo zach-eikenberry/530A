@@ -6,6 +6,7 @@ import {
   estimateTraditional,
   formatMoney,
   type MonteCarloResult,
+  type Projection,
   project,
   type ScenarioState,
 } from '@530a/engine'
@@ -21,19 +22,32 @@ import {
   toScenarioState,
   VOL_PRESETS,
 } from '../lib/editor'
-import { cancelBefore, type McRun, runMonteCarlo, SUPERSEDED } from '../lib/mc-client'
+import { type EngineErrorInfo, engineErrorInfo } from '../lib/engine-errors'
+import {
+  cancelBefore,
+  type McRun,
+  resetWorker,
+  runMonteCarlo,
+  SUPERSEDED,
+  WorkerFailedError,
+} from '../lib/mc-client'
 import { fetchReturns, type Period, type ReturnsPayload, toRealReturn } from '../lib/returns-client'
 import { toScenario } from '../lib/scenario'
 import ExportButtons from './ExportButtons'
 import FanChart from './FanChart'
+import NumberField from './NumberField'
 import SourcesEditor from './SourcesEditor'
 import Walkthrough from './Walkthrough'
 
 interface SavedScenario {
+  id: string
   label: string
   state: ScenarioState
   run: McRun
 }
+
+let scenarioCounter = 1
+const newScenarioId = () => `scenario-${scenarioCounter++}`
 
 function pctAt(mc: MonteCarloResult, ageYears: number, row: number, real: boolean): bigint | null {
   const idx = mc.sampleAgesMonths.indexOf(ageYears * 12)
@@ -52,6 +66,12 @@ function encodeStateSafe(state: ScenarioState): string | null {
 
 function formatCents(cents: bigint | null): string {
   return cents === null ? '—' : formatMoney(cents)
+}
+
+/** Deterministic (expected-path) milestone value, for instant first paint. */
+function detAt(p: Projection, ageYears: number, real: boolean): bigint | null {
+  const m = p.milestones.find((x) => x.ageMonths === ageYears * 12)
+  return m ? (real ? m.realCents : m.nominalCents) : null
 }
 
 function sumMedians(
@@ -75,6 +95,12 @@ export default function AdvancedModel() {
   const [run, setRun] = useState<McRun | null>(null)
   const [computing, setComputing] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  /** Worker-level failure (crash/timeout) — deterministic results still shown. */
+  const [workerError, setWorkerError] = useState<string | null>(null)
+  const [retryTick, setRetryTick] = useState(0)
+  /** Bad ?s= link notice; separate from `error` so a later run doesn't clear it. */
+  const [linkWarning, setLinkWarning] = useState<string | null>(null)
+  const [shareFallback, setShareFallback] = useState<string | null>(null)
   const [saved, setSaved] = useState<SavedScenario[]>([])
 
   // Return presets: pick a fund + trailing period and the return field is set
@@ -93,6 +119,21 @@ export default function AdvancedModel() {
   const state = useMemo(() => toScenarioState(editor, asOf), [editor, asOf])
   const encoded = useMemo(() => encodeStateSafe(state), [state])
 
+  // Instant deterministic projection: same engine as the homepage widget,
+  // rendered before (and while) the Monte-Carlo worker computes ranges. Also
+  // the synchronous validity check — engine errors surface here immediately,
+  // mapped to the offending field.
+  const det = useMemo<{ projection: Projection | null; error: EngineErrorInfo | null }>(() => {
+    try {
+      return { projection: project(toScenario(state)), error: null }
+    } catch (e) {
+      return { projection: null, error: engineErrorInfo(e) }
+    }
+  }, [state])
+  const errField = det.error?.fieldId
+  const errProps = (id: string) =>
+    errField === id ? { 'aria-invalid': true, 'aria-describedby': 'model-error' } : {}
+
   // Restore from ?s= (and comparison scenarios from ?s2=, ?s3=) on mount
   useEffect(() => {
     document.getElementById('model-skeleton')?.remove()
@@ -102,30 +143,47 @@ export default function AdvancedModel() {
       try {
         setEditor(fromScenarioState(decodeState(s), asOf))
       } catch {
-        setError('That shared link could not be read; starting fresh.')
+        setLinkWarning('That shared link could not be read; starting fresh.')
       }
     }
-    for (const key of ['s2', 's3']) {
+    for (const key of ['s2', 's3', 's4']) {
       const extra = params.get(key)
       if (!extra) continue
       try {
         const st = decodeState(extra)
-        runMonteCarlo(st).result.then((r) =>
-          setSaved((prev) =>
-            prev.length < 3
-              ? [...prev, { label: `Scenario ${prev.length + 2}`, state: st, run: r }]
-              : prev,
-          ),
-        )
+        runMonteCarlo(st)
+          .result.then((r) =>
+            setSaved((prev) =>
+              prev.length < 3
+                ? [
+                    ...prev,
+                    {
+                      id: newScenarioId(),
+                      label: `Scenario ${prev.length + 2}`,
+                      state: st,
+                      run: r,
+                    },
+                  ]
+                : prev,
+            ),
+          )
+          .catch(() => {
+            /* comparison extras are best-effort */
+          })
       } catch {
         // ignore malformed extras
       }
     }
   }, [asOf])
 
-  // Debounced Monte-Carlo run + URL sync on every editor change
+  // Debounced Monte-Carlo run + URL sync on every editor change. Invalid
+  // scenarios never reach the worker — `det` already surfaced the error.
   const debounce = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => {
+    if (det.error) {
+      setComputing(false)
+      return
+    }
     setComputing(true)
     clearTimeout(debounce.current)
     debounce.current = setTimeout(() => {
@@ -136,6 +194,7 @@ export default function AdvancedModel() {
           setRun(r)
           setComputing(false)
           setError(null)
+          setWorkerError(null)
           if (encoded) {
             const url = new URL(window.location.href)
             url.searchParams.set('s', encoded)
@@ -147,11 +206,18 @@ export default function AdvancedModel() {
         .catch((e: Error) => {
           if (e.message === SUPERSEDED) return
           setComputing(false)
-          setError(e.message)
+          if (e instanceof WorkerFailedError) setWorkerError(e.message)
+          else setError(engineErrorInfo(e).message)
         })
     }, 180)
     return () => clearTimeout(debounce.current)
-  }, [state, encoded])
+  }, [state, encoded, det.error, retryTick])
+
+  const retrySimulation = () => {
+    resetWorker()
+    setWorkerError(null)
+    setRetryTick((t) => t + 1)
+  }
 
   const set = <K extends keyof EditorState>(key: K, value: EditorState[K]) =>
     setEditor((prev) => ({ ...prev, [key]: value }))
@@ -218,7 +284,10 @@ export default function AdvancedModel() {
 
   const saveCurrent = () => {
     if (!run || saved.length >= 3) return
-    setSaved((prev) => [...prev, { label: `Scenario ${prev.length + 1}`, state, run }])
+    setSaved((prev) => [
+      ...prev,
+      { id: newScenarioId(), label: `Scenario ${prev.length + 1}`, state, run },
+    ])
     track('scenario_saved')
   }
 
@@ -226,13 +295,21 @@ export default function AdvancedModel() {
     if (!encoded) return
     const url = new URL(window.location.href)
     url.searchParams.set('s', encoded)
-    saved.slice(0, 2).forEach((sv, i) => {
+    saved.forEach((sv, i) => {
       const extra = encodeStateSafe(sv.state)
       if (extra) url.searchParams.set(`s${i + 2}`, extra)
     })
-    await navigator.clipboard.writeText(url.toString())
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    const text = url.toString()
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setShareFallback(null)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard can be unavailable (permissions, insecure context) —
+      // offer the URL for manual copy instead of failing silently.
+      setShareFallback(text)
+    }
     track('link_copied')
   }
 
@@ -305,15 +382,12 @@ export default function AdvancedModel() {
                 <div class="field-row">
                   <span class="field-label">Children in program</span>
                 </div>
-                <input
-                  class="input"
-                  type="number"
+                <NumberField
                   min={1}
                   max={1_000_000}
                   value={cohortSize}
-                  onInput={(e) =>
-                    setCohortSize(Math.max(1, Number((e.target as HTMLInputElement).value)))
-                  }
+                  aria-label="Children in program"
+                  onCommit={(n) => setCohortSize(Math.max(1, Math.round(n)))}
                 />
               </div>
               <div class="field">
@@ -321,14 +395,11 @@ export default function AdvancedModel() {
                   <span class="field-label">Total program budget</span>
                 </div>
                 <div class="input-money">
-                  <input
-                    class="input"
-                    type="number"
+                  <NumberField
                     min={0}
                     value={cohortBudget}
-                    onInput={(e) =>
-                      setCohortBudget(Math.max(0, Number((e.target as HTMLInputElement).value)))
-                    }
+                    aria-label="Total program budget in US dollars"
+                    onCommit={(n) => setCohortBudget(Math.max(0, n))}
                   />
                 </div>
               </div>
@@ -422,6 +493,7 @@ export default function AdvancedModel() {
                 value={target}
                 data-testid="target-age-slider"
                 onInput={(e) => set('targetAgeYears', Number((e.target as HTMLInputElement).value))}
+                {...errProps('target-age-range')}
               />
               {target > 90 && (
                 <div class="field-hint" style="color: var(--warn);">
@@ -456,12 +528,24 @@ export default function AdvancedModel() {
                     title={`${f.name} (${(f.expenseRatio * 100).toFixed(2)}% fee)`}
                     aria-pressed={fundPick === f.ticker}
                     data-testid={`fund-${f.ticker}`}
-                    onClick={() => setFundPick(f.ticker)}
+                    onClick={() => {
+                      setFundPick(f.ticker)
+                      // With a live period selected the preset effect applies
+                      // fee + return; in Custom mode apply the fund's fee here
+                      // so picking a fund is never a silent no-op.
+                      if (periodPickRef.current === 'custom') set('feePct', f.expenseRatio * 100)
+                    }}
                   >
                     {f.ticker}
                   </button>
                 ))}
               </div>
+              {periodPick === 'custom' && (
+                <p class="field-hint">
+                  Picking a fund applies its fee. To use its historical return too, choose a period
+                  below.
+                </p>
+              )}
             </div>
             <div class="field">
               <div class="field-row">
@@ -529,6 +613,7 @@ export default function AdvancedModel() {
                   max={15}
                   value={returnDraft ?? editor.returnPct.toFixed(2)}
                   data-testid="return-input"
+                  {...errProps('adv-return')}
                   onFocus={() => setReturnDraft(editor.returnPct.toFixed(2))}
                   onBlur={() => setReturnDraft(null)}
                   onInput={(e) => {
@@ -551,15 +636,14 @@ export default function AdvancedModel() {
                     Inflation %
                   </label>
                 </div>
-                <input
+                <NumberField
                   id="adv-inflation"
-                  class="input"
-                  type="number"
                   step={0.1}
                   min={0}
                   max={15}
                   value={editor.inflationPct}
-                  onInput={(e) => set('inflationPct', Number((e.target as HTMLInputElement).value))}
+                  onCommit={(n) => set('inflationPct', n)}
+                  {...errProps('adv-inflation')}
                 />
               </div>
               <div class="field" style="margin: 0;">
@@ -568,15 +652,14 @@ export default function AdvancedModel() {
                     Fund fee %
                   </label>
                 </div>
-                <input
+                <NumberField
                   id="adv-fee"
-                  class="input"
-                  type="number"
                   step={0.01}
                   min={0}
                   max={1}
                   value={editor.feePct}
-                  onInput={(e) => set('feePct', Number((e.target as HTMLInputElement).value))}
+                  onCommit={(n) => set('feePct', n)}
+                  {...errProps('adv-fee')}
                 />
               </div>
             </div>
@@ -648,25 +731,76 @@ export default function AdvancedModel() {
 
         {/* ---------- Results column ---------- */}
         <div class="stack" aria-live="polite" data-tour="results">
-          {error && (
-            <div class="callout" role="alert" style="border-color: var(--flag-red);">
-              {error}
+          {linkWarning && (
+            <div class="callout callout-info" role="status">
+              {linkWarning}
             </div>
           )}
-          {computing && !run && <div class="card">Simulating 5,000 market paths…</div>}
-          {run && (
-            <div class="stack" style={computing ? 'opacity: 0.55;' : ''}>
-              <div class="result-hero" data-testid="headline">
-                <div class="rh-label">At {target} · median of 5,000 simulations</div>
-                <div class="rh-value">{formatCents(pctAt(run.mc, target, 2, real))}</div>
+          {(det.error || error) && (
+            <div
+              class="callout"
+              role="alert"
+              id="model-error"
+              style="border-color: var(--flag-red);"
+            >
+              {det.error?.message ?? error}
+              {run && <span> Showing the last valid result below.</span>}
+            </div>
+          )}
+          {workerError && (
+            <div class="callout" role="status" style="border-color: var(--warn);">
+              Ranges are unavailable ({workerError}) — showing the deterministic expected path
+              instead.{' '}
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                onClick={retrySimulation}
+                data-testid="retry-simulation"
+              >
+                Retry simulation
+              </button>
+            </div>
+          )}
+          {/* Instant deterministic hero: paints before the Monte-Carlo worker
+              returns, then upgrades in place to the simulated median. */}
+          {(() => {
+            const heroFromDet = (computing || !run || workerError) && det.projection
+            if (!heroFromDet && !run) return null
+            const heroValue =
+              heroFromDet && det.projection
+                ? detAt(det.projection, target, real)
+                : run
+                  ? pctAt(run.mc, target, 2, real)
+                  : null
+            return (
+              <div
+                class="result-hero"
+                data-testid="headline"
+                data-simulating={heroFromDet ? 'true' : undefined}
+              >
+                <div class="rh-label">
+                  {heroFromDet
+                    ? `At ${target} · expected path`
+                    : `At ${target} · median of 5,000 simulations`}
+                </div>
+                <div class="rh-value">{formatCents(heroValue)}</div>
                 <div class="rh-sub">
                   {real ? "in today's dollars" : 'in future (nominal) dollars'}
-                  {editor.showRange
+                  {!heroFromDet && run && editor.showRange
                     ? ` · range ${formatCents(pctAt(run.mc, target, 0, real))} – ${formatCents(pctAt(run.mc, target, 4, real))}`
                     : ''}
+                  {computing && !det.error ? ' · simulating ranges…' : ''}
                 </div>
               </div>
-
+            )
+          })()}
+          {!run && computing && (
+            <div class="card" role="status">
+              Simulating 5,000 market paths for percentile ranges…
+            </div>
+          )}
+          {run && (
+            <div class="stack" style={computing || det.error ? 'opacity: 0.55;' : ''}>
               <div class="fan-wrap">
                 <FanChart mc={run.mc} real={real} showRange={editor.showRange} />
               </div>
@@ -760,18 +894,15 @@ export default function AdvancedModel() {
                       />
                       Convert to Roth at 18
                     </label>
-                    <label class="flex items-center" style="gap: 8px;">
+                    <label class="flex items-center" style="gap: 8px;" for="adv-tax-rate">
                       Future tax rate %
-                      <input
-                        class="input"
-                        type="number"
+                      <NumberField
+                        id="adv-tax-rate"
                         min={0}
                         max={60}
                         value={editor.taxRatePct}
                         style="width: 5.5rem;"
-                        onInput={(e) =>
-                          set('taxRatePct', Number((e.target as HTMLInputElement).value))
-                        }
+                        onCommit={(n) => set('taxRatePct', Math.max(0, Math.min(60, n)))}
                       />
                     </label>
                   </div>
@@ -829,6 +960,23 @@ export default function AdvancedModel() {
                     Compare what-ifs, or add each child to see a family total.
                   </span>
                 </div>
+                {shareFallback && (
+                  <div class="field mt-2">
+                    <div class="field-row">
+                      <span class="field-label">
+                        Couldn't access the clipboard — copy the link manually:
+                      </span>
+                    </div>
+                    <input
+                      class="input"
+                      type="text"
+                      readonly
+                      value={shareFallback}
+                      data-testid="share-fallback"
+                      onFocus={(e) => (e.target as HTMLInputElement).select()}
+                    />
+                  </div>
+                )}
                 {saved.length > 0 && (
                   <div class="table-wrap mt-2">
                     <table class="compare" data-testid="compare-table">
@@ -840,8 +988,8 @@ export default function AdvancedModel() {
                         </tr>
                       </thead>
                       <tbody>
-                        {[{ label: 'Current', state, run }, ...saved].map((sv) => (
-                          <tr key={sv.label}>
+                        {[{ id: 'current', label: 'Current', state, run }, ...saved].map((sv) => (
+                          <tr key={sv.id}>
                             <th>{sv.label}</th>
                             <td>{formatCents(pctAt(sv.run.mc, 18, 2, real))}</td>
                             <td>
@@ -859,9 +1007,7 @@ export default function AdvancedModel() {
                         <tr>
                           <th>Combined</th>
                           <td style="font-weight: 700;">
-                            {formatCents(
-                              sumMedians([{ label: 'Current', state, run }, ...saved], 18, real),
-                            )}
+                            {formatCents(sumMedians([{ state, run }, ...saved], 18, real))}
                           </td>
                           <td>—</td>
                         </tr>
