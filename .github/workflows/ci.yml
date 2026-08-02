@@ -70,12 +70,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Build with the same env vars as the deploy job so Lighthouse measures
-      # the artifact that actually ships (Sentry, beacon, events endpoint).
+      # the artifact that actually ships (Sentry, beacon, events/stats endpoints).
       - run: pnpm --filter @530a/web build
         env:
           PUBLIC_SENTRY_DSN: ${{ vars.PUBLIC_SENTRY_DSN }}
           PUBLIC_CF_BEACON_TOKEN: ${{ vars.PUBLIC_CF_BEACON_TOKEN }}
           PUBLIC_EVENTS_ENDPOINT: ${{ vars.PUBLIC_EVENTS_ENDPOINT }}
+          PUBLIC_STATS_ENDPOINT: ${{ vars.PUBLIC_STATS_ENDPOINT }}
       - name: Run Lighthouse CI (desktop)
         run: pnpm dlx @lhci/cli@0.15.x autorun --config=lighthouserc.json
       - name: Run Lighthouse CI (mobile)
@@ -113,6 +114,7 @@ jobs:
           PUBLIC_SENTRY_DSN: ${{ vars.PUBLIC_SENTRY_DSN }}
           PUBLIC_CF_BEACON_TOKEN: ${{ vars.PUBLIC_CF_BEACON_TOKEN }}
           PUBLIC_EVENTS_ENDPOINT: ${{ vars.PUBLIC_EVENTS_ENDPOINT }}
+          PUBLIC_STATS_ENDPOINT: ${{ vars.PUBLIC_STATS_ENDPOINT }}
           PLEDGES_FEED_URL: ${{ vars.PLEDGES_FEED_URL }}
       - name: Publish to Pages
         run: pnpm dlx wrangler pages deploy apps/web/dist --project-name=530a-model

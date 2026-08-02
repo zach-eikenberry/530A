@@ -12,13 +12,12 @@
   },
   // Daily at 09:10 UTC — after a full UTC day of events has settled.
   "triggers": { "crons": ["10 9 * * *"] },
-  // KV namespace must be created once (`wrangler kv namespace create STATS_KV`)
-  // and its id filled in before first deploy. AE_API_TOKEN is a secret:
+  // AE_API_TOKEN is a secret:
   // `wrangler secret put AE_API_TOKEN --config wrangler.rollup.jsonc`.
   "kv_namespaces": [
     {
       "binding": "STATS_KV",
-      "id": "TBD-create-before-deploy"
+      "id": "c8d5f6e3c04f4df880935b2a66c2e737"
     }
   ]
 }
