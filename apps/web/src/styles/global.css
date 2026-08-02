@@ -26,13 +26,14 @@
   /* Semantic */
   --grow: #1f9d6b; /* growth / positive */
   --grow-soft: #e4f6ee;
-  --warn: #b4691a;
+  --warn: #9a5a16; /* ≥4.5:1 on paper/canvas for small warning text */
   --warn-soft: #fbf0e2;
 
   /* Neutrals (light) */
   --ink: #10192a;
   --ink-2: #35435c;
-  --muted: #64748b;
+  /* ≥4.5:1 on paper, canvas, AND the tinted stat cards (navy-050/grow-soft) */
+  --muted: #5a6a80;
   --line: #e4eaf2;
   --line-2: #eef2f8;
   --paper: #ffffff;
@@ -64,6 +65,7 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   --ring: 0 0 0 3px #7fb2e8;
+  --warn: #e0a866;
   --ink: #eaf1fb;
   --ink-2: #b8c6dc;
   --muted: #8ea1bd;
