@@ -1,20 +1,14 @@
 ---
 import { CANONICAL_LINKS, faqs, RULES_VERIFIED_AT } from '@530a/config'
+import FaqAccordion from '../components/FaqAccordion.astro'
 import Base from '../layouts/Base.astro'
+import { faqPageLd } from '../lib/seo'
 
 const title = '530A Account FAQ — eligibility, caps, taxes, withdrawals'
 const description =
   'Plain-English answers about 530A “Trump Accounts”: who qualifies for the $1,000 seed, contribution limits, tax treatment, and what happens at 18.'
 
-const faqLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqs.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.a },
-  })),
-}
+const faqLd = faqPageLd(faqs, '/faq')
 ---
 
 <Base title={title} description={description} path="/faq" jsonLd={[faqLd]} ogType="article">
@@ -35,16 +29,7 @@ const faqLd = {
 
   <section class="section">
     <div class="container container-narrow">
-      <div class="accordion">
-        {faqs.map((f) => (
-          <details>
-            <summary>{f.q}</summary>
-            <div class="acc-body">
-              <p>{f.a}</p>
-            </div>
-          </details>
-        ))}
-      </div>
+      <FaqAccordion faqs={faqs} />
 
       <p class="mt-4">
         Keep reading: <a href="/withdrawals">the withdrawal rules in full</a>,

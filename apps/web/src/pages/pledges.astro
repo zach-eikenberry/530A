@@ -17,20 +17,30 @@ const money = (cents: number) =>
     maximumFractionDigits: 0,
   }).format(cents / 100)
 
-const newsLd = feed.items.slice(0, 20).map((item) => ({
+// An ItemList of external references — this page aggregates others' coverage,
+// it does not publish news articles itself (NewsArticle markup here would
+// claim authorship of third-party reporting).
+const pledgeListLd = {
   '@context': 'https://schema.org',
-  '@type': 'NewsArticle',
-  headline: item.title,
-  url: item.source_url,
-  datePublished: item.published_at,
-  publisher: { '@type': 'Organization', name: item.source_domain },
-  description: item.excerpt,
-  isBasedOn: item.source_url,
-  mainEntityOfPage: `${CANONICAL_ORIGIN}/pledges`,
-}))
+  '@type': 'ItemList',
+  name: 'Reported 530A pledges and gift programs',
+  url: `${CANONICAL_ORIGIN}/pledges/`,
+  itemListElement: feed.items.slice(0, 20).map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'CreativeWork',
+      name: item.title,
+      url: item.source_url,
+      datePublished: item.published_at,
+      description: item.excerpt,
+      publisher: { '@type': 'Organization', name: item.source_domain },
+    },
+  })),
+}
 ---
 
-<Base title={title} description={description} path="/pledges" jsonLd={newsLd}>
+<Base title={title} description={description} path="/pledges" jsonLd={[pledgeListLd]}>
   <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
     <div class="container">
       <span class="eyebrow" style="color: var(--gold-400);">Pledges &amp; gifts</span>

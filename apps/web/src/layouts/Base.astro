@@ -1,6 +1,6 @@
 ---
 import { CANONICAL_ORIGIN, RULES_VERIFIED_AT } from '@530a/config'
-import { GITHUB_URL, ORG_ID, WEBSITE_ID } from '../lib/seo'
+import { canonicalUrl, GITHUB_URL, humanDate, ORG_ID, WEBSITE_ID } from '../lib/seo'
 import '../styles/global.css'
 
 interface Props {
@@ -30,7 +30,14 @@ const {
   modifiedTime = RULES_VERIFIED_AT,
   noindex = false,
 } = Astro.props
-const canonical = `${CANONICAL_ORIGIN}${path === '/' ? '/' : path.replace(/\/$/, '')}`
+// Trailing-slash convention throughout: matches what Cloudflare Pages serves
+// for directory-format builds, so canonical == served URL == sitemap entry.
+const canonical = canonicalUrl(path)
+
+// Per-page OG image, generated at build time by scripts/og.mjs from the same
+// path slug. '/' → home; nested paths flatten with '-'.
+const ogSlug = path === '/' ? 'home' : path.replace(/^\/|\/$/g, '').replace(/\//g, '-')
+const ogImage = `${CANONICAL_ORIGIN}/assets/og/${ogSlug}.png`
 
 const organizationLd = {
   '@context': 'https://schema.org',
@@ -106,7 +113,9 @@ const current = (href: string) => (path === href ? 'page' : undefined)
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {/* noindex pages (404, admin) carry no canonical — a canonical on a
+        noindex page sends search engines conflicting signals */}
+    {!noindex && <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link
@@ -121,17 +130,18 @@ const current = (href: string) => (path === href ? 'page' : undefined)
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="530A Model" />
-    <meta property="og:image" content={`${CANONICAL_ORIGIN}/assets/img/og.png`} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="530A Model — free 530A account calculator" />
+    <meta property="og:image:alt" content={`${title} — 530amodel.com`} />
     {ogType === 'article' && (
       <meta property="article:modified_time" content={modifiedTime} />
     )}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={`${CANONICAL_ORIGIN}/assets/img/og.png`} />
+    <meta name="twitter:image" content={ogImage} />
     <script type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
     <script type="application/ld+json" set:html={JSON.stringify(websiteLd)} />
     {breadcrumbLd && (
@@ -254,6 +264,7 @@ const current = (href: string) => (path === href ? 'page' : undefined)
             <a href="/pledges">Pledges &amp; gifts</a>
             <a href="/open-account">How to open one</a>
             <a href="/withdrawals">Withdrawal rules</a>
+            <a href="/contribution-deadline">Contribution timing</a>
             <a href="/employer-contributions">Employer contributions</a>
             <a href="/faq">FAQ</a>
             <a href="/glossary">Glossary</a>
@@ -269,7 +280,7 @@ const current = (href: string) => (path === href ? 'page' : undefined)
           </div>
         </div>
         <div class="footer-bottom">
-          <span>Rules verified as of {RULES_VERIFIED_AT} · Estimates only — not financial advice.</span>
+          <span>Rules verified as of <time datetime={RULES_VERIFIED_AT}>{humanDate(RULES_VERIFIED_AT)}</time> · Estimates only — not financial advice.</span>
           <span>© <span data-year></span> 530A Model</span>
         </div>
         <p class="footer-disclaimer">

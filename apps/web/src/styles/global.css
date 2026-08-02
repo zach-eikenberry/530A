@@ -1070,6 +1070,30 @@ table.compare tr:last-child th {
   align-items: center;
   gap: 16px;
 }
+/* Copyable deep link per question/entry; quiet until hovered/focused */
+.anchor-link {
+  margin-left: auto;
+  color: var(--muted);
+  font-weight: 400;
+  opacity: 0;
+  padding: 0 4px;
+  transition: opacity 0.12s ease;
+}
+.accordion summary:hover .anchor-link,
+.update-entry:hover .anchor-link,
+.anchor-link:focus {
+  opacity: 1;
+}
+.update-entry .anchor-link {
+  margin-left: 6px;
+}
+.accordion details:target {
+  background: var(--navy-050);
+}
+.update-entry:target {
+  background: var(--navy-050);
+  border-radius: var(--radius-sm);
+}
 .accordion summary::-webkit-details-marker {
   display: none;
 }

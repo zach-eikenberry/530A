@@ -1,5 +1,5 @@
 ---
-import { CANONICAL_LINKS, EXPENSE_RATIOS_AS_OF, FUNDS } from '@530a/config'
+import { CANONICAL_LINKS, EXPENSE_RATIOS_AS_OF, FUNDS, whereToOpen } from '@530a/config'
 import Base from '../layouts/Base.astro'
 import { articleLd } from '../lib/seo'
 
@@ -41,9 +41,11 @@ const resourcesLd = articleLd({ headline: title, description, path: '/resources'
   <div class="mt-4">
     <h2>Open an account</h2>
     <ul>
-      <li><a href={CANONICAL_LINKS.openAccount}>trumpaccounts.gov</a></li>
-      <li>{CANONICAL_LINKS.irsForm}</li>
-      <li>The Treasury "Trump Accounts" application</li>
+      {whereToOpen.map((w) => (
+        <li>
+          <a href={w.href} rel="noopener">{w.label}</a>
+        </li>
+      ))}
     </ul>
   </div>
 
@@ -72,6 +74,11 @@ const resourcesLd = articleLd({ headline: title, description, path: '/resources'
       Expense ratios as of <time datetime={EXPENSE_RATIOS_AS_OF}>{EXPENSE_RATIOS_AS_OF}</time> —
       confirm current figures in each issuer's prospectus before investing.
     </p>
+  </div>
+
+  <div class="callout mt-4">
+    <strong>Sources checked — now what?</strong> <a href="/open-account">Open the account</a>
+    step by step, or <a href="/model">model what it could become</a> before you do.
   </div>
     </div>
   </section>

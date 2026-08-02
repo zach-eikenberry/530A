@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/csp.mjs",
+    "build": "astro build && node scripts/og.mjs && node scripts/csp.mjs",
     "preview": "astro preview",
     "typecheck": "astro check",
     "test": "vitest run"
@@ -26,6 +26,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@types/qrcode": "^1.5.6",
+    "sharp": "^0.35.3",
     "typescript": "^5.9.2",
     "vitest": "^3.2.7"
   }

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro'
+import { APP_ID, canonicalUrl, ORG_ID } from '../lib/seo'
 
 const title = '530A Model API & MCP server — for developers and AI agents'
 const description =
@@ -7,6 +8,19 @@ const description =
 
 const API_ORIGIN = 'https://api.530amodel.com'
 const MCP_ORIGIN = 'https://mcp.530amodel.com'
+
+const webApiLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebAPI',
+  name: '530A Model projection API',
+  url: canonicalUrl('/api'),
+  description,
+  documentation: `${API_ORIGIN}/openapi.json`,
+  termsOfService: canonicalUrl('/terms'),
+  provider: { '@id': ORG_ID },
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  about: { '@id': APP_ID },
+}
 
 const curlSnippet = `curl -X POST ${API_ORIGIN}/v1/project \\
   -H "Content-Type: application/json" \\
@@ -91,7 +105,7 @@ const examplePrompts = [
 ]
 ---
 
-<Base title={title} description={description} path="/api">
+<Base title={title} description={description} path="/api" jsonLd={[webApiLd]}>
   <link
     slot="head"
     rel="service-desc"
@@ -202,6 +216,12 @@ const examplePrompts = [
       financial advice — pass the embedded disclaimer through to your users. See the
       <a href="/terms">terms</a> and <a href="/privacy">privacy policy</a>.
     </p>
+
+    <div class="callout mt-4">
+      <strong>Try it without writing code:</strong> the same engine powers the
+      <a href="/model">Advanced Model</a> — every scenario is a shareable, reproducible URL. The
+      exact math is documented in the <a href="/methodology">methodology</a>.
+    </div>
     </div>
   </section>
 </Base>

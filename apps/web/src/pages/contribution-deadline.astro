@@ -1,48 +1,15 @@
 ---
-import { CANONICAL_LINKS, RULES_VERIFIED_AT } from '@530a/config'
+import { CANONICAL_LINKS, pageFaqs, RULES_VERIFIED_AT } from '@530a/config'
+import FaqAccordion from '../components/FaqAccordion.astro'
 import Base from '../layouts/Base.astro'
-import { articleLd } from '../lib/seo'
+import { articleLd, faqPageLd } from '../lib/seo'
 
 const title = '530A Contribution Timing — start date, deadlines, and caps by year'
 const description =
   'When 530A “Trump Account” contributions opened (July 4, 2026), how the $5,000 annual cap works by calendar year, and why starting early matters more than timing.'
 
-const faqs = [
-  {
-    q: 'When can I start contributing to a 530A?',
-    a: 'Now — contributions opened July 4, 2026. The statute permitted none before that date, even for accounts opened earlier; those accounts simply held the $1,000 federal seed (if eligible) until the window opened.',
-  },
-  {
-    q: 'Is there an annual contribution deadline?',
-    a: 'The $5,000 cap applies per calendar year, per child, from all sources combined. Unused room does not roll over — a year you skip is capacity gone for good, which is the real deadline that matters.',
-  },
-  {
-    q: 'How much can be contributed in 2026?',
-    a: 'The $5,000 cap applies to calendar-year 2026 even though contributions only opened July 4 — meaning the full year’s cap is available in the months that remain. As always: verify with the primary sources before acting.',
-  },
-  {
-    q: 'Does the cap grow over time?',
-    a: 'Yes — it is indexed to inflation after 2027. The exact indexing mechanics are pending guidance, so this calculator models the $5,000 figure and flags indexing as approximate.',
-  },
-  {
-    q: 'Is it better to contribute monthly or once a year?',
-    a: 'Earlier money compounds longer, so a January lump beats a December lump, and monthly automation beats waiting. But the difference between contribution timings is small compared to the difference between contributing and not — automate an amount you can sustain.',
-  },
-  {
-    q: 'Until what age can contributions be made?',
-    a: 'Contributions can be made until the year the child turns 18. After that the account transitions to Traditional-IRA treatment and the 530A contribution window closes.',
-  },
-]
-
-const faqLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqs.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.a },
-  })),
-}
+const faqs = pageFaqs['contribution-deadline']
+const faqLd = faqPageLd(faqs, '/contribution-deadline')
 const pageLd = articleLd({ headline: title, description, path: '/contribution-deadline' })
 ---
 
@@ -69,16 +36,7 @@ const pageLd = articleLd({ headline: title, description, path: '/contribution-de
 
   <section class="section">
     <div class="container container-narrow">
-      <div class="accordion">
-        {faqs.map((f) => (
-          <details>
-            <summary>{f.q}</summary>
-            <div class="acc-body">
-              <p>{f.a}</p>
-            </div>
-          </details>
-        ))}
-      </div>
+      <FaqAccordion faqs={faqs} />
 
       <div class="callout mt-4">
         <strong>What actually moves the number:</strong> years in the market. A child born in

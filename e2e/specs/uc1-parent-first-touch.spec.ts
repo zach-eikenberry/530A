@@ -146,9 +146,10 @@ test('core pages render with canonical tags and structured data', async ({ page 
   for (const path of ['/', '/faq', '/resources', '/terms', '/privacy', '/why-free']) {
     await page.goto(path)
     const canonical = page.locator('link[rel="canonical"]')
+    // One URL convention: trailing slash (canonical == served URL == sitemap)
     await expect(canonical).toHaveAttribute(
       'href',
-      new RegExp(`^https://530amodel\\.com${path === '/' ? '/' : path}$`),
+      new RegExp(`^https://530amodel\\.com${path === '/' ? '' : path}/$`),
     )
     expect(await page.locator('script[type="application/ld+json"]').count()).toBeGreaterThan(0)
   }

@@ -15,6 +15,27 @@ import {
  * public information verified against the primary sources in rules.ts.
  */
 
+const usd = (cents: bigint) => `$${(Number(cents) / 100).toLocaleString('en-US')}`
+
+export interface PageFaq {
+  q: string
+  a: string
+  /**
+   * Path whose FAQPage JSON-LD owns this Q&A. Entries shared across pages are
+   * emitted as structured data only on their owning page, so search engines
+   * never see the same question with competing answers. Unset = owned by the
+   * page it renders on.
+   */
+  ownedBy?: string
+}
+
+// One canonical answer for questions that render on several pages.
+const rolloverFaq: PageFaq = {
+  q: 'Can the account roll into a 529 college plan?',
+  a: 'Not that we can verify. The statute specifies Traditional-IRA treatment at 18; we could not find a 529 rollover provision, so this calculator marks that path "not currently permitted" until primary sources confirm otherwise.',
+  ownedBy: '/faq',
+}
+
 // Each entry renders on the FAQ page AND feeds the FAQPage structured data,
 // llms-full.txt, and MCP search — always identical everywhere.
 export const faqs = [
@@ -38,10 +59,7 @@ export const faqs = [
     q: 'When can the money be used?',
     a: 'No withdrawals before age 18. At 18 the child owns the account and it behaves like a Traditional IRA — penalty-free withdrawals at 59½, with IRA-style exceptions before that.',
   },
-  {
-    q: 'Can the account roll into a 529 college plan?',
-    a: 'Not that we can verify. The statute specifies Traditional-IRA treatment at 18; we could not find a 529 rollover provision, so this calculator marks that path "not currently permitted" until primary sources confirm otherwise.',
-  },
+  rolloverFaq,
   {
     q: 'Why is the Monte Carlo median lower than the simple projection?',
     a: 'Because volatility drags on compounding. A steady 7% every year grows more than a bumpy sequence that averages 7% — a real effect called variance drain. The single-line projection shows the smooth case; the Monte Carlo median reflects the messier reality of real markets. Both are shown so you can see the gap.',
@@ -56,9 +74,119 @@ export const faqs = [
   },
 ]
 
+// Page-local FAQ sets for the answer pages. Rendered by each page AND used
+// for its FAQPage JSON-LD (minus entries owned elsewhere — see PageFaq).
+export const pageFaqs: Record<
+  'withdrawals' | 'contribution-deadline' | 'employer-contributions' | '530a-vs-529',
+  PageFaq[]
+> = {
+  withdrawals: [
+    {
+      q: 'Can I withdraw from a 530A before my child turns 18?',
+      a: 'No. The statute permits no withdrawals before the year the child turns 18. There is no hardship, education, or emergency carve-out in the law as verified — the account is locked by design so compounding can work.',
+    },
+    {
+      q: 'What happens at 18?',
+      a: 'The child becomes the owner and the account behaves like a Traditional IRA. That means withdrawals are possible but earnings are taxed as ordinary income, and before age 59½ the IRA-style rules (with their usual exceptions) apply.',
+    },
+    {
+      q: 'When are withdrawals penalty-free?',
+      a: 'At 59½, following Traditional-IRA treatment. Before that, IRA-style exceptions exist; whether the standard 10% early-withdrawal penalty applies to 530A accounts specifically is still pending confirmation in guidance, so this site labels it an assumption rather than fact.',
+    },
+    {
+      q: 'What part of a withdrawal is tax-free?',
+      a: `Only the basis — the after-tax contributions your family made. The ${usd(FEDERAL_SEED_CENTS.value)} federal seed, any employer contributions, and all growth are taxed as ordinary income when withdrawn.`,
+    },
+    {
+      q: 'Can the money move to a Roth IRA instead?',
+      a: 'After 18, converting to a Roth IRA is an option: income tax is due on the non-basis amount at conversion, and growth afterward is tax-free. Converting in a low-income year (like college) can meaningfully improve the lifetime outcome — model both paths in the Advanced Model.',
+    },
+    rolloverFaq,
+  ],
+  'contribution-deadline': [
+    {
+      q: 'When can I start contributing to a 530A?',
+      a: 'Now — contributions opened July 4, 2026. The statute permitted none before that date, even for accounts opened earlier; those accounts simply held the $1,000 federal seed (if eligible) until the window opened.',
+    },
+    {
+      q: 'Is there an annual contribution deadline?',
+      a: `The ${usd(ANNUAL_CAP_CENTS.value)} cap applies per calendar year, per child, from all sources combined. Unused room does not roll over — a year you skip is capacity gone for good, which is the real deadline that matters.`,
+    },
+    {
+      q: 'How much can be contributed in 2026?',
+      a: `The ${usd(ANNUAL_CAP_CENTS.value)} cap applies to calendar-year 2026 even though contributions only opened July 4 — meaning the full year’s cap is available in the months that remain. As always: verify with the primary sources before acting.`,
+    },
+    {
+      q: 'Does the cap grow over time?',
+      a: `It is expected to be indexed to inflation after 2027, with the exact indexing mechanics pending guidance — so this calculator models the ${usd(ANNUAL_CAP_CENTS.value)} figure and flags indexing as approximate.`,
+    },
+    {
+      q: 'Is it better to contribute monthly or once a year?',
+      a: 'Earlier money compounds longer, so a January lump beats a December lump, and monthly automation beats waiting. But the difference between contribution timings is small compared to the difference between contributing and not — automate an amount you can sustain.',
+    },
+    {
+      q: 'Until what age can contributions be made?',
+      a: 'Contributions can be made until the year the child turns 18. After that the account transitions to Traditional-IRA treatment and the 530A contribution window closes.',
+    },
+  ],
+  'employer-contributions': [
+    {
+      q: 'How much can an employer contribute to a 530A?',
+      a: `Up to ${usd(EMPLOYER_CAP_CENTS.value)} per child per year. Employer money counts within the overall ${usd(ANNUAL_CAP_CENTS.value)} annual cap, so a full employer contribution leaves ${usd(ANNUAL_CAP_CENTS.value - EMPLOYER_CAP_CENTS.value)} of family capacity in that year.`,
+    },
+    {
+      q: 'Is an employer 530A contribution taxable to me?',
+      a: 'Employer contributions do not form part of your basis — like the federal seed, they and their growth are taxed as income when eventually withdrawn. The near-term benefit is real: it is money compounding for your child that didn’t come out of your paycheck.',
+    },
+    {
+      q: 'What should I ask my employer or HR team?',
+      a: `Whether a 530A / Trump Account contribution benefit is offered or planned, whether it covers all dependents born in the seed window and beyond, and how it coordinates with the ${usd(ANNUAL_CAP_CENTS.value)} cap so the family doesn’t accidentally over-contribute across sources.`,
+    },
+    {
+      q: 'Why would an employer offer this?',
+      a: `It is a family-friendly benefit with a hard per-child cost ceiling (${usd(EMPLOYER_CAP_CENTS.value)}/yr), simple mechanics compared to many benefits, and visible long-horizon impact — ${usd(EMPLOYER_CAP_CENTS.value)}/yr from birth to 18 can compound into a six-figure head start by retirement age.`,
+    },
+    {
+      q: 'What happens if employer plus family contributions exceed $5,000?',
+      a: 'The cap applies across all sources combined. This calculator clips contributions at the cap in source order and reports what was clipped rather than silently counting it — coordinate amounts so real-world contributions stay inside the limit.',
+    },
+  ],
+  '530a-vs-529': [
+    {
+      q: 'Should college money go into a 530A or a 529?',
+      a: 'If the money is earmarked for college, a 529 usually wins: withdrawals for qualified education costs are 100% tax-free, many states add a tax deduction, and the money is usable exactly when tuition is due. A 530A is locked until 18 and taxes earnings on withdrawal.',
+    },
+    {
+      q: 'Then what is the 530A for?',
+      a: 'The decades after college. Its edge is the free $1,000 federal seed (2025–2028 births), dead-simple low-fee index investing, and a lock-up to age 18 — after which Traditional-IRA rules reward leaving the money to compound toward retirement. As a retirement head start it can outgrow its college usefulness by an order of magnitude.',
+    },
+    {
+      q: 'Can 530A money pay for college at 18?',
+      a: 'Technically the child owns it at 18 under Traditional-IRA treatment, but tapping it then means paying ordinary income tax on the earnings — and possibly a penalty, pending final guidance. It is a poor college fund and an excellent retirement one.',
+    },
+    {
+      q: 'Can a 530A roll into a 529, or a 529 into a 530A?',
+      a: 'Neither is verified. The statute specifies Traditional-IRA treatment at 18 with no 529 rollover provision we can find, and 529→530A transfers are not provided for either. This site flags both paths "not currently permitted" until primary sources say otherwise.',
+    },
+    {
+      q: 'How does financial aid treat each account?',
+      a: 'A parent-owned 529 is counted as a parental asset on the FAFSA, which the federal aid formula assesses at a much lower rate than student-owned assets. How 530A balances will be treated for aid purposes is not yet settled in guidance — treat any claim you read as provisional, including ours.',
+    },
+    {
+      q: 'What does “both” look like in practice?',
+      a: 'A common split: automate what you can afford, route the first dollars to the 530A while its $1,000 seed and early years compound (capped at $5,000/yr anyway), and direct education-specific gifts and state-deductible dollars to the 529. Model your own split in the Advanced Model.',
+    },
+  ],
+}
+
 // Renders on /open-account AND feeds the HowTo structured data, llms-full.txt,
-// and MCP search — one source, no drift.
-export const openAccountSteps = [
+// and MCP search — one source, no drift. `link` renders as a trailing action
+// on the web page only (structured data and the corpus use `text` alone).
+export const openAccountSteps: {
+  name: string
+  text: string
+  link?: { href: string; label: string }
+}[] = [
   {
     name: 'Confirm your child is eligible',
     text: 'Your child needs a valid Social Security number and U.S. citizenship, and must be under 18. If they were born January 1, 2025 – December 31, 2028, they also qualify for the one-time $1,000 federal seed. Have their SSN and date of birth handy.',
@@ -70,10 +198,12 @@ export const openAccountSteps = [
   {
     name: 'Elect the account',
     text: 'Open the account by completing IRS Form 4547 through your IRS account, or start at the official portal, trumpaccounts.gov. This is where the account is formally created and the seed (if eligible) is applied.',
+    link: { href: 'https://trumpaccounts.gov', label: 'Portal: trumpaccounts.gov' },
   },
   {
     name: 'Choose a low-cost eligible fund',
     text: 'By law, 530A money must be invested in funds that track an index of primarily U.S. companies with a low, capped expense ratio. See our Resources page for a starter list. Lower fees mean more of the growth stays in your child’s account.',
+    link: { href: '/resources', label: 'Eligible fund list →' },
   },
   {
     name: 'Set up contributions',
@@ -85,6 +215,23 @@ export const openAccountSteps = [
   },
 ]
 
+/**
+ * The one canonical "where to open an account" list — rendered on /resources
+ * and referenced by the open-account steps and homepage copy, so the three
+ * surfaces can't drift.
+ */
+export const whereToOpen: { label: string; href: string }[] = [
+  { label: 'trumpaccounts.gov — the official portal', href: CANONICAL_LINKS.openAccount },
+  {
+    label: `${CANONICAL_LINKS.irsForm}, filed through your IRS online account`,
+    href: 'https://www.irs.gov/forms-instructions',
+  },
+  {
+    label: "The Treasury's Trump Accounts application",
+    href: 'https://home.treasury.gov',
+  },
+]
+
 export interface ContentDoc {
   /** Stable identifier, safe to hand to agents and fetch later. */
   id: string
@@ -93,8 +240,6 @@ export interface ContentDoc {
   url: string
   text: string
 }
-
-const usd = (cents: bigint) => `$${(Number(cents) / 100).toLocaleString('en-US')}`
 
 /** The searchable document corpus for AI agents (MCP search/fetch). */
 export function contentCorpus(origin: string): ContentDoc[] {
@@ -109,8 +254,9 @@ export function contentCorpus(origin: string): ContentDoc[] {
         `one-time federal seed ${usd(FEDERAL_SEED_CENTS.value)} for U.S.-citizen children born ` +
         `${SEED_BIRTH_WINDOW.value.start} through ${SEED_BIRTH_WINDOW.value.end} with an SSN; ` +
         `contribution cap ${usd(ANNUAL_CAP_CENTS.value)} per child per year from all sources ` +
-        `combined (indexed to inflation after 2027); employer contributions up to ` +
-        `${usd(EMPLOYER_CAP_CENTS.value)}/yr within the cap; no contributions before ` +
+        `combined (expected to be indexed to inflation after 2027, mechanics pending guidance); ` +
+        `employer contributions up to ` +
+        `${usd(EMPLOYER_CAP_CENTS.value)}/yr within the cap; contributions permitted since ` +
         `${CONTRIBUTION_FLOOR_DATE.value}; no withdrawals before age ${WITHDRAWAL_AGE.value}, ` +
         `after which the account behaves like a Traditional IRA. Contributions are after-tax ` +
         `basis; growth is tax-deferred; earnings are taxed on withdrawal.`,
@@ -128,17 +274,21 @@ export function contentCorpus(origin: string): ContentDoc[] {
       text: openAccountSteps.map((s, i) => `${i + 1}. ${s.name}: ${s.text}`).join(' '),
     },
     {
+      // One comparison doc (the old separate 530a-vs-529 doc overlapped ~70%).
       id: 'compare-accounts',
-      title: '530A vs 529 vs UTMA/UGMA vs custodial Roth IRA',
+      title:
+        '530A vs 529 vs UTMA/UGMA vs custodial Roth IRA — which for college, which for retirement',
       url: `${origin}/compare`,
       text:
         'The 530A shines as a decades-early retirement head start: free federal seed for ' +
         'eligible births, simple low-fee U.S. index funds, locked until 18, then ' +
         'Traditional-IRA-like. A 529 usually wins when the money is earmarked for education ' +
-        '(tax-free qualified withdrawals, possible state deductions). A UTMA/UGMA custodial ' +
-        'account is fully flexible but growth is taxed yearly (kiddie tax). A custodial Roth ' +
-        'IRA offers tax-free retirement growth but requires the child’s own earned income. ' +
-        'The 530A pairs well with a 529: long horizon in the 530A, college in the 529.',
+        '(tax-free qualified withdrawals, possible state deductions, usable at 18–22). A ' +
+        'UTMA/UGMA custodial account is fully flexible but growth is taxed yearly (kiddie ' +
+        'tax). A custodial Roth IRA offers tax-free retirement growth but requires the ' +
+        'child’s own earned income. Neither the 530A nor the 529 can roll into the other as ' +
+        'far as primary sources verify. Many families fund both: long horizon in the 530A, ' +
+        'college in the 529.',
     },
     {
       id: 'methodology',
@@ -172,11 +322,12 @@ export function contentCorpus(origin: string): ContentDoc[] {
       title: '530A contribution timing — start date, deadlines, caps by year',
       url: `${origin}/contribution-deadline`,
       text:
-        'Contributions open July 4, 2026 — none are permitted earlier, even for accounts ' +
+        'Contributions opened July 4, 2026 — none were permitted earlier, even for accounts ' +
         'opened before then. The $5,000 cap applies per child per calendar year across all ' +
-        'sources combined and unused room does not roll over. The cap is indexed to inflation ' +
-        'after 2027 (mechanics pending guidance). Contributions can be made until the year the ' +
-        'child turns 18. Earlier money compounds longer, but consistency beats timing.',
+        'sources combined and unused room does not roll over. The cap is expected to be ' +
+        'indexed to inflation after 2027 (mechanics pending guidance). Contributions can be ' +
+        'made until the year the child turns 18. Earlier money compounds longer, but ' +
+        'consistency beats timing.',
     },
     {
       id: 'employer-contributions',
@@ -187,17 +338,6 @@ export function contentCorpus(origin: string): ContentDoc[] {
         'the $5,000 combined annual cap. Employer money is not basis — like the federal seed, ' +
         'it and its growth are taxed on withdrawal. Families should coordinate employer and ' +
         'family amounts so combined contributions stay inside the cap.',
-    },
-    {
-      id: '530a-vs-529',
-      title: '530A vs 529 for college — which account, or both',
-      url: `${origin}/530a-vs-529`,
-      text:
-        'For money earmarked for education a 529 usually wins: tax-free qualified withdrawals, ' +
-        'possible state deductions, usable at 18–22. The 530A is a retirement head start: free ' +
-        '$1,000 seed for 2025–2028 births, low-fee index investing, locked until 18 then ' +
-        'Traditional-IRA-like. Neither account can roll into the other as far as primary ' +
-        'sources verify. Many families fund both: 530A for the long horizon, 529 for tuition.',
     },
     {
       id: 'glossary',

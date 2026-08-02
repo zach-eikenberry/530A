@@ -1,0 +1,42 @@
+---
+import type { PageFaq } from '@530a/config'
+import { anchorId } from '../lib/seo'
+
+interface Props {
+  faqs: readonly PageFaq[]
+}
+const { faqs } = Astro.props
+---
+
+<div class="accordion">
+  {faqs.map((f) => {
+    const id = anchorId(f.q)
+    return (
+      <details id={id}>
+        <summary>
+          {f.q}
+          <a class="anchor-link" href={`#${id}`} aria-label={`Link to “${f.q}”`}>#</a>
+        </summary>
+        <div class="acc-body">
+          <p>{f.a}</p>
+        </div>
+      </details>
+    )
+  })}
+</div>
+
+<script>
+  // Deep link support: open the targeted question (details won't open from
+  // the URL fragment on its own) — on load and on later hash changes.
+  const openFromHash = () => {
+    const id = decodeURIComponent(location.hash.slice(1))
+    if (!id) return
+    const el = document.getElementById(id)
+    if (el instanceof HTMLDetailsElement) {
+      el.open = true
+      el.scrollIntoView({ block: 'start' })
+    }
+  }
+  openFromHash()
+  window.addEventListener('hashchange', openFromHash)
+</script>
