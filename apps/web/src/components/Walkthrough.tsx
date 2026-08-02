@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 
 /**
  * First-run guided walkthrough (§5.2): four short steps, dismissible,
@@ -29,6 +29,9 @@ const KEY = '530a-walkthrough-done'
 
 export default function Walkthrough() {
   const [step, setStep] = useState(-1)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const restoreFocus = useRef<HTMLElement | null>(null)
+  const open = step >= 0
 
   useEffect(() => {
     try {
@@ -37,6 +40,41 @@ export default function Walkthrough() {
       /* storage unavailable → skip the tour */
     }
   }, [])
+
+  // Modal focus management: initial focus in, Tab cycles within, Escape
+  // closes, and focus returns to wherever the user was on close.
+  useEffect(() => {
+    if (!open) return
+    restoreFocus.current = (document.activeElement as HTMLElement) ?? null
+    dialogRef.current?.querySelector<HTMLElement>('[data-testid="tour-next"]')?.focus()
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        dismiss()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const focusables = [
+        ...(dialogRef.current?.querySelectorAll<HTMLElement>('button') ?? []),
+      ].filter((el) => !el.hasAttribute('disabled'))
+      if (focusables.length === 0) return
+      const first = focusables[0] as HTMLElement
+      const last = focusables[focusables.length - 1] as HTMLElement
+      const active = document.activeElement
+      if (e.shiftKey && (active === first || !dialogRef.current?.contains(active))) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && (active === last || !dialogRef.current?.contains(active))) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true)
+      restoreFocus.current?.focus?.()
+    }
+  }, [open])
 
   const dismiss = () => {
     try {
@@ -53,6 +91,7 @@ export default function Walkthrough() {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={s.title}

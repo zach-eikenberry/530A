@@ -74,7 +74,7 @@ test('UC-4: charity sizes a cohort and works backward from a budget', async ({ p
   await page.goto('/model')
   await waitForResults(page)
 
-  await page.getByRole('tab', { name: /charities/i }).click()
+  await page.getByRole('button', { name: /charities/i }).click()
   const panel = page.getByTestId('cohort-panel')
   await expect(panel).toBeVisible()
 
@@ -95,7 +95,7 @@ test('UC-5: advisor controls assumptions and the range toggle works', async ({ p
   await page.goto('/model')
   const before = await waitForResults(page)
 
-  await page.getByRole('tab', { name: /advisors/i }).click()
+  await page.getByRole('button', { name: /advisors/i }).click()
 
   // Change return assumption → results move
   await page.getByTestId('return-input').fill('5')

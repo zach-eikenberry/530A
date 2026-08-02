@@ -321,9 +321,10 @@ export default function AdvancedModel() {
 
       {/* Persona tabs */}
       <div>
+        {/* biome-ignore lint/a11y/useSemanticElements: fieldset styling breaks the segmented control; role=group is valid ARIA */}
         <div
           class="segmented"
-          role="tablist"
+          role="group"
           aria-label="Who are you modeling as?"
           style="flex-wrap: wrap;"
         >
@@ -331,8 +332,7 @@ export default function AdvancedModel() {
             <button
               type="button"
               key={p}
-              role="tab"
-              aria-selected={persona === p}
+              aria-pressed={persona === p}
               onClick={() => setPersona(p)}
             >
               {PERSONA_COPY[p].title}
@@ -540,6 +540,9 @@ export default function AdvancedModel() {
                   </button>
                 ))}
               </div>
+              <p class="field-hint" data-testid="fund-name">
+                {FUNDS.find((f) => f.ticker === fundPick)?.name}
+              </p>
               {periodPick === 'custom' && (
                 <p class="field-hint">
                   Picking a fund applies its fee. To use its historical return too, choose a period
@@ -566,6 +569,11 @@ export default function AdvancedModel() {
                       key={p}
                       aria-pressed={periodPick === p}
                       disabled={value == null}
+                      title={
+                        value == null
+                          ? 'Unavailable — live market data has not loaded for this fund/period'
+                          : undefined
+                      }
                       data-testid={`period-${p}`}
                       onClick={() => setPeriodPick(p)}
                     >
@@ -681,9 +689,11 @@ export default function AdvancedModel() {
                   )
                 }
               >
-                <option value="low">Low ({VOL_PRESETS.low * 100}%)</option>
-                <option value="med">Medium ({VOL_PRESETS.med * 100}%)</option>
-                <option value="high">High ({VOL_PRESETS.high * 100}%)</option>
+                {/* "Calm/Typical/Wild" — not Low/Medium/High, which collided
+                    with the Low (10%) / High (90%) percentile stat labels */}
+                <option value="low">Calm markets ({VOL_PRESETS.low * 100}% volatility)</option>
+                <option value="med">Typical markets ({VOL_PRESETS.med * 100}% volatility)</option>
+                <option value="high">Wild markets ({VOL_PRESETS.high * 100}% volatility)</option>
               </select>
             </div>
             <div class="stack mt-2" style="--stack-gap: 8px;">
@@ -729,8 +739,9 @@ export default function AdvancedModel() {
           </div>
         </aside>
 
-        {/* ---------- Results column ---------- */}
-        <div class="stack" aria-live="polite" data-tour="results">
+        {/* ---------- Results column (aria-live scoped to the hero value so
+            every recalc doesn't re-announce the whole column) ---------- */}
+        <div class="stack" data-tour="results">
           {linkWarning && (
             <div class="callout callout-info" role="status">
               {linkWarning}
@@ -777,6 +788,7 @@ export default function AdvancedModel() {
                 class="result-hero"
                 data-testid="headline"
                 data-simulating={heroFromDet ? 'true' : undefined}
+                aria-live="polite"
               >
                 <div class="rh-label">
                   {heroFromDet
@@ -804,6 +816,9 @@ export default function AdvancedModel() {
               <div class="fan-wrap">
                 <FanChart mc={run.mc} real={real} showRange={editor.showRange} />
               </div>
+              <p class="field-hint" style="margin: 0;">
+                Prefer numbers to a chart? The milestone table below shows the same percentiles.
+              </p>
 
               <div class="mc-stats">
                 <div class="mc-stat low">
@@ -876,24 +891,30 @@ export default function AdvancedModel() {
                 <div class="card">
                   <h3>At 18, what next?</h3>
                   <div class="flex gap-3 wrap mt-2" style="align-items: center;">
-                    <label class="flex items-center" style="gap: 8px;">
-                      <input
-                        type="radio"
-                        name="at18"
-                        checked={editor.at18Path === 'stay-traditional'}
-                        onChange={() => set('at18Path', 'stay-traditional')}
-                      />
-                      Keep as Traditional IRA
-                    </label>
-                    <label class="flex items-center" style="gap: 8px;">
-                      <input
-                        type="radio"
-                        name="at18"
-                        checked={editor.at18Path === 'convert-roth'}
-                        onChange={() => set('at18Path', 'convert-roth')}
-                      />
-                      Convert to Roth at 18
-                    </label>
+                    <fieldset
+                      class="flex gap-3 wrap"
+                      style="border: 0; padding: 0; margin: 0; align-items: center;"
+                    >
+                      <legend class="sr-only">Path for the account at age 18</legend>
+                      <label class="flex items-center" style="gap: 8px;">
+                        <input
+                          type="radio"
+                          name="at18"
+                          checked={editor.at18Path === 'stay-traditional'}
+                          onChange={() => set('at18Path', 'stay-traditional')}
+                        />
+                        Keep as Traditional IRA
+                      </label>
+                      <label class="flex items-center" style="gap: 8px;">
+                        <input
+                          type="radio"
+                          name="at18"
+                          checked={editor.at18Path === 'convert-roth'}
+                          onChange={() => set('at18Path', 'convert-roth')}
+                        />
+                        Convert to Roth at 18
+                      </label>
+                    </fieldset>
                     <label class="flex items-center" style="gap: 8px;" for="adv-tax-rate">
                       Future tax rate %
                       <NumberField

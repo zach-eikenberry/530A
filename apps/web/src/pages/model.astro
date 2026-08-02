@@ -22,7 +22,7 @@ const description =
       a viewport of height so hydration never shifts visible layout (CLS);
       the island removes the skeleton on mount. */}
   <section class="section-tight"><div class="container" style="min-height: 100vh;">
-    <div id="model-skeleton" class="card" aria-hidden="true">
+    <div id="model-skeleton" class="card" role="status">
       <p class="muted" style="margin: 0;">Loading the model…</p>
     </div>
     <AdvancedModel client:only="preact" />

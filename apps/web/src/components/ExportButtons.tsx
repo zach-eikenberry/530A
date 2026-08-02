@@ -94,7 +94,11 @@ export default function ExportButtons({ state, projection, mc, shareUrl }: Props
         >
           {busy === 'xlsx' ? 'Building…' : 'Download Excel'}
         </button>
-        <span class="muted">Built on your device — nothing is uploaded.</span>
+        <span class="muted" role="status">
+          {busy !== null
+            ? `Building your ${busy === 'pdf' ? 'PDF' : 'Excel file'} on your device…`
+            : 'Built on your device — nothing is uploaded.'}
+        </span>
       </div>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem;" class="muted">
         <label>

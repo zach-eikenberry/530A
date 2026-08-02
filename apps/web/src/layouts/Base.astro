@@ -177,10 +177,14 @@ const current = (href: string) => (path === href ? 'page' : undefined)
             </a>
           ))}
           <div class="nav-actions">
-            <button type="button" class="theme-toggle" aria-label="Toggle theme"></button>
             <a class="btn btn-gold btn-sm" href="/open-account">Open an account</a>
           </div>
         </nav>
+        {/* Outside the collapsible nav so it stays reachable on mobile without
+            the hamburger; default icon renders before JS hydrates. */}
+        <button type="button" class="theme-toggle" aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
       </div>
     </header>
 
@@ -292,6 +296,13 @@ const current = (href: string) => (path === href ? 'page' : undefined)
         }
       }
       paint()
+      const closeNav = () => {
+        const links = document.getElementById('navLinks')
+        if (links?.classList.contains('open')) {
+          links.classList.remove('open')
+          document.querySelector('.nav-toggle')?.setAttribute('aria-expanded', 'false')
+        }
+      }
       document.addEventListener('click', (e) => {
         const target = e.target as Element
         if (target.closest('.theme-toggle')) {
@@ -307,8 +318,14 @@ const current = (href: string) => (path === href ? 'page' : undefined)
         if (nt && links) {
           const open = links.classList.toggle('open')
           nt.setAttribute('aria-expanded', open ? 'true' : 'false')
+          return
         }
-        if (target.closest('.nav-links a') && links) links.classList.remove('open')
+        if (target.closest('.nav-links a')) closeNav()
+        // Click/tap outside the header closes the open mobile nav
+        else if (!target.closest('.site-header')) closeNav()
+      })
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeNav()
       })
       for (const el of document.querySelectorAll('[data-year]')) {
         el.textContent = String(new Date().getFullYear())

@@ -16,8 +16,8 @@ interface Props {
 }
 
 const W = 640
-const H = 320
-const PAD = { top: 16, right: 16, bottom: 34, left: 68 }
+const H = 332
+const PAD = { top: 30, right: 16, bottom: 46, left: 68 }
 
 function niceCeil(v: number): number {
   if (v <= 0) return 1
@@ -115,7 +115,7 @@ export default function FanChart({ mc, real, showRange }: Props) {
         <text
           key={a}
           x={px(a)}
-          y={H - 10}
+          y={H - 26}
           text-anchor="middle"
           font-size="12"
           fill="var(--text-muted)"
@@ -125,19 +125,58 @@ export default function FanChart({ mc, real, showRange }: Props) {
       ))}
       <text
         x={(PAD.left + W - PAD.right) / 2}
-        y={H - 10}
+        y={H - 8}
         text-anchor="middle"
         font-size="12"
+        font-weight="600"
         fill="var(--text-muted)"
-        dy="-16"
-        style="display:none;"
       >
-        Age
+        Age (years)
       </text>
+      {/* Legend: what the line and each band mean */}
+      <g font-size="11" fill="var(--text-muted)">
+        <line
+          x1={PAD.left}
+          x2={PAD.left + 18}
+          y1={12}
+          y2={12}
+          stroke="var(--trust-blue)"
+          stroke-width="2.5"
+        />
+        <text x={PAD.left + 24} y={16}>
+          Median
+        </text>
+        {showRange && (
+          <>
+            <rect
+              x={PAD.left + 88}
+              y={6}
+              width={18}
+              height={12}
+              fill="var(--trust-blue)"
+              opacity="0.34"
+            />
+            <text x={PAD.left + 112} y={16}>
+              Middle 50% of simulations
+            </text>
+            <rect
+              x={PAD.left + 268}
+              y={6}
+              width={18}
+              height={12}
+              fill="var(--trust-blue)"
+              opacity="0.14"
+            />
+            <text x={PAD.left + 292} y={16}>
+              Middle 80%
+            </text>
+          </>
+        )}
+      </g>
       {showRange && (
         <>
-          <path d={band(p90, p10)} fill="var(--trust-blue)" opacity="0.12" />
-          <path d={band(p75, p25)} fill="var(--trust-blue)" opacity="0.22" />
+          <path d={band(p90, p10)} fill="var(--trust-blue)" opacity="0.14" />
+          <path d={band(p75, p25)} fill="var(--trust-blue)" opacity="0.34" />
         </>
       )}
       <path d={line(p50)} fill="none" stroke="var(--trust-blue)" stroke-width="2.5" />
