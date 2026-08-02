@@ -25,6 +25,14 @@ export const API_ORIGIN = 'https://api.530amodel.com'
 /** Same-site aliases: the site is served on both the apex and Pages domains. */
 const SITE_ORIGINS = ['https://530amodel.com', 'https://530a-model.pages.dev']
 
+/**
+ * Cloudflare Web Analytics: the beacon script loads from static.cloudflareinsights.com
+ * and POSTs RUM data to cloudflareinsights.com. Only allowed when the build actually
+ * embeds the beacon (PUBLIC_CF_BEACON_TOKEN set — same gating as Base.astro).
+ */
+export const BEACON_SCRIPT_ORIGIN = 'https://static.cloudflareinsights.com'
+export const BEACON_RUM_ORIGIN = 'https://cloudflareinsights.com'
+
 const EXECUTABLE_TYPES = new Set(['module', 'text/javascript', 'application/javascript'])
 
 /** Inline executable <script> bodies (JSON-LD and other data blocks excluded). */
@@ -69,8 +77,12 @@ export function originOf(value) {
   }
 }
 
-export function buildCsp({ scriptHashes, connectOrigins }) {
-  const scriptSrc = ["'self'", ...[...scriptHashes].sort()].join(' ')
+export function buildCsp({ scriptHashes, scriptOrigins = [], connectOrigins }) {
+  const scriptSrc = [
+    "'self'",
+    ...[...new Set(scriptOrigins)].filter(Boolean).sort(),
+    ...[...scriptHashes].sort(),
+  ].join(' ')
   const connectSrc = ["'self'", ...[...new Set(connectOrigins)].filter(Boolean).sort()].join(' ')
   return [
     "default-src 'self'",
@@ -128,14 +140,17 @@ function main() {
     throw new Error(`${problems.length} inline pattern(s) a hash-based CSP cannot cover`)
   }
 
+  const beaconEnabled = Boolean(process.env.PUBLIC_CF_BEACON_TOKEN)
   const csp = buildCsp({
     scriptHashes: hashes,
+    scriptOrigins: beaconEnabled ? [BEACON_SCRIPT_ORIGIN] : [],
     connectOrigins: [
       ...SITE_ORIGINS,
       NEWSFEED_ORIGIN,
       API_ORIGIN,
       originOf(process.env.PUBLIC_EVENTS_ENDPOINT),
       originOf(process.env.PUBLIC_SENTRY_DSN),
+      ...(beaconEnabled ? [BEACON_SCRIPT_ORIGIN, BEACON_RUM_ORIGIN] : []),
     ],
   })
 

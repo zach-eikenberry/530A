@@ -1,5 +1,5 @@
 ---
-import { CANONICAL_LINKS, FUNDS, RULES_VERIFIED_AT } from '@530a/config'
+import { CANONICAL_LINKS, EXPENSE_RATIOS_AS_OF, FUNDS } from '@530a/config'
 import Base from '../layouts/Base.astro'
 import { articleLd } from '../lib/seo'
 
@@ -50,12 +50,12 @@ const resourcesLd = articleLd({ headline: title, description, path: '/resources'
   <div class="mt-4">
     <h2>Eligible funds</h2>
     <p>
-      The statute requires a low-cost S&amp;P 500 index fund with capped fees. The default fund
-      this calculator models:
+      The statute requires low-cost index funds tracking primarily U.S. companies, with capped
+      fees. The funds this calculator models:
     </p>
     <div class="table-wrap"><table class="compare">
       <thead>
-        <tr><th>Ticker</th><th>Fund</th><th>Expense ratio</th></tr>
+        <tr><th>Ticker</th><th>Fund</th><th>Expense ratio</th><th>Issuer</th></tr>
       </thead>
       <tbody>
         {FUNDS.map((f) => (
@@ -63,10 +63,15 @@ const resourcesLd = articleLd({ headline: title, description, path: '/resources'
             <td><a href={f.trackerUrl}>{f.ticker}</a>{f.isDefault ? ' (default)' : ''}</td>
             <td>{f.name}</td>
             <td>{(f.expenseRatio * 100).toFixed(2)}%</td>
+            <td><a href={f.issuerUrl} rel="noopener">{new URL(f.issuerUrl).hostname.replace('www.', '')}</a></td>
           </tr>
         ))}
       </tbody>
     </table></div>
+    <p class="muted" style="font-size: 0.85rem;">
+      Expense ratios as of <time datetime={EXPENSE_RATIOS_AS_OF}>{EXPENSE_RATIOS_AS_OF}</time> —
+      confirm current figures in each issuer's prospectus before investing.
+    </p>
   </div>
     </div>
   </section>

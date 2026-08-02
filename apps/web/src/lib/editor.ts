@@ -213,6 +213,6 @@ export const PERSONA_COPY: Record<Persona, { title: string; blurb: string }> = {
   advisor: {
     title: 'For financial advisors',
     blurb:
-      'Full control of assumptions for client work. Every figure is deterministic and reproducible from the share link; ranges are seeded Monte-Carlo percentiles, not vibes. Client-ready PDF/Excel exports are coming next.',
+      'Full control of assumptions for client work. Every figure is deterministic and reproducible from the share link; ranges are seeded Monte-Carlo percentiles, not vibes. Client-ready PDF and Excel exports are built in.',
   },
 }

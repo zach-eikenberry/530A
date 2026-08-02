@@ -20,7 +20,7 @@ import {
 export const faqs = [
   {
     q: 'What is a 530A account?',
-    a: 'A tax-advantaged custodial investment account for minors created by the One Big Beautiful Bill Act of 2025 (IRC §530A), marketed as a "Trump Account." Money is invested in a low-cost S&P 500 index fund and grows tax-deferred until withdrawal.',
+    a: 'A tax-advantaged custodial investment account for minors created by the One Big Beautiful Bill Act of 2025 (IRC §530A), marketed as a "Trump Account." Money is invested in low-cost index funds tracking primarily U.S. companies and grows tax-deferred until withdrawal.',
   },
   {
     q: 'Who gets the $1,000 federal seed?',
@@ -28,7 +28,7 @@ export const faqs = [
   },
   {
     q: 'How much can be contributed each year?',
-    a: 'Up to $5,000 per child per year from all sources combined, indexed to inflation after 2027. Employers may contribute up to $2,500 per year, counted within the $5,000 cap. Contributions are allowed starting July 4, 2026.',
+    a: 'Up to $5,000 per child per year from all sources combined, expected to be indexed to inflation after 2027 (exact mechanics pending IRS guidance). Employers may contribute up to $2,500 per year, counted within the $5,000 cap. Contributions have been allowed since July 4, 2026.',
   },
   {
     q: 'How is a 530A taxed?',

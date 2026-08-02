@@ -69,7 +69,13 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Build with the same env vars as the deploy job so Lighthouse measures
+      # the artifact that actually ships (Sentry, beacon, events endpoint).
       - run: pnpm --filter @530a/web build
+        env:
+          PUBLIC_SENTRY_DSN: ${{ vars.PUBLIC_SENTRY_DSN }}
+          PUBLIC_CF_BEACON_TOKEN: ${{ vars.PUBLIC_CF_BEACON_TOKEN }}
+          PUBLIC_EVENTS_ENDPOINT: ${{ vars.PUBLIC_EVENTS_ENDPOINT }}
       - name: Run Lighthouse CI (desktop)
         run: pnpm dlx @lhci/cli@0.15.x autorun --config=lighthouserc.json
       - name: Run Lighthouse CI (mobile)

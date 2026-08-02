@@ -7,6 +7,10 @@ const title = '530A vs 529 vs Custodial vs Roth IRA — which is best for your c
 const description =
   'Side-by-side comparison of the four common ways to invest for a child: 530A “Trump Accounts,” 529 plans, UTMA/UGMA custodial accounts, and custodial Roth IRAs.'
 
+// This page compares four account types; only the 530A column tracks RULES_VERIFIED_AT,
+// so it carries its own review date instead.
+const LAST_REVIEWED = '2026-08-01'
+
 const compareLd = articleLd({ headline: title, description, path: '/compare' })
 
 // The four accounts compared, as an addressable list for answer engines.
@@ -54,6 +58,7 @@ const accountListLd = {
   path="/compare"
   jsonLd={[compareLd, accountListLd]}
   ogType="article"
+  modifiedTime={LAST_REVIEWED}
 >
   <section class="section-tight" style="background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff;">
     <div class="container">
@@ -85,13 +90,21 @@ const accountListLd = {
             <tr><th>Annual contribution cap</th><td class="col-featured">$5,000 combined</td><td>Very high (gift-tax limits)</td><td>No cap (gift-tax limits)</td><td>Up to earned income / IRA limit</td></tr>
             <tr><th>Requires child to have earned income</th><td class="col-featured"><span class="no">No</span></td><td class="no">No</td><td class="no">No</td><td><span class="yes">Yes</span></td></tr>
             <tr><th>Investment menu</th><td class="col-featured">Low-fee U.S. index funds</td><td>Plan's fund menu</td><td>Almost anything</td><td>Almost anything</td></tr>
-            <tr><th>Tax on growth</th><td class="col-featured">Deferred</td><td>Deferred</td><td>Taxed yearly (kiddie tax)</td><td>Deferred</td></tr>
+            <tr><th>Tax on growth</th><td class="col-featured">Deferred</td><td>Deferred</td><td>Taxed yearly (kiddie tax)</td><td class="yes">Tax-free</td></tr>
             <tr><th>Tax-free withdrawals</th><td class="col-featured">Only your basis</td><td class="yes">Yes, for education</td><td class="no">No</td><td class="yes">Yes, in retirement</td></tr>
             <tr><th>Who controls it</th><td class="col-featured">Child at 18</td><td>Owner keeps control</td><td>Child at 18–21</td><td>Child at 18–21</td></tr>
             <tr><th>Early-withdrawal flexibility</th><td class="col-featured">Locked until 18, then IRA rules</td><td>Non-qualified = tax + penalty</td><td><span class="yes">Fully flexible</span></td><td>Contributions out anytime</td></tr>
           </tbody>
         </table>
       </div>
+
+      <p class="mt-2" style="font-size: 0.85rem; color: var(--ink-soft);">
+        Last reviewed <time datetime={LAST_REVIEWED}>August 1, 2026</time>. 530A details follow
+        our <a href="/resources">primary sources</a>; for the other columns see the IRS on
+        <a href="https://www.irs.gov/taxtopics/tc313" rel="noopener">529 plans (Topic 313)</a>,
+        <a href="https://www.irs.gov/retirement-plans/roth-iras" rel="noopener">Roth IRAs</a>, and
+        the <a href="https://www.irs.gov/taxtopics/tc553" rel="noopener">kiddie tax (Topic 553)</a>.
+      </p>
 
       <div class="grid grid-2 mt-4" style="gap: 24px;">
         <div class="card">
@@ -105,7 +118,8 @@ const accountListLd = {
             </p>
             <p>
               It pairs well with a 529: use the 530A for the long horizon and the 529 for college,
-              capturing the strengths of both.
+              capturing the strengths of both. For a deeper head-to-head on that pairing, see
+              <a href="/530a-vs-529">530A vs 529</a>.
             </p>
           </div>
         </div>

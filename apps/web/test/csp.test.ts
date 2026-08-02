@@ -82,10 +82,21 @@ describe('buildCsp', () => {
     }
   })
 
-  it('never allows unsafe-inline scripts or remote script hosts', () => {
+  it('never allows unsafe-inline scripts or remote script hosts by default', () => {
     const scriptSrc = csp.split('; ').find((d: string) => d.startsWith('script-src '))
     expect(scriptSrc).not.toContain('unsafe-inline')
     expect(scriptSrc).not.toMatch(/https?:/)
+  })
+
+  it('allows only the passed script origins, sorted before hashes', () => {
+    const withBeacon: string = buildCsp({
+      scriptHashes: new Set(["'sha256-aaa='"]),
+      scriptOrigins: ['https://static.cloudflareinsights.com', null],
+      connectOrigins: [],
+    })
+    expect(withBeacon).toContain(
+      "script-src 'self' https://static.cloudflareinsights.com 'sha256-aaa='",
+    )
   })
 })
 
